@@ -1,9 +1,10 @@
 import pygame
 import pygwidgets
+import os
 
 class Card():
     
-    BACK_OF_CARD = pygame.image.load('..images/card_back_alt.png')
+    BACK_OF_CARD = pygame.image.load('./images/card_back_alt.png')
     
     def __init__(self, window, color, value, file_name=None):
         self.window = window

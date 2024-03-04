@@ -2,7 +2,12 @@ import unittest
 from unittest.mock import Mock
 import pygame
 import pygwidgets
-from ..model import Card 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from model.card import Card
+
+
 
 class TestCard(unittest.TestCase):
 
