@@ -44,6 +44,11 @@ class Card():
         # renders card
         self.images.draw()
         
+class Skip(Card):
+        
+    def skip(self):
+        pass
+        
 
 class DrawTwoCard(Card):
         
