@@ -56,6 +56,20 @@ class WildChanger(Card):
         self.value = None
         self.color = color
         
+
+class WildPickFour(WildChanger):
+    
+    WILD_PICK_FOUR = pygame.image.load('./images/black_pickfour.png')
+    
+    def __init__(self, window, color, value) -> None:
+        super().__init__(window, color, value)
+        self.images = pygwidgets.ImageCollection(window, (0,0), 
+                                                 {'front': WildPickFour.WILD_PICK_FOUR, 
+                                                  'back': Card.BACK_OF_CARD}, 'back')
+    
+    def draw_four(self):
+        pass    
+        
 class Skip(Card):
         
     def skip(self):
