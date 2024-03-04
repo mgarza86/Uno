@@ -44,6 +44,12 @@ class Card():
         # renders card
         self.images.draw()
         
+
+class DrawTwoCard(Card):
+        
+    def draw_two(self):
+        pass
+        
 class Reverse(Card):
         
     def reverse(self):
