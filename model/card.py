@@ -43,3 +43,9 @@ class Card():
     def draw(self):
         # renders card
         self.images.draw()
+        
+
+class DrawTwoCard(Card):
+        
+    def draw_two(self):
+        pass
