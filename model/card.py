@@ -49,3 +49,9 @@ class DrawTwoCard(Card):
         
     def draw_two(self):
         pass
+        
+class Reverse(Card):
+        
+    def reverse(self):
+        # function pending game class receation
+        pass
