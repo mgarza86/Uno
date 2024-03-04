@@ -43,3 +43,8 @@ class Card():
     def draw(self):
         # renders card
         self.images.draw()
+        
+class Skip(Card):
+        
+    def skip(self):
+        pass
