@@ -55,3 +55,20 @@ class WildChanger(Card):
     def pick_color(self, color):
         self.value = None
         self.color = color
+        
+class Skip(Card):
+        
+    def skip(self):
+        pass
+        
+
+class DrawTwoCard(Card):
+        
+    def draw_two(self):
+        pass
+        
+class Reverse(Card):
+        
+    def reverse(self):
+        # function pending game class receation
+        pass
