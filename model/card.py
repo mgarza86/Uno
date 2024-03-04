@@ -43,3 +43,9 @@ class Card():
     def draw(self):
         # renders card
         self.images.draw()
+        
+class Reverse(Card):
+        
+    def reverse(self):
+        # function pending game class receation
+        pass
