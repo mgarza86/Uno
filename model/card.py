@@ -43,3 +43,15 @@ class Card():
     def draw(self):
         # renders card
         self.images.draw()
+        
+class WildChanger(Card):
+    
+    WILD_CARD = pygame.image.load('./images/black_wild.png')
+    
+    def __init__(self, window, color, value) -> None:
+        super().__init__(window, color, value)
+        self.images = pygwidgets.ImageCollection(window, (0,0), {'front': WildChanger.WILD_CARD, 'back': Card.BACK_OF_CARD}, 'back')
+        
+    def pick_color(self, color):
+        self.value = None
+        self.color = color
