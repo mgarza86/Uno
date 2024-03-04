@@ -13,7 +13,7 @@ class Card():
         self.card_name = color + '_' + value
         
         if file_name is None:
-            file_name + '..images/' + self.card_name + '.png'
+            file_name = './images/' + self.card_name + '.png'
             
         self.images = pygwidgets.ImageCollection(window, (0,0), 
                                                  {'front': file_name,
