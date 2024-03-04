@@ -69,3 +69,20 @@ class WildPickFour(WildChanger):
     
     def draw_four(self):
         pass    
+        
+class Skip(Card):
+        
+    def skip(self):
+        pass
+        
+
+class DrawTwoCard(Card):
+        
+    def draw_two(self):
+        pass
+        
+class Reverse(Card):
+        
+    def reverse(self):
+        # function pending game class receation
+        pass
