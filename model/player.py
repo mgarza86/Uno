@@ -31,3 +31,11 @@ class Player():
                 return True
             
             return False
+        
+class AIPlayer(Player):
+    
+    def say_uno(self):
+        pass
+    
+    def choose_card(self, hand):
+        pass
