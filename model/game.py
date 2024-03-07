@@ -9,24 +9,18 @@ class Game():
         self.current_direction = 1
         self.current_color = ""
         self.current_value = ""
-        
-    
+        self.current_player_index = 0
                 
     def initialize_players(self, number_of_cards=7):
         for o_player in self.players_list:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
         
-    
     def check_direction(self):
-        return self.change_direction
+        return self.current_direction
     
     def change_direction(self):
-        if self.current_direction == 1:
-            self.current_direction = -1
-        else:
-            self.current_direction = 1
-        
+        self.check_direction *= 1
     
     def check_game_end(self, player):
         if len(player.hand) == 0:
@@ -34,8 +28,15 @@ class Game():
         else:
             return False
     
-    def determine_next_player():
-        pass
+    def determine_next_player(self):
+        self.current_player_index += self.current_direction
+        if  self.current_direction == 1 and self.player_list[self.current_player_index] >= len(self.list_of_players):
+            self.current_player_index = 0
+            return self.current_player_index
+        elif self.current_direction == -1 and self.players_list[self.current_player_index] < 0:
+            self.current_player_index = len(self.players_list) - 1
+            return self. current_player_index
+        return self.current_player_index
     
     def play_card(self,player,card):
         self.discard_pile.append(player.play_card(card))
@@ -46,13 +47,10 @@ class Game():
         return discard_pile[0]
     
     def set_current_color(self,color):
-        pass
+        self.current_color = color
     
     def get_player(self, index):
         return self.players_list[index]
-    
-    def get_player_hand(self):
-        return 
     
     def start_game():
         pass
