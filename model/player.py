@@ -11,7 +11,7 @@ class Player():
         self.hand = []
         
     def draw_card(self, game_deck):
-        self.hand.append(game_deck.pop())
+        self.hand.append(game_deck.get_card())
      
     def play_card(self, card):
         for cards in self.hand:
