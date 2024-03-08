@@ -7,16 +7,15 @@ from model.card import Card
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.mock_window = Mock()  # Mocking the window for Card and Deck initialization
-        self.deck = Deck(window=None)  # Initialize a Deck with mocked window
-        self.deck.shuffle()  # Shuffle the deck to simulate a start-of-game condition
-        self.players = [Player(f"Player {i}") for i in range(4)]  # Create player instances
-        self.game = Game(self.players, self.deck.starting_deck)  # Initialize Game with Players and Deck
+        self.deck = Deck(window=None) 
+        self.deck.shuffle()  
+        self.players = [Player(f"Player {i}") for i in range(4)] 
+        self.game = Game(self.players, self.deck)  # Initialize Game with Players and Deck
 
     def test_game_initialization(self):
         """Test that the game initializes correctly with the given players and deck."""
         self.assertEqual(len(self.game.players_list), 4)
-        self.assertIsInstance(self.game.draw_pile[0], Card)
+        self.assertIsInstance(self.game.draw_pile.get_card(), Card)
 
     def test_initialize_players(self):
         """Test that each player starts with the correct number of cards."""

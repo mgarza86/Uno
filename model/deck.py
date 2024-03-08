@@ -8,7 +8,7 @@ class Deck():
                      '6':6,'7':7,'8':8,'9':9,'skip':'skip',
                      'reverse':'reverse','picker':'picker'}
     
-    def __init__(self, window, card_dict = STANDARD_DICT):
+    def __init__(self, window=None, card_dict = STANDARD_DICT):
         self.starting_deck = []
         
         for color in Deck.COLOR_TUPLE:

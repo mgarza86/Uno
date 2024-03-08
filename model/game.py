@@ -30,10 +30,10 @@ class Game():
     
     def determine_next_player(self):
         self.current_player_index += self.current_direction
-        if  self.current_direction == 1 and self.player_list[self.current_player_index] >= len(self.list_of_players):
+        if  self.current_direction == 1 and self.current_player_index >= len(self.players_list):
             self.current_player_index = 0
             return self.current_player_index
-        elif self.current_direction == -1 and self.players_list[self.current_player_index] < 0:
+        elif self.current_direction == -1 and self.current_player_index < 0:
             self.current_player_index = len(self.players_list) - 1
             return self. current_player_index
         return self.current_player_index
