@@ -8,7 +8,7 @@ class Deck():
                      '6':6,'7':7,'8':8,'9':9,'skip':'skip',
                      'reverse':'reverse','picker':'picker'}
     
-    def __init__(self, window, card_dict = STANDARD_DICT):
+    def __init__(self, window=None, card_dict = STANDARD_DICT):
         self.starting_deck = []
         
         for color in Deck.COLOR_TUPLE:
@@ -48,4 +48,10 @@ class Deck():
         return self.starting_deck.pop()
     
     def return_card_to_deck(self, o_card):
-        self.starting_deck.append(o_card)
+        self.starting_deck.append(o_card)  
+        
+    def print_deck(self):
+        print(len(self.starting_deck), ' cards in the deck')
+        for o_card in self.starting_deck:
+            print('Name: ', o_card.get_name(), '  Value:', o_card.get_value())
+        

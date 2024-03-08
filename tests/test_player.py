@@ -9,6 +9,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model.card import Card
 from model.player import Player
+from model.game import Game
 
 class TestPlayer(unittest.TestCase):
     def setUp(self):
@@ -29,16 +30,27 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(len(self.player.hand), 0)
 
     def test_draw_card(self):
+        ''' Test that player can draw a card, resulting in an increase in hand size by one and a decrease in deck size by one '''
         player = Player("Test Player")
-        game_deck = [Card(window=None, color='green', value='7')]  
-        player.draw_card(game_deck)  
-        drawn_card = player.hand[0]  
-        self.assertEqual(drawn_card.get_color(), 'green')
-        self.assertEqual(drawn_card.get_value(), '7')
-        self.assertEqual(len(game_deck), 0)  
+        game_deck = Deck()
+        session = Game(player,game_deck)
+        
+        # Capture the initial lengths of player's hand and the game deck
+        initial_hand_length = len(player.hand)
+        initial_deck_length = len(session.draw_pile.starting_deck)
 
+        player.draw_card(session.draw_pile) 
+
+        # Capture the new lengths of player's hand and the game deck
+        new_hand_length = len(player.hand)
+        new_deck_length = len(session.draw_pile.starting_deck)
+     
+        self.assertEqual(new_hand_length, initial_hand_length + 1, "Hand length did not increase by one after drawing a card.")
+        
+        self.assertEqual(new_deck_length, initial_deck_length - 1, "Deck length did not decrease by one after drawing a card.")
 
     def test_play_card(self):
+        '''Test that the a card is removed from the hand to the discard pile when played'''
         self.player.hand.append(self.card_mock)
         played_card = self.player.play_card(self.card_mock)
         self.assertEqual(played_card.get_name(), self.card_mock.get_name())
