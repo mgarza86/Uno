@@ -10,7 +10,6 @@ class Player():
         self.window = window
         self.name = name
         self.hand = []
-        self.position_index
         
     def draw_card(self, game_deck):
         self.hand.append(game_deck.get_card())

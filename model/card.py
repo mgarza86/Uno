@@ -44,11 +44,12 @@ class Card():
         # renders card
         self.images.draw()
     
-    def flip_vertical(self):
-        self.images.flipVertical()    
-        
-    def flip_horizontal(self):
-        self.images.flipHorizontal()
+    def rotate_card(self, angle):
+        self.images.rotate(angle)
+    
+    def scale_card(self, scale):
+        self.images.scale(scale)
+    
 class WildChanger(Card):
     
     WILD_CARD = pygame.image.load('./images/black_wild.png')

@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 game_loop.py
 mock_manager.py
+test.py

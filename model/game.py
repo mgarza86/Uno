@@ -22,9 +22,10 @@ class Game():
         return self.current_direction
     
     def orientate_player(self):
-        for i, card in enumerate(self.players_list[i].hand):
-            if self.players_list[i] == 1:
-                card.flip_vertical()
+        for i in range(len(self.players_list)):
+            if i == 1:
+                for card in self.players_list[i].hand:
+                    card.flip_vertical()
                 
     def draw(self):
         for i in range(len(self.players_list)):
