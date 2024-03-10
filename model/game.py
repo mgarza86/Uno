@@ -1,8 +1,8 @@
 
 
 class Game():
-    def __init__(self,  players, deck, window=None,) -> None:
-        #self.window = window
+    def __init__(self,window,  players, deck) -> None:
+        self.window = window
         self.players_list = players
         self.discard_pile= []
         self.draw_pile = deck
@@ -10,6 +10,8 @@ class Game():
         self.current_color = ""
         self.current_value = ""
         self.current_player_index = 0
+        self.orientate_player()
+        
                 
     def initialize_players(self, number_of_cards=7):
         for o_player in self.players_list:
@@ -19,8 +21,18 @@ class Game():
     def check_direction(self):
         return self.current_direction
     
+    def orientate_player(self):
+        for i, card in enumerate(self.players_list[i].hand):
+            if self.players_list[i] == 1:
+                card.flip_vertical()
+                
+    def draw(self):
+        for i in range(len(self.players_list)):
+            self.players_list[i].draw()            
+        
+        
     def change_direction(self):
-        self.check_direction *= 1
+        self.check_direction *= -1
     
     def check_game_end(self, player):
         if len(player.hand) == 0:

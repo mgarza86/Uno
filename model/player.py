@@ -6,9 +6,11 @@ from model.deck import Deck
 #from model.game import Game
 
 class Player():
-    def __init__(self, name) -> None:
+    def __init__(self, window ,name) -> None:
+        self.window = window
         self.name = name
         self.hand = []
+        self.position_index
         
     def draw_card(self, game_deck):
         self.hand.append(game_deck.get_card())
@@ -24,6 +26,9 @@ class Player():
     def get_player_name(self):
         return self.name
     
+    def get_index(self):
+        return self.position_index
+    
     def check_playable_card(self, card, discard_pile_card):
             if card.get_color() == discard_pile_card.get_color():
                 return True
@@ -32,6 +37,14 @@ class Player():
             
             return False
         
+    def draw(self):
+        for i in range(len(self.hand)):
+            self.hand[i].set_location((100 + i * 100, 400))
+            self.hand[i].reveal()
+            self.hand[i].draw()
+       
+            
+        
 class AIPlayer(Player):
     
     def say_uno(self):
@@ -39,3 +52,6 @@ class AIPlayer(Player):
     
     def choose_card(self, hand):
         pass
+    
+    
+ 
