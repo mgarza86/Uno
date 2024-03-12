@@ -93,8 +93,8 @@ class AIPlayer(Player):
     def say_uno(self):
         pass
     
-    def play_card(self, last_card_played):
-        pass
+    # def play_card(self, card):
+    #     pass
     
     
  

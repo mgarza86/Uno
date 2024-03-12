@@ -46,26 +46,31 @@ class GameBoard(pyghelpers.Scene):
                     print(card.get_name())
                     self.game.play_card(player,card)
                     self.current_index = self.game.determine_next_player()
-                    
                     break
     
     def computer_move(self, player, event):
         if self.game.check_hand(player):
-            pass
+            matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.discard_pile[0])
+            self.game.play_card(player, matching_cards[0])
+            self.current_index = self.game.determine_next_player()
         else:
             self.current_index = self.game.determine_next_player()
     
     def find_matching_cards(self, hand, last_card_played):
-        color_matches = 0
+        color_matches = {'red':0,'blue':0,'yellow':0,'green':0}
         value_matches = 0 
         matching_cards= []
         
         for card in hand:
-            if card.get_color == last_card_played:
-                color_matches += 1
+            if card.get_color() == last_card_played.get_color():
+                color_matches[card.get_color()] += 1
                 matching_cards.append(card)
-            elif card.get_value == last_card_played:
+            elif card.get_value() == last_card_played.get_value():
                 value_matches += 1
+                if card not in matching_cards:
+                    matching_cards.append(card)
+                    
+        return matching_cards, color_matches, value_matches
                 
         
         pass    
