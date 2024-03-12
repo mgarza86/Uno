@@ -19,6 +19,9 @@ class Game():
         for o_player in self.players_list:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
+    
+    #def my_turn(self, current_player):
+        
         
     def check_direction(self):
         return self.current_direction
