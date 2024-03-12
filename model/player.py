@@ -31,12 +31,17 @@ class Player():
         return self.position_index
     
     def check_playable_card(self, card, discard_pile_card):
-            if card.get_color() == discard_pile_card.get_color():
-                return True
-            elif card.get_value() == discard_pile_card.get_value():
-                return True
-            
-            return False
+        if len(discard_pile_card) == 0:
+            print("No cards in play, all cards valid")
+            return True
+        elif card.get_color() == discard_pile_card.get_color():
+            print("color match, card is playable")
+            return True
+        elif card.get_value() == discard_pile_card.get_value():
+            print("value match, card is playable")
+            return True
+        print("card not playable")
+        return False
     
     def set_rotation(self, angle):
         self.angle = angle
@@ -75,8 +80,7 @@ class Player():
         image_width, image_height = card.get_size()
         if self.angle == 0:
             return (0, window_height - image_height)
-        elif self.angle == 90:
-            
+        elif self.angle == 90:    
             return (window_width - image_width, window_height - image_height)
         elif self.angle == 180:
             return (0,0)

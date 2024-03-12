@@ -28,12 +28,18 @@ class GameBoard(pyghelpers.Scene):
     def enter(self):
         self.game.initialize_players(7)
 
+    #def update(self):
+    #    pass
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
             for i in range(len(self.player_one.hand)):
                 if self.player_one.hand[i].handle_event(event):
-                    print(self.player_one.hand[i].get_name())
+                    if self.player_one.check_playable_card(self.player_one.hand[i],self.discard_pile):
+                        print(self.player_one.hand[i].get_name())
+                        self.game.play_card(self.player_one,self.player_one.hand[i])
+                        i=0
+                    
     
     ''' all the components you want to draw are in the draw function'''
     def draw(self):
