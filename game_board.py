@@ -12,10 +12,12 @@ class GameBoard(pyghelpers.Scene):
         self.back_ground_color = (161, 59, 113)
         #self.draw_deck = game.draw_pile
         self.game = game
+        self.enter()
+        
         
     
     def enter(self):
-        self.game.initialize_players()
+        self.game.initialize_players(7)
 
             
     def handleInputs(self, event_list, key_pressed_list):
@@ -26,7 +28,7 @@ class GameBoard(pyghelpers.Scene):
     def draw(self):
     
         self.window.fill(self.back_ground_color)
-        self.game.players_list[0].draw()
+        self.game.draw()
         
         
             

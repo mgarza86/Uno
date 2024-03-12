@@ -55,6 +55,12 @@ class Card():
     def get_size(self):
         return self.images.getSize()
     
+    def handle_event(self, event):
+        if self.images.handleEvent(event):
+            return True
+        else:
+            return False
+        
     
 class WildChanger(Card):
     

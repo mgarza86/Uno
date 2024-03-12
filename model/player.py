@@ -66,7 +66,7 @@ class Player():
         self.location = (0,0)        
     
     def next_card_location(self, card):
-        width,height = card.get_size()
+        width, height = card.get_size()
         card_rect = card.get_rect()
         return (card_rect.x+width,card_rect.y)   
             
