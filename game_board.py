@@ -20,7 +20,6 @@ class GameBoard(pyghelpers.Scene):
         self.player_one = self.player[0]
         #self.player_two = self.player[1]
         
-        
         self.enter()
         
         
@@ -38,7 +37,7 @@ class GameBoard(pyghelpers.Scene):
                     if self.player_one.check_playable_card(self.player_one.hand[i],self.discard_pile):
                         print(self.player_one.hand[i].get_name())
                         self.game.play_card(self.player_one,self.player_one.hand[i])
-                        i=0
+                        
                     
     
     ''' all the components you want to draw are in the draw function'''
