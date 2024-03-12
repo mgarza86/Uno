@@ -30,14 +30,14 @@ class Player():
     def get_index(self):
         return self.position_index
     
-    def check_playable_card(self, card, discard_pile_card):
-        if len(discard_pile_card) == 0:
+    def check_playable_card(self, card, discard_pile):
+        if len(discard_pile) == 0:
             #print("No cards in play, all cards valid")
             return True
-        elif card.get_color() == discard_pile_card[0].get_color():
+        elif card.get_color() == discard_pile[0].get_color():
             #print("color match, card is playable")
             return True
-        elif card.get_value() == discard_pile_card[0].get_value():
+        elif card.get_value() == discard_pile[0].get_value():
             #print("value match, card is playable")
             return True
         #print("card not playable")
@@ -93,7 +93,7 @@ class AIPlayer(Player):
     def say_uno(self):
         pass
     
-    def play_card(self, hand):
+    def play_card(self, last_card_played):
         pass
     
     

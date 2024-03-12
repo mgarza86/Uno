@@ -54,7 +54,21 @@ class GameBoard(pyghelpers.Scene):
             pass
         else:
             self.current_index = self.game.determine_next_player()
+    
+    def find_matching_cards(self, hand, last_card_played):
+        color_matches = 0
+        value_matches = 0 
+        matching_cards= []
         
+        for card in hand:
+            if card.get_color == last_card_played:
+                color_matches += 1
+                matching_cards.append(card)
+            elif card.get_value == last_card_played:
+                value_matches += 1
+                
+        
+        pass    
     
     def draw(self):
     
