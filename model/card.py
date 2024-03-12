@@ -40,6 +40,9 @@ class Card():
     def set_location(self, location):
         self.images.setLoc(location)
     
+    def set_centered_location(self, location):
+        self.images.setCenteredLoc(location)
+    
     def draw(self):
         self.images.draw()
     

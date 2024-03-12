@@ -32,11 +32,12 @@ class GameBoard(pyghelpers.Scene):
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
-            for i in range(len(self.player_one.hand)):
-                if self.player_one.hand[i].handle_event(event):
-                    if self.player_one.check_playable_card(self.player_one.hand[i],self.discard_pile):
-                        print(self.player_one.hand[i].get_name())
-                        self.game.play_card(self.player_one,self.player_one.hand[i])
+            for card in self.player_one.hand[:]:
+                if card.handle_event(event):
+                    if self.player_one.check_playable_card(card, self.discard_pile):
+                        print(card.get_name())
+                        self.game.play_card(self.player_one,card)
+                        break
                         
                     
     

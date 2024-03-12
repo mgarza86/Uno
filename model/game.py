@@ -10,6 +10,8 @@ class Game():
         self.current_color = ""
         self.current_value = ""
         self.current_player_index = 0
+        self.window_width, self.window_height = self.window.get_size()
+
         self.orientate_player()
         
                 
@@ -21,6 +23,13 @@ class Game():
     def check_direction(self):
         return self.current_direction
     
+    def check_hand(self, player):
+        for i in range(player.hand):
+            if player.check_playable_card(player.hand[i], self.discard_pile[0]):
+                return True
+            
+        return False
+    
     def orientate_player(self):
         for i in range(len(self.players_list)):
             if i == 1:
@@ -28,10 +37,17 @@ class Game():
                     card.flip_vertical()
                 
     def draw(self):
+        if len(self.discard_pile) != 0:
+            self.discard_pile[0].set_centered_location((self.window_width/2,self.window_height/2))
+            self.discard_pile[0].draw()
+        
         for i in range(len(self.players_list)):
             self.players_list[i].draw()            
         
-        
+    def discard(self, discard_pile, new_card):
+        discard_pile.insert(0,new_card)
+        #discard_pile = discard_pile[1:] + discard_pile[:1]
+
     def change_direction(self):
         self.check_direction *= -1
     
@@ -52,8 +68,8 @@ class Game():
         return self.current_player_index
     
     def play_card(self,player,card):
-        self.discard_pile.append(player.play_card(card))
-        
+        self.discard(self.discard_pile,player.play_card(card))
+        #self.discard_pile.append(player.play_card(card))
     
     def check_last_card_played(self, discard_pile):
         print(discard_pile[0].get_name())
