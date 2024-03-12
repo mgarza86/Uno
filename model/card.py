@@ -41,7 +41,6 @@ class Card():
         self.images.setLoc(location)
     
     def draw(self):
-        # renders card
         self.images.draw()
     
     def rotate_card(self, angle):
@@ -49,6 +48,13 @@ class Card():
     
     def scale_card(self, scale):
         self.images.scale(scale)
+        
+    def get_rect(self):
+        return self.images.getRect()
+    
+    def get_size(self):
+        return self.images.getSize()
+    
     
 class WildChanger(Card):
     
