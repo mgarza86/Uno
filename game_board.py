@@ -10,8 +10,17 @@ class GameBoard(pyghelpers.Scene):
     def __init__(self, window, game) -> None:
         self.window = window
         self.back_ground_color = (161, 59, 113)
-        #self.draw_deck = game.draw_pile
         self.game = game
+        self.player = self.game.players_list
+        self.discard_pile = self.game.discard_pile
+        self.draw_pile = self.game.draw_pile
+        self.current_color = self.game.current_color
+        self.current_value = self.game.current_value
+        self.current_direction = self.game.current_direction
+        self.player_one = self.player[0]
+        #self.player_two = self.player[1]
+        
+        
         self.enter()
         
         
@@ -22,7 +31,9 @@ class GameBoard(pyghelpers.Scene):
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
-            pass
+            for i in range(len(self.player_one.hand)):
+                if self.player_one.hand[i].handle_event(event):
+                    print(self.player_one.hand[i].get_name())
     
     ''' all the components you want to draw are in the draw function'''
     def draw(self):
@@ -30,8 +41,6 @@ class GameBoard(pyghelpers.Scene):
         self.window.fill(self.back_ground_color)
         self.game.draw()
         
-        
-            
         
     def initial_hand(self, deck):
         for _ in range(7):
