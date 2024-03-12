@@ -18,9 +18,11 @@ class GameBoard(pyghelpers.Scene):
         self.current_value = self.game.current_value
         self.current_direction = self.game.current_direction
         self.player_one = self.player[0]
-        #self.player_two = self.player[1]
+        self.player_two = self.player[1]
         
         self.enter()
+        self.player_two.rotate_hand(180)
+        
         
         
     
@@ -32,6 +34,7 @@ class GameBoard(pyghelpers.Scene):
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
+            self.game.check_hand(self.player_one)
             for card in self.player_one.hand[:]:
                 if card.handle_event(event):
                     if self.player_one.check_playable_card(card, self.discard_pile):

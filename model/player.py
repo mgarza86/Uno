@@ -32,15 +32,15 @@ class Player():
     
     def check_playable_card(self, card, discard_pile_card):
         if len(discard_pile_card) == 0:
-            print("No cards in play, all cards valid")
+            #print("No cards in play, all cards valid")
             return True
         elif card.get_color() == discard_pile_card[0].get_color():
-            print("color match, card is playable")
+            #print("color match, card is playable")
             return True
         elif card.get_value() == discard_pile_card[0].get_value():
-            print("value match, card is playable")
+            #print("value match, card is playable")
             return True
-        print("card not playable")
+        #print("card not playable")
         return False
     
     def set_rotation(self, angle):

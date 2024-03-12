@@ -24,10 +24,15 @@ class Game():
         return self.current_direction
     
     def check_hand(self, player):
-        for i in range(player.hand):
-            if player.check_playable_card(player.hand[i], self.discard_pile[0]):
+        if len(self.discard_pile) == 0:
+            print("No card in play yet")
+            return True
+        for i in range(len(player.hand)):
+            if player.check_playable_card(player.hand[i], self.discard_pile):
+                print("Hand has a playable card")
                 return True
-            
+        print("print hand does not have a playable card, drawing card")
+        player.draw_card(self.draw_pile)    
         return False
     
     def orientate_player(self):
