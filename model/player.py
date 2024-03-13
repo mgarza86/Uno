@@ -70,10 +70,11 @@ class Player():
                 self.hand[i].draw()
         self.location = (0,0)        
     
-    def next_card_location(self, card):
+    def next_card_location(self, card, overlap=50):
         width, height = card.get_size()
         card_rect = card.get_rect()
-        return (card_rect.x+width,card_rect.y)   
+        new_x_coordinate = card_rect.x + card_rect.width - overlap
+        return (new_x_coordinate, card_rect.y)   
             
     def set_card_on_corner(self,card):
         window_width, window_height = self.window.get_size()
