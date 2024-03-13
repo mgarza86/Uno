@@ -11,7 +11,7 @@ class Game():
         self.current_value = ""
         self.current_player_index = 0
         self.window_width, self.window_height = self.window.get_size()
-
+        self.players_list[1].rotate_hand(180)
         self.orientate_player()
         
                 
