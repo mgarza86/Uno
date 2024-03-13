@@ -51,6 +51,7 @@ class GameBoard(pyghelpers.Scene):
     def computer_move(self, player, event):
         if self.game.check_hand(player):
             matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.discard_pile[0])
+            print(self.print_matching_cards(matching_cards))
             self.game.play_card(player, matching_cards[0])
             self.current_index = self.game.determine_next_player()
         else:
@@ -80,7 +81,10 @@ class GameBoard(pyghelpers.Scene):
         self.window.fill(self.back_ground_color)
         self.game.draw()
         
-        
+    def print_matching_cards(self, matching_cards):
+        for card in matching_cards:
+            print(card.get_name())    
+    
     def initial_hand(self, deck):
         for _ in range(7):
             o_card = deck.get_card()
