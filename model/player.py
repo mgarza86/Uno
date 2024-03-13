@@ -56,19 +56,24 @@ class Player():
             self.hand[i].scale_card(scale)
         
     def draw(self):
-        for i in range(len(self.hand)):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        apply_hover_effect = False
+        
+        for i, card in enumerate(self.hand):
             if i == 0:
-                self.location = self.set_card_on_corner(self.hand[i])
-                self.hand[i].set_location(self.location)
-                self.hand[i].reveal()
-                self.hand[i].draw()    
+                card_location = self.set_card_on_corner(card)
             else:
-                self.location = self.next_card_location(self.hand[i-1])
-
-                self.hand[i].set_location((self.location))
-                self.hand[i].reveal()
-                self.hand[i].draw()
-        self.location = (0,0)        
+                card_location = self.next_card_location(self.hand[i-1], overlap=30)
+            
+            card.set_location(card_location)
+            
+            if card.get_collide_point(mouse_x, mouse_y) and not apply_hover_effect:
+                card.scale(120, scaleFromeCenter=True)
+                apply_hover_effect = True 
+            else:
+                card.scale(100)
+                
+            card.draw()
     
     def next_card_location(self, card, overlap=50):
         width, height = card.get_size()
