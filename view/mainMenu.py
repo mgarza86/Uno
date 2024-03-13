@@ -20,8 +20,8 @@ title = pygwidgets.DisplayText(window, (0, 60), "Welcome to Py-UNO", fontSize=50
 titleRect = title.getRect()
 title.setLoc((WIDTH // 2 - titleRect.width // 2, 60))
 singlePlayerButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) - 60), "Single Player", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
-multiplayerButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 20), "Multiplayer", width=200, height=50, fontName='Arial', fontSize=24)
-settingsButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 100), "Settings", width=200, height=50, fontName='Arial', fontSize=24)
+multiplayerButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 20), "Multiplayer", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
+settingsButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 100), "Settings", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
 
 # The main game loop
 running = True
