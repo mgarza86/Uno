@@ -63,16 +63,16 @@ class Player():
             if i == 0:
                 card_location = self.set_card_on_corner(card)
             else:
-                card_location = self.next_card_location(self.hand[i-1], overlap=30)
+                card_location = self.next_card_location(self.hand[i-1], overlap=50)
             
             card.set_location(card_location)
             
             if card.get_collide_point(mouse_x, mouse_y) and not apply_hover_effect:
-                card.scale(120, scaleFromeCenter=True)
+                card.set_scale(120, scaleFromCenter=True)
                 apply_hover_effect = True 
             else:
-                card.scale(100)
-                
+                card.set_scale(100)
+            card.reveal()    
             card.draw()
     
     def next_card_location(self, card, overlap=50):
