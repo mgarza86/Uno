@@ -49,14 +49,20 @@ class Card():
     def rotate_card(self, angle):
         self.images.rotate(angle)
     
-    def scale_card(self, scale):
-        self.images.scale(scale)
+    def set_scale(self, scale, scaleFromCenter=False):
+        self.images.scale(scale, scaleFromCenter)
         
     def get_rect(self):
         return self.images.getRect()
     
+    def get_collide_point(self,mouse_x, mouse_y):
+        return self.images.getRect().collidepoint(mouse_x, mouse_y)
+    
     def get_size(self):
         return self.images.getSize()
+
+    def move_x(self, pixels):
+        self.images.moveX(pixels)
     
     def handle_event(self, event):
         if self.images.handleEvent(event):
