@@ -28,10 +28,8 @@ class Game():
             print("No card in play yet")
             return True
         for i in range(len(player.hand)):
-            if player.check_playable_card(player.hand[i], self.discard_pile):
-                print("Hand has a playable card")
+            if player.check_conditions(player.hand[i],self.current_color, self.current_value):
                 return True
-        print("print hand does not have a playable card, drawing card")
         player.draw_card(self.draw_pile)    
         return False
     
@@ -73,9 +71,15 @@ class Game():
         return self.current_player_index
     
     def play_card(self,player,card):
+        print(player.get_name(), " played: ", card.get_name() )
+        print("Old Color: ", self.current_color)
+        print("Old Value: ", self.current_value)
+        self.discard(self.discard_pile,player.play_card(card))
         self.current_color = card.get_color()
         self.current_value = card.get_value()
-        self.discard(self.discard_pile,player.play_card(card))
+        print("New Color: ", self.current_color)
+        print("New Value: ", self.current_value)
+        
             
     def check_last_card_played(self, discard_pile):
         print(discard_pile[0].get_name())

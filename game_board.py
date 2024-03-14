@@ -20,7 +20,7 @@ class GameBoard(pyghelpers.Scene):
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
             current_player = self.game.players_list[self.game.current_player_index]
-            print(f"{current_player.get_player_name()}'s turn")
+            #print(f"{current_player.get_player_name()}'s turn")
             if isinstance(current_player, AIPlayer):
                 print("Player 2 move!!!")
                 self.computer_move(current_player,event)            
@@ -31,8 +31,9 @@ class GameBoard(pyghelpers.Scene):
         self.game.check_hand(player)
         for card in player.hand[:]:
             if card.handle_event(event):
-                if player.check_playable_card(card, self.game.discard_pile):
-                    print(card.get_name())
+                #if player.check_playable_card(card, self.game.discard_pile): #!change this
+                if player.check_conditions(card, self.game.current_color, self.game.current_value):
+                    #print(card.get_name())
                     self.game.play_card(player,card)
                     self.game.current_index = self.game.determine_next_player()
                     break
@@ -40,7 +41,8 @@ class GameBoard(pyghelpers.Scene):
     def computer_move(self, player, event):
         if self.game.check_hand(player):
             matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.discard_pile[0])
-            print(self.print_matching_cards(matching_cards))
+            for card in matching_cards:
+                print(card)
             self.game.play_card(player, matching_cards[0])
             self.game.current_index = self.game.determine_next_player()
         else:
