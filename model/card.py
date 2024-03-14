@@ -61,6 +61,8 @@ class Card():
     def get_size(self):
         return self.images.getSize()
 
+    def move_x(self, pixels):
+        self.images.moveX(pixels)
     
     def handle_event(self, event):
         if self.images.handleEvent(event):

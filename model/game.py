@@ -19,6 +19,7 @@ class Game():
         for o_player in self.players_list:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
+            o_player.initialize_card_positions()
     
     #def my_turn(self, current_player):
         

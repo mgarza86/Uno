@@ -3,8 +3,6 @@ import pygwidgets
 
 from model.card import Card
 from model.deck import Deck
-#from model.game import Game
-
 class Player():
     def __init__(self, window ,name) -> None:
         self.window = window
@@ -54,29 +52,42 @@ class Player():
     def scale_hand(self, scale):
         for i in range(len(self.hand)):
             self.hand[i].scale_card(scale)
-        
+   
     def draw(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        apply_hover_effect = False
-        
+        overlap_amount = 60
+        hovered_index = None
+
+        for i, card in enumerate(self.hand):
+            if card.get_collide_point(mouse_x, mouse_y):
+                hovered_index = i
+                break  # Found the hovered card
+
+        # Draw all cards except the hovered one
+        for i, card in enumerate(self.hand):
+            if i != hovered_index:
+                if i == 0:
+                    card_location = self.set_card_on_corner(card)
+                else:
+                    card_location = self.next_card_location(self.hand[i-1], overlap=overlap_amount)
+                card.set_location(card_location)
+                card.reveal()
+                card.draw()
+
+        # Draw the hovered card last so it appears on top
+        if hovered_index is not None:
+            hovered_card = self.hand[hovered_index]
+            hovered_card.draw()  # Assuming location was already set
+    
+    def initialize_card_positions(self):
         for i, card in enumerate(self.hand):
             if i == 0:
                 card_location = self.set_card_on_corner(card)
             else:
                 card_location = self.next_card_location(self.hand[i-1], overlap=50)
-            
             card.set_location(card_location)
             
-            if card.get_collide_point(mouse_x, mouse_y) and not apply_hover_effect:
-                card.set_scale(120, scaleFromCenter=True)
-                apply_hover_effect = True 
-            else:
-                card.set_scale(100)
-            card.reveal()    
-            card.draw()
-    
     def next_card_location(self, card, overlap=50):
-        width, height = card.get_size()
         card_rect = card.get_rect()
         new_x_coordinate = card_rect.x + card_rect.width - overlap
         return (new_x_coordinate, card_rect.y)   
