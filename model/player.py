@@ -22,7 +22,7 @@ class Player():
 
         return self.hand.pop()   
     
-    def get_player_name(self):
+    def get_name(self):
         return self.name
     
     def get_index(self):
@@ -104,6 +104,15 @@ class Player():
         elif self.angle == 270:
             return (window_width - image_width, 0)
     
+    def check_conditions(self, card, color, value):
+        if color == "":
+            return True
+        elif card.get_color() == color:  # Fixed: added parentheses to call the method
+            return True
+        elif card.get_value() == value:  # Fixed: added parentheses to call the method
+            return True
+        return False
+
     
 class AIPlayer(Player):
     
