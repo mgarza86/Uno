@@ -13,16 +13,12 @@ class Game():
         self.window_width, self.window_height = self.window.get_size()
         self.players_list[1].rotate_hand(180)
         self.orientate_player()
-        
                 
     def initialize_players(self, number_of_cards=7):
         for o_player in self.players_list:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
             o_player.initialize_card_positions()
-    
-    #def my_turn(self, current_player):
-        
         
     def check_direction(self):
         return self.current_direction
@@ -77,9 +73,10 @@ class Game():
         return self.current_player_index
     
     def play_card(self,player,card):
+        self.current_color = card.get_color()
+        self.current_value = card.get_value()
         self.discard(self.discard_pile,player.play_card(card))
-        #self.discard_pile.append(player.play_card(card))
-    
+            
     def check_last_card_played(self, discard_pile):
         print(discard_pile[0].get_name())
         return discard_pile[0]
