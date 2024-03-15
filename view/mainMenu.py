@@ -34,24 +34,3 @@ class MainMenuScene(pyghelpers.Scene):
         self.singlePlayerButton.draw()
         self.multiplayerButton.draw()
         self.settingsButton.draw()
-
-# main pygame loop
-def main():
-    pygame.init()
-    window = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Main Menu")
-
-    # main menu scene
-    mainMenuScene = MainMenuScene(window)
-    
-    # created a scenes dictionary with just the main menu scene for now
-    scenesDict = {scene_main_menu: mainMenuScene}
-
-    # passing in the dictionary of scenes
-    sceneManager = pyghelpers.SceneMgr(scenesDict, 60)
-
-    # start
-    sceneManager.run()
-
-if __name__ == "__main__":
-    main()
