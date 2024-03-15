@@ -1,53 +1,57 @@
+import pygame
 import pygwidgets
-import pygame, sys
+import pyghelpers
 
 # constants
-WIDTH, HEIGHT = (800, 600)
-WHITE = (255, 255, 255)
-RED = (255,0,0)  # red for the background
-YELLOW = (255, 255, 0) # this yellow is for the buttons
-BLACK = (0, 0, 0) # the text font
-WINDOW_TITLE = "Main Menu"
+scene_main_menu = "Main Menu"
+yellow = (255, 255, 0)
 
-# pygame initialization
-pygame.init()
-window = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption(WINDOW_TITLE)
-mainClock = pygame.time.Clock()
+# adding this to buttons later
+buttonWidth = 150 
+buttonHeight = 50  
 
-# this is where the title and buttons are created
-title = pygwidgets.DisplayText(window, (0, 60), "Welcome to Py-UNO", fontSize=50, textColor=WHITE)
-titleRect = title.getRect()
-title.setLoc((WIDTH // 2 - titleRect.width // 2, 60))
-singlePlayerButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) - 60), "Single Player", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
-multiplayerButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 20), "Multiplayer", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
-settingsButton = pygwidgets.TextButton(window, ((WIDTH // 2) - 100, (HEIGHT // 2) + 100), "Settings", width=200, height=50, fontName='Arial', fontSize=24, textColor=BLACK, upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
+class MainMenuScene(pyghelpers.Scene):
+    def __init__(self, window):
+        super().__init__()
+        self.window = window
+        self.title = pygwidgets.DisplayText(window, (200, 100), "Welcome to Py-UNO", fontSize=60, textColor="white")
+        self.singlePlayerButton = pygwidgets.TextButton(window, (350, 250), "Single Player", upColor=yellow, overColor=yellow, downColor=yellow)
+        self.multiplayerButton = pygwidgets.TextButton(window, (350, 350), "Multiplayer", upColor=yellow, overColor=yellow, downColor=yellow)
+        self.settingsButton = pygwidgets.TextButton(window, (350, 450), "Settings", upColor=yellow, overColor=yellow, downColor=yellow)
 
-# The main game loop
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        # handle button events
-        if singlePlayerButton.handleEvent(event):
-            print("Single Player button was clicked")
-        elif multiplayerButton.handleEvent(event):
-            print("Multiplayer button was clicked")
-        elif settingsButton.handleEvent(event):
-            print("Settings button was clicked")
+    def handleInputs(self, events, keyPressedList):
+        for event in events:
+            if self.singlePlayerButton.handleEvent(event):
+                print("Single Player button was clicked")
+            elif self.multiplayerButton.handleEvent(event):
+                print("Multiplayer button was clicked")
+            elif self.settingsButton.handleEvent(event):
+                print("Settings button was clicked")
 
-    # draw everything here
-    window.fill(RED)
-    title.draw()
-    singlePlayerButton.draw()
-    multiplayerButton.draw()
-    settingsButton.draw()
+    def draw(self):
+        self.window.fill((255, 0, 0))  # red bckgd
+        self.title.draw()
+        self.singlePlayerButton.draw()
+        self.multiplayerButton.draw()
+        self.settingsButton.draw()
 
-    # update the display
-    pygame.display.update()
-    mainClock.tick(60)
+# main pygame loop
+def main():
+    pygame.init()
+    window = pygame.display.set_mode((800, 600))
+    pygame.display.set_caption("Game Menu")
 
-# in order to quit the program
-pygame.quit()
-sys.exit()
+    # main menu scene
+    mainMenuScene = MainMenuScene(window)
+    
+    # created a scenes dictionary with just the main menu scene for now
+    scenesDict = {scene_main_menu: mainMenuScene}
+
+    # passing in the dictionary of scenes
+    sceneManager = pyghelpers.SceneMgr(scenesDict, 60)
+
+    # start
+    sceneManager.run()
+
+if __name__ == "__main__":
+    main()
