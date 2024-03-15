@@ -39,7 +39,7 @@ class MainMenuScene(pyghelpers.Scene):
 def main():
     pygame.init()
     window = pygame.display.set_mode((800, 600))
-    pygame.display.set_caption("Game Menu")
+    pygame.display.set_caption("Main Menu")
 
     # main menu scene
     mainMenuScene = MainMenuScene(window)
