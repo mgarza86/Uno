@@ -41,13 +41,13 @@ class Player():
         #print("card not playable")
         return False
     
-    def set_rotation(self, angle):
+    def set_angle(self, angle):
         self.angle = angle
     
     def rotate_hand(self, angle):
-        for i in range(len(self.hand)):
-            self.hand[i].rotate_card(angle)
-        self.angle = angle
+        for card in self.hand:
+            card.rotate_card(angle)
+        #self.angle = angle
     
     def scale_hand(self, scale):
         for i in range(len(self.hand)):
@@ -58,58 +58,84 @@ class Player():
         overlap_amount = 60
         hovered_index = None
 
+        vertical_layout = self.angle == 90 or self.angle == 270
+
         for i, card in enumerate(self.hand):
             if card.get_collide_point(mouse_x, mouse_y):
                 hovered_index = i
-                break  # Found the hovered card
+                break  
 
-        # Draw all cards except the hovered one
         for i, card in enumerate(self.hand):
             if i != hovered_index:
                 if i == 0:
-                    card_location = self.set_card_on_corner(card)
+                    card_location = self.set_card_on_center(card)
                 else:
-                    card_location = self.next_card_location(self.hand[i-1], overlap=overlap_amount)
+                    card_location = self.next_card_location(self.hand[i-1], overlap=overlap_amount, vertical=vertical_layout)
                 card.set_location(card_location)
-                card.reveal()
+                
+                if isinstance(self, AIPlayer):
+                    card.conceal()        
+                elif isinstance(self, Player):
+                    card.reveal()
+                card.set_scale(60)
                 card.draw()
 
-        # Draw the hovered card last so it appears on top
         if hovered_index is not None:
-            hovered_card = self.hand[hovered_index]
-            hovered_card.draw()  # Assuming location was already set
+            if vertical_layout:
+                card_location = self.next_card_location(self.hand[hovered_index-1], overlap=overlap_amount, vertical=vertical_layout) if hovered_index > 0 else self.set_card_on_center(self.hand[hovered_index])
+                self.hand[hovered_index].set_location(card_location)
+            self.hand[hovered_index].reveal()
+            self.hand[hovered_index].set_scale(60)
+            self.hand[hovered_index].draw()
+
     
     def initialize_card_positions(self):
         for i, card in enumerate(self.hand):
             if i == 0:
-                card_location = self.set_card_on_corner(card)
+                card_location = self.set_card_on_center(card) 
             else:
-                card_location = self.next_card_location(self.hand[i-1], overlap=50)
+                card_location = self.next_card_location(self.hand[i-1], overlap=50, vertical=(self.angle == 90 or self.angle == 270))
             card.set_location(card_location)
             
-    def next_card_location(self, card, overlap=50):
-        card_rect = card.get_rect()
-        new_x_coordinate = card_rect.x + card_rect.width - overlap
-        return (new_x_coordinate, card_rect.y)   
+    def next_card_location(self, previous_card, overlap=50, vertical=False):
+        card_rect = previous_card.get_rect()
+        if vertical:
+            new_y_coordinate = card_rect.y + card_rect.height - overlap
+            return (card_rect.x, new_y_coordinate)
+        else:
+            new_x_coordinate = card_rect.x + card_rect.width - overlap
+            return (new_x_coordinate, card_rect.y) 
             
-    def set_card_on_corner(self,card):
+    def set_card_on_center(self,card):
         window_width, window_height = self.window.get_size()
         image_width, image_height = card.get_size()
+        
+        # Center bottom
         if self.angle == 0:
-            return (0, window_height - image_height)
-        elif self.angle == 90:    
-            return (window_width - image_width, window_height - image_height)
+            return (window_width / 2 - image_width / 2, window_height - image_height)
+        # Center right
+        elif self.angle == 90:
+            self.rotate_hand(90)   
+            return (window_width - image_width, window_height / 2 - image_height / 2)
+        # Center top
         elif self.angle == 180:
-            return (0,0)
+            self.rotate_hand(180)
+            return (window_width / 2 - image_width / 2, 0)
+        # Center left
         elif self.angle == 270:
-            return (window_width - image_width, 0)
+            self.rotate_hand(270)
+            return (0, window_height / 2 - image_height / 2)
     
     def check_conditions(self, card, color, value):
         if color == "":
             return True
-        elif card.get_color() == color:  # Fixed: added parentheses to call the method
+        elif color == "black":
             return True
-        elif card.get_value() == value:  # Fixed: added parentheses to call the method
+        elif card.get_color() == "black":
+            return True
+        elif card.get_color() == color:  
+            return True
+        elif card.get_value() == value: 
             return True
         return False
 

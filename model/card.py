@@ -53,7 +53,7 @@ class Card():
         self.images.draw()
     
     def rotate_card(self, angle):
-        self.images.rotate(angle)
+        self.images.rotateTo(angle)
     
     def set_scale(self, scale, scaleFromCenter=False):
         self.images.scale(scale, scaleFromCenter)
