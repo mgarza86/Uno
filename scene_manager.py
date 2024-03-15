@@ -7,3 +7,7 @@ from view import settings as SettingsScene
 from view import single_player as SinglePlayerSetupScene
 from view import multi_player as MultiPlayerLobbyScene
 
+# constants
+window_width = 640
+window_height = 480
+frames_per_second = 60
