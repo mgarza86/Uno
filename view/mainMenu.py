@@ -26,7 +26,7 @@ class MainMenuScene(pyghelpers.Scene):
             elif self.multiplayerButton.handleEvent(event):
                 print("Multiplayer button was clicked")
             elif self.settingsButton.handleEvent(event):
-                print("Settings button was clicked")
+                self.goToScene('settings')
 
     def draw(self):
         self.window.fill((255, 0, 0))  # red bckgd
