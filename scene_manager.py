@@ -11,3 +11,8 @@ from view import multi_player as MultiPlayerLobbyScene
 window_width = 640
 window_height = 480
 frames_per_second = 60
+
+
+    
+if __name__ == "__main__":
+    main()
