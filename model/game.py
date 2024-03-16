@@ -1,4 +1,4 @@
-
+from model.card import *
 
 class Game():
     def __init__(self,window,  players, deck) -> None:
@@ -78,13 +78,18 @@ class Game():
         else:
             return False
     
-    def determine_next_player(self):
+    def determine_next_player(self, skip=False):
+        i = 0 # this will add to index no matter what lol
+        if skip == True:
+            i = 1
+            self.current_player_index += self.current_direction
+                   
         self.current_player_index += self.current_direction
         if  self.current_direction == 1 and self.current_player_index >= len(self.players_list):
-            self.current_player_index = 0
+            self.current_player_index = 0 + i
             return self.current_player_index
         elif self.current_direction == -1 and self.current_player_index < 0:
-            self.current_player_index = len(self.players_list) - 1
+            self.current_player_index = len(self.players_list) - 1 - i
             return self. current_player_index
         return self.current_player_index
     
