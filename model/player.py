@@ -12,6 +12,7 @@ class Player():
         self.location = (0,0)
         
     def draw_card(self, game_deck):
+        print(self.get_name(), "drew a card")
         self.hand.append(game_deck.get_card())
      
     def play_card(self, card):
@@ -55,7 +56,10 @@ class Player():
    
     def draw(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        overlap_amount = 60
+        if isinstance(self,AIPlayer):
+            overlap_amount = 80    
+        else:
+            overlap_amount = 30
         hovered_index = None
 
         vertical_layout = self.angle == 90 or self.angle == 270

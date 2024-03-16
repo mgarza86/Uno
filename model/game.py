@@ -29,7 +29,8 @@ class Game():
         for i in range(len(player.hand)):
             if player.check_conditions(player.hand[i],self.current_color, self.current_value):
                 return True
-        player.draw_card(self.draw_pile)    
+        player.draw_card(self.draw_pile)
+        #print(player, " drew a card")    
         return False
     
     def orientate_player(self):
@@ -74,6 +75,8 @@ class Game():
     
     def check_game_end(self, player):
         if len(player.hand) == 0:
+            for card in self.discard_pile:
+                        print(card)
             return True
         else:
             return False
@@ -107,7 +110,7 @@ class Game():
             card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
-        print(discard_pile[0].get_name())
+        #print(discard_pile[0].get_name())
         return discard_pile[0]
     
     def set_current_color(self,color):
