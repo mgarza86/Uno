@@ -3,7 +3,7 @@ import pygwidgets
 import os
 from abc import ABC, abstractmethod
 
-class Card(ABC):
+class Card():
     
     BACK_OF_CARD = pygame.image.load('./images/card_back_alt.png')
     
@@ -32,7 +32,6 @@ class Card(ABC):
     def reveal(self):
         self.images.replace('front')
     
-    @abstractmethod
     def perform_action(self):
         pass
         
@@ -127,8 +126,8 @@ class DrawTwoCard(Card):
             victim_index = len(game.players_list - 1)
         
         
-        game.player_list[victim_index].draw_card()
-        game.player_list[victim_index].draw_card()
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
 class Reverse(Card):
         
     def perform_action(self, game):

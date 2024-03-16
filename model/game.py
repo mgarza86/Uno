@@ -70,7 +70,7 @@ class Game():
         discard_pile.insert(0,new_card)
 
     def change_direction(self):
-        self.check_direction *= -1
+        self.current_direction *= -1
     
     def check_game_end(self, player):
         if len(player.hand) == 0:
@@ -99,6 +99,12 @@ class Game():
         self.discard_pile[0].reveal()
         self.current_color = card.get_color()
         self.current_value = card.get_value()
+        if isinstance(card,Skip):
+            card.perform_action(self)
+        if isinstance(card,DrawTwoCard):
+            card.perform_action(self)
+        if isinstance(card,Reverse):
+            card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
         print(discard_pile[0].get_name())
