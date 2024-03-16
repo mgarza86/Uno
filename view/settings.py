@@ -88,6 +88,6 @@ def main():
     scene_manager = pyghelpers.SceneMgr(scenes_dict)
 
     scene_manager.run()
-
+    
 if __name__ == "__main__":
     main()
