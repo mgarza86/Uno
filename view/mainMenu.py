@@ -22,7 +22,7 @@ class MainMenuScene(pyghelpers.Scene):
     def handleInputs(self, events, keyPressedList):
         for event in events:
             if self.singlePlayerButton.handleEvent(event):
-                print("Single Player button was clicked")
+                self.goToScene('single_player_setup')
             elif self.multiplayerButton.handleEvent(event):
                 print("Multiplayer button was clicked")
             elif self.settingsButton.handleEvent(event):
