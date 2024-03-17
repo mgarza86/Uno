@@ -17,10 +17,10 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 deck = Deck(window)
 deck.shuffle()
-pc = Player(window,"Cruz")
-npc1 = AIPlayer(window,"Sam")
-npc2 = AIPlayer(window,"Megan")
-npc3 = AIPlayer(window,"Hyun")
+pc = Player(window,"Player One")
+npc1 = AIPlayer(window,"Player Two")
+npc2 = AIPlayer(window,"Player Three")
+npc3 = AIPlayer(window,"Player Four")
 player_list = [pc, npc1, npc2, npc3]
 
 session = Game(window,player_list,deck)

@@ -20,7 +20,7 @@ class GameBoard(pyghelpers.Scene):
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
             current_player = self.game.players_list[self.game.current_player_index]
-            #print(f"{current_player.get_player_name()}'s turn")
+            
             if isinstance(current_player, AIPlayer):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
@@ -36,7 +36,8 @@ class GameBoard(pyghelpers.Scene):
                     self.game.play_card(player,card)
                     if self.game.check_game_end(player):
                         self.goToScene('end',player.get_name())
-                    self.game.current_index = self.game.determine_next_player()
+                    self.game.determine_next_player()
+                    print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
                     break
     
     def computer_move(self, player, event):
@@ -45,26 +46,15 @@ class GameBoard(pyghelpers.Scene):
             if matching_cards:  # Check if matching_cards is not empty
                 self.game.play_card(player, matching_cards[0])
                 if self.game.check_game_end(player):
+                     
                     self.goToScene('end', player.get_name())
-                self.game.current_index = self.game.determine_next_player()
+                self.game.determine_next_player()
             else:
                 #! AI can't play anything after black is played. FIX LATER
                 print(player.get_name(), ": No matching cards found. Drawing a card.")
-                self.game.current_index = self.game.determine_next_player()
+                self.game.determine_next_player()
         else:
-            self.game.current_index = self.game.determine_next_player()
-    
-    # def computer_move(self, player, event):
-    #     if self.game.check_hand(player):
-    #         matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
-    #         # for card in matching_cards:
-    #         #     print(card)
-    #         self.game.play_card(player, matching_cards[0])
-    #         if self.game.check_game_end(player):
-    #             self.gotToScene('end',player.get_name())
-    #         self.game.current_index = self.game.determine_next_player()
-    #     else:
-    #         self.game.current_index = self.game.determine_next_player()
+            self.game.determine_next_player()
     
     def find_matching_cards(self, hand, color, value):
         color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
