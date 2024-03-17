@@ -24,7 +24,7 @@ class MainMenuScene(pyghelpers.Scene):
             if self.singlePlayerButton.handleEvent(event):
                 self.goToScene('single_player_setup')
             elif self.multiplayerButton.handleEvent(event):
-                print("Multiplayer button was clicked")
+                self.goToScene('multi_player_lobby')
             elif self.settingsButton.handleEvent(event):
                 self.goToScene('settings')
 
