@@ -5,6 +5,9 @@ import pyghelpers
 from view.mainMenu import MainMenuScene
 from view.settings import SettingsScene
 from view.single_player_scene import SinglePlayerSetupScene
+from view.game_board import GameBoard
+from view.end_screen import EndScreen
+
 # from view.multi_player import MultiPlayerLobbyScene
 
 # constants
@@ -20,6 +23,8 @@ pygame.display.set_caption("Py-UNO")
 main_menu_scene = MainMenuScene(window)
 settings_scene = SettingsScene(window)
 single_player_scene = SinglePlayerSetupScene(window)
+game_board = GameBoard(window)
+end = EndScreen(window)
     # multi_player_lobby_scene = MultiPlayerLobbyScene(window)
 
     # scene management: store scenes in a dictionary
@@ -27,6 +32,8 @@ scenes_dict = {
         'main_menu': main_menu_scene,
         'settings': settings_scene,
         'single_player_setup': single_player_scene,
+        'game': game_board,
+        'end': end
         # 'multi_player_lobby': multi_player_lobby_scene
     }
 

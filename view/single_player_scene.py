@@ -1,6 +1,9 @@
 import pygame
 import pygwidgets
 import pyghelpers
+from model.game import Game
+from model.deck import Deck
+from model.player import Player, AIPlayer
 
 # constants
 window_width = 800
@@ -31,6 +34,14 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
 
         # variable to keep track of selected NPC count
         self.selected_npc_count = None
+        self.deck = Deck(self.window)
+        self.deck.shuffle()
+        self.pc = Player(self.window,"Player One")
+        self.npc1 = AIPlayer(self.window,"Player Two")
+        self.npc2 = AIPlayer(self.window,"Player Three")
+        self.npc3 = AIPlayer(self.window,"Player Four")
+        self.player_list = [self.pc,self.npc1]
+        
         
         
     def handleInputs(self, events, keyPressedList):
@@ -38,16 +49,31 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
             if self.npc1_button.handleEvent(event):
                 self.selected_npc_count = 1
                 print("Selected to play against 1 NPC")
+                while len(self.player_list) > 2:
+                    self.player_list.pop()
             elif self.npc2_button.handleEvent(event):
                 self.selected_npc_count = 2
                 print("Selected to play against 2 NPCs")
+                while len(self.player_list) > 3:
+                    self.player_list.pop()
+                while len(self.player_list) < 3:
+                    self.player_list.append(self.npc2)
             elif self.npc3_button.handleEvent(event):
                 self.selected_npc_count = 3
                 print("Selected to play against 3 NPCs")
+                while len(self.player_list) > 4:
+                    self.player_list.pop()
+                if len(self.player_list) == 2:
+                    self.player_list.append(self.npc2)
+                    self.player_list.append(self.npc3)
+                elif len(self.player_list) == 3:
+                    self.player_list.append(self.npc3)
             elif self.play_button.handleEvent(event):
                 if self.selected_npc_count is not None:
                     print(f"Starting game with {self.selected_npc_count} NPCs")
                     # Then afterwards, you would go to the game scene
+                    game = Game(self.window,self.player_list, self.deck)
+                    self.goToScene('game', game)
                 else:
                     print("Please select the number of NPCs before playing")
             elif self.backButton.handleEvent(event):
