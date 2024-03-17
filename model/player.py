@@ -92,6 +92,18 @@ class Player():
             self.hand[hovered_index].set_scale(60)
             self.hand[hovered_index].draw()
 
+    def calculate_hand_width(self, overlap):
+        if not self.hand:
+            return 0
+        total_width = sum(card.get_size()[0] for card in self.hand) - overlap * (len(self.hand) - 1)
+        return total_width
+    
+    def adjust_first_card_position(self, overlap):
+        window_width, _ = self.window.get_size()
+        hand_width = self.calculate_hand_width(overlap)
+
+        first_card_x = (window_width - hand_width) / 2
+        return first_card_x
     
     def initialize_card_positions(self):
         for i, card in enumerate(self.hand):
@@ -116,7 +128,8 @@ class Player():
         
         # Center bottom
         if self.angle == 0:
-            return (window_width / 2 - image_width / 2, window_height - image_height)
+            first_card_x = self.adjust_first_card_position(30)  # Assume overlap is 30 for player
+            return (first_card_x, window_height - image_height)
         # Center right
         elif self.angle == 90:
             self.rotate_hand(90)   
