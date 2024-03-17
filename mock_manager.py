@@ -1,11 +1,11 @@
 import pygame
 import pyghelpers
-from game_board import GameBoard
+from view.game_board import GameBoard
 from model.card import *
 from model.deck import Deck
 from model.game import Game
 from model.player import *
-from end_screen import EndScreen
+from view.end_screen import EndScreen
 
 # 2 - Define constants
 FRAMES_PER_SECOND = 30

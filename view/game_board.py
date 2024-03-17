@@ -8,13 +8,14 @@ X_COORDINATE, Y_COORDINATE = (0,0)
 
 class GameBoard(pyghelpers.Scene):
     
-    def __init__(self, window, game) -> None:
+    def __init__(self, window) -> None:
         self.window = window
         self.back_ground_color = (161, 59, 113)
-        self.game = game
-        self.enter()
         
-    def enter(self):
+        #self.enter()
+        
+    def enter(self,game):
+        self.game = game
         self.game.initialize_players(7)
             
     def handleInputs(self, event_list, key_pressed_list):
