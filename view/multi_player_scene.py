@@ -34,6 +34,11 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
         # back to Main Menu button
         self.backButton = pygwidgets.TextButton(window, (30, 550), "Back to Main Menu", upColor=yellow, overColor=yellow, downColor=yellow)
         
+        # drawing white rectangles behind the input fields for visual effect
+        padding = 10
+        self.player_name_rect = pygame.Rect(100 - padding, 250 - padding, 600 + (padding * 2), 12 + (padding * 2))
+        self.lobby_name_rect = pygame.Rect(100 - padding, 300 - padding, 600 + (padding * 2), 12 + (padding * 2))
+        
         
     def handleInputs(self, events, keyPressedList):
         for event in events:
@@ -49,13 +54,8 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
     def draw(self):
         self.window.fill((255, 0, 0))  # red background
         
-        # drawing white rectangles behind the input fields for visual effect
-        padding = 10
-        player_name_rect = pygame.Rect(100 - padding, 250 - padding, 600 + (padding * 2), 12 + (padding * 2))
-        lobby_name_rect = pygame.Rect(100 - padding, 300 - padding, 600 + (padding * 2), 12 + (padding * 2))
-        
-        pygame.draw.rect(self.window, (255, 255, 255), player_name_rect)  # drawing white rectangle for player name field
-        pygame.draw.rect(self.window, (255, 255, 255), lobby_name_rect)  # drawing white rectangle for lobby name field
+        pygame.draw.rect(self.window, (255, 255, 255), self.player_name_rect)  # drawing white rectangle for player name field
+        pygame.draw.rect(self.window, (255, 255, 255), self.lobby_name_rect)  # drawing white rectangle for lobby name field
 
 
         self.lobby_title.draw()
