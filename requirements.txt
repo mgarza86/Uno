@@ -1,0 +1,4 @@
+pygame==2.5.2
+pygame-ce==2.4.1
+pyghelpers==1.1
+pygwidgets==1.1.2
