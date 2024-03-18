@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import os
+from abc import ABC, abstractmethod
 
 class Card():
     
@@ -30,6 +31,9 @@ class Card():
         
     def reveal(self):
         self.images.replace('front')
+    
+    def perform_action(self):
+        pass
         
     def get_color(self):
         return self.color
@@ -77,6 +81,8 @@ class Card():
             return False
         
     
+        
+    
 class WildChanger(Card):
     
     WILD_CARD = pygame.image.load('./images/black_wild.png')
@@ -99,23 +105,30 @@ class WildPickFour(WildChanger):
         self.images = pygwidgets.ImageCollection(window, (0,0), 
                                                  {'front': WildPickFour.WILD_PICK_FOUR, 
                                                   'back': Card.BACK_OF_CARD}, 'back')
-    
-    def draw_four(self):
-        pass    
         
+    def perform_action(self):
+        return super().perform_action()
+
 class Skip(Card):
         
-    def skip(self):
-        pass
-        
+    def perform_action(self, game):
+        game.determine_next_player(skip=True)
 
 class DrawTwoCard(Card):
         
-    def draw_two(self):
-        pass
+    def perform_action(self, game):
+        victim_index =  game.current_player_index + game.current_direction
         
+        
+        if game.check_direction() == 1 and victim_index >= len(game.players_list):
+            victim_index = 0
+        elif game.check_direction() == -1 and victim_index < 0:
+            victim_index = len(game.players_list) -1
+        
+        
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
 class Reverse(Card):
         
-    def reverse(self):
-        # function pending game class receation
-        pass
+    def perform_action(self, game):
+        game.change_direction()

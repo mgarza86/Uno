@@ -1,4 +1,4 @@
-
+from model.card import *
 
 class Game():
     def __init__(self,window,  players, deck) -> None:
@@ -29,7 +29,8 @@ class Game():
         for i in range(len(player.hand)):
             if player.check_conditions(player.hand[i],self.current_color, self.current_value):
                 return True
-        player.draw_card(self.draw_pile)    
+        player.draw_card(self.draw_pile)
+        #print(player, " drew a card")    
         return False
     
     def orientate_player(self):
@@ -70,22 +71,20 @@ class Game():
         discard_pile.insert(0,new_card)
 
     def change_direction(self):
-        self.check_direction *= -1
+        self.current_direction *= -1
     
     def check_game_end(self, player):
         if len(player.hand) == 0:
+            for card in self.discard_pile:
+                        print(card)
             return True
         else:
             return False
     
-    def determine_next_player(self):
+    def determine_next_player(self, skip=False):
+        
         self.current_player_index += self.current_direction
-        if  self.current_direction == 1 and self.current_player_index >= len(self.players_list):
-            self.current_player_index = 0
-            return self.current_player_index
-        elif self.current_direction == -1 and self.current_player_index < 0:
-            self.current_player_index = len(self.players_list) - 1
-            return self. current_player_index
+        self.current_player_index %= len(self.players_list)
         return self.current_player_index
     
     def play_card(self,player,card):
@@ -94,9 +93,15 @@ class Game():
         self.discard_pile[0].reveal()
         self.current_color = card.get_color()
         self.current_value = card.get_value()
+        if isinstance(card,Skip):
+            card.perform_action(self)
+        if isinstance(card,DrawTwoCard):
+            card.perform_action(self)
+        if isinstance(card,Reverse):
+            card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
-        print(discard_pile[0].get_name())
+        #print(discard_pile[0].get_name())
         return discard_pile[0]
     
     def set_current_color(self,color):
