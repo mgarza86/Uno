@@ -160,3 +160,8 @@ cython_debug/
 #.idea/
 game_loop.py
 test.py
+
+
+
+
+.vscode/*
