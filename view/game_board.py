@@ -13,6 +13,8 @@ class GameBoard(pyghelpers.Scene):
         self.back_ground_color = (161, 59, 113)
         
         #self.enter()
+        # initializing the "Call Uno" button
+        self.callUnoButton = pygwidgets.TextButton(window, (X_COORDINATE, Y_COORDINATE), "Call Uno")
         
     def enter(self,game):
         self.game = game
