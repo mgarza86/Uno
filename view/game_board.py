@@ -4,13 +4,26 @@ import pyghelpers
 import model.game
 from model.player import Player, AIPlayer
 
-X_COORDINATE, Y_COORDINATE = (0,0)
-
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 class GameBoard(pyghelpers.Scene):
     
     def __init__(self, window) -> None:
         self.window = window
         self.back_ground_color = (161, 59, 113)
+        self.window_width, self.window_height = self.window.size()
+        
+        self.x_coord = (self.window_width - 200) / 2
+        self.y_coord = (self.window_height - 80) / 2
+        
+        self.red_button = pygwidgets.TextButton(window, loc=(self.x_coord, self.y_coord), text='Red', upColor=RED)
+        self.green_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord), text='Green', upColor=GREEN)
+        self.blue_button = pygwidgets.TextButton(window, loc=(self.x_coord, self.y_coord + 40), text='Blue', upColor=BLUE)
+        self.yellow_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord + 40), text='Yellow', upColor=YELLOW)
+        
+        self.show_color_picker = False
         
         #self.enter()
         
