@@ -36,10 +36,10 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
         self.selected_npc_count = None
         self.deck = Deck(self.window)
         self.deck.shuffle()
-        self.pc = Player(self.window,"Player One")
-        self.npc1 = AIPlayer(self.window,"Player Two")
-        self.npc2 = AIPlayer(self.window,"Player Three")
-        self.npc3 = AIPlayer(self.window,"Player Four")
+        self.pc = Player("Player One",self.window)
+        self.npc1 = AIPlayer("Player Two",self.window)
+        self.npc2 = AIPlayer("Player Three",self.window)
+        self.npc3 = AIPlayer("Player Four",self.window)
         self.player_list = [self.pc,self.npc1]
         
         

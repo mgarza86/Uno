@@ -4,7 +4,7 @@ import pygwidgets
 from model.card import Card
 from model.deck import Deck
 class Player():
-    def __init__(self, window ,name) -> None:
+    def __init__(self,name, window=None ) -> None:
         self.window = window
         self.name = name
         self.hand = []

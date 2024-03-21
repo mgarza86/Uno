@@ -14,7 +14,7 @@ from model.game import Game
 class TestPlayer(unittest.TestCase):
     def setUp(self):
         self.player_name = "Test Player"
-        self.player = Player(self.player_name)
+        self.player = Player(MagicMock(),self.player_name)
         self.game_deck = Deck(MagicMock())  # Mocking the window parameter
         self.game_deck.shuffle = MagicMock()  # Mock shuffle method
         self.card_mock = MagicMock()

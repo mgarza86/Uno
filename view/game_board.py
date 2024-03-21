@@ -25,8 +25,6 @@ class GameBoard(pyghelpers.Scene):
         
         self.show_color_picker = False
         
-        #self.enter()
-        
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
@@ -59,9 +57,6 @@ class GameBoard(pyghelpers.Scene):
                 self.game.current_color = "yellow"
                 self.show_color_picker = False
                 
-            
-               
-    
     def player_move(self, player, event):
         self.game.check_hand(player)
         for card in player.hand[:]:

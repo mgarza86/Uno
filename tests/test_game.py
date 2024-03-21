@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import Mock
+from unittest.mock import MagicMock
 from model.game import Game 
 from model.player import Player
 from model.deck import Deck
