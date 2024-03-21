@@ -99,6 +99,8 @@ class Game():
             card.perform_action(self)
         if isinstance(card,Reverse):
             card.perform_action(self)
+        if isinstance(card,WildPickFour):
+            card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
         #print(discard_pile[0].get_name())

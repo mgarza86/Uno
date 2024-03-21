@@ -106,8 +106,19 @@ class WildPickFour(WildChanger):
                                                  {'front': WildPickFour.WILD_PICK_FOUR, 
                                                   'back': Card.BACK_OF_CARD}, 'back')
         
-    def perform_action(self):
-        return super().perform_action()
+    def perform_action(self, game):
+        victim_index =  game.current_player_index + game.current_direction
+        
+        
+        if game.check_direction() == 1 and victim_index >= len(game.players_list):
+            victim_index = 0
+        elif game.check_direction() == -1 and victim_index < 0:
+            victim_index = len(game.players_list) -1
+            
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
 
 class Skip(Card):
         

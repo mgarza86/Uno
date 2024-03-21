@@ -13,7 +13,7 @@ class GameBoard(pyghelpers.Scene):
     def __init__(self, window) -> None:
         self.window = window
         self.back_ground_color = (161, 59, 113)
-        self.window_width, self.window_height = self.window.size()
+        self.window_width, self.window_height = self.window.get_size()
         
         self.x_coord = (self.window_width - 200) / 2
         self.y_coord = (self.window_height - 80) / 2
@@ -30,6 +30,12 @@ class GameBoard(pyghelpers.Scene):
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
+    
+    def update(self):
+        if self.game.current_color == 'black':
+            self.show_color_picker = True
+        else:
+            self.show_color_picker = False
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
@@ -38,7 +44,23 @@ class GameBoard(pyghelpers.Scene):
             if isinstance(current_player, AIPlayer):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
-                self.player_move(current_player,event)    
+                self.player_move(current_player,event)
+                
+            if self.red_button.handleEvent(event):
+                self.game.current_color = "red"
+                self.show_color_picker = False
+            if self.blue_button.handleEvent(event):
+                self.game.current_color = "blue"
+                self.show_color_picker = False
+            if self.green_button.handleEvent(event):
+                self.game.current_color = "green"
+                self.show_color_picker = False
+            if self.yellow_button.handleEvent(event):
+                self.game.current_color = "yellow"
+                self.show_color_picker = False
+                
+            
+               
     
     def player_move(self, player, event):
         self.game.check_hand(player)
@@ -89,6 +111,11 @@ class GameBoard(pyghelpers.Scene):
     def draw(self):
         self.window.fill(self.back_ground_color)
         self.game.draw()
+        if self.show_color_picker:
+            self.red_button.draw()
+            self.blue_button.draw()
+            self.green_button.draw()
+            self.yellow_button.draw()
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
