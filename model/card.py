@@ -31,10 +31,7 @@ class Card():
         
     def reveal(self):
         self.images.replace('front')
-    
-    def perform_action(self):
-        pass
-        
+
     def get_color(self):
         return self.color
     
@@ -80,9 +77,6 @@ class Card():
         else:
             return False
         
-    
-        
-    
 class WildChanger(Card):
     
     WILD_CARD = pygame.image.load('./images/black_wild.png')
@@ -95,7 +89,6 @@ class WildChanger(Card):
         self.value = None
         self.color = color
         
-
 class WildPickFour(WildChanger):
     
     WILD_PICK_FOUR = pygame.image.load('./images/black_pickfour.png')
@@ -105,7 +98,9 @@ class WildPickFour(WildChanger):
         self.images = pygwidgets.ImageCollection(window, (0,0), 
                                                  {'front': WildPickFour.WILD_PICK_FOUR, 
                                                   'back': Card.BACK_OF_CARD}, 'back')
-        
+    '''
+    move logic to Game class
+    '''   
     def perform_action(self, game):
         victim_index =  game.current_player_index + game.current_direction
         
@@ -121,12 +116,18 @@ class WildPickFour(WildChanger):
         game.players_list[victim_index].draw_card(game.draw_pile)
 
 class Skip(Card):
-        
+    
+    '''
+     move logic to Game class
+     '''   
     def perform_action(self, game):
         game.determine_next_player(skip=True)
 
 class DrawTwoCard(Card):
-        
+    
+    '''
+     move logic to Game class
+     '''   
     def perform_action(self, game):
         victim_index =  game.current_player_index + game.current_direction
         
@@ -140,6 +141,9 @@ class DrawTwoCard(Card):
         game.players_list[victim_index].draw_card(game.draw_pile)
         game.players_list[victim_index].draw_card(game.draw_pile)
 class Reverse(Card):
-        
+    
+    '''
+     move logic to Game class
+     '''      
     def perform_action(self, game):
         game.change_direction()
