@@ -5,6 +5,8 @@ import model.game
 from model.player import Player, AIPlayer
 
 X_COORDINATE, Y_COORDINATE = (0,0)
+blue = (0, 9, 255)
+white = (255, 255, 255)
 
 class GameBoard(pyghelpers.Scene):
     
@@ -13,6 +15,8 @@ class GameBoard(pyghelpers.Scene):
         self.back_ground_color = (161, 59, 113)
         
         #self.enter()
+        # initializing the "Call Uno" button
+        self.callUnoButton = pygwidgets.TextButton(window, (350, 400), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         
     def enter(self,game):
         self.game = game
@@ -26,6 +30,9 @@ class GameBoard(pyghelpers.Scene):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
                 self.player_move(current_player,event)    
+            # checking to see that Call Uno button has been clicked
+            if self.callUnoButton.handleEvent(event):
+                print("Call Uno button was clicked!")
     
     def player_move(self, player, event):
         self.game.check_hand(player)
@@ -76,6 +83,7 @@ class GameBoard(pyghelpers.Scene):
     def draw(self):
         self.window.fill(self.back_ground_color)
         self.game.draw()
+        self.callUnoButton.draw() # drawing call uno button
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
