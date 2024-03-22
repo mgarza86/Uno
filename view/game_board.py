@@ -57,24 +57,24 @@ class GameBoard(pyghelpers.Scene):
                 self.show_color_picker = False
             if self.yellow_button.handleEvent(event):
                 self.game.current_color = "yellow"
-                self.show_color_picker = False
-                
-            
-               
+                self.show_color_picker = False   
     
     def player_move(self, player, event):
-        self.game.check_hand(player)
-        for card in player.hand[:]:
-            if card.handle_event(event):
-                #if player.check_playable_card(card, self.game.discard_pile): #!change this
-                if player.check_conditions(card, self.game.current_color, self.game.current_value):
-                    #print(card.get_name())
-                    self.game.play_card(player,card)
-                    if self.game.check_game_end(player):
-                        self.goToScene('end',player.get_name())
-                    self.game.determine_next_player()
-                    print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
-                    break
+        if self.game.check_hand(player):
+            for card in player.hand[:]:
+                if card.handle_event(event):
+                    #if player.check_playable_card(card, self.game.discard_pile): #!change this
+                    if player.check_conditions(card, self.game.current_color, self.game.current_value):
+                        #print(card.get_name())
+                        self.game.play_card(player,card)
+                        if self.game.check_game_end(player):
+                            self.goToScene('end',player.get_name())
+                        self.game.determine_next_player()
+                        print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
+                        break
+        else:
+            player.draw_card(self.game.draw_pile)
+            self.game.determine_next_player()        
     
     def computer_move(self, player, event):
         if self.game.check_hand(player):
