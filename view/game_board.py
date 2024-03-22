@@ -30,12 +30,9 @@ class GameBoard(pyghelpers.Scene):
         self.show_color_picker = False
         
         #self.enter()
-        # initializing the "Call Uno" button
+        # initializing the "Call Uno", "Draw Card" and "Call Out buttons
         self.callUnoButton = pygwidgets.TextButton(window, (360, 390), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
-        
-        # initializing the "Draw Card" button
         self.drawCardButton = pygwidgets.TextButton(window, (270, 435), "Draw Card", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
-        
         self.callOutButton = pygwidgets.TextButton(window, (380, 435), "Call out", textColor=white, width=200, height=35, upColor=blue, overColor=blue, downColor=blue)
         
                 
@@ -56,8 +53,7 @@ class GameBoard(pyghelpers.Scene):
             # dynamically create the "Call out player" button with the current player's name
             callOutButtonText = f"{current_player.get_name()} didn't call Uno"
             self.callOutButton = pygwidgets.TextButton(self.window, (380, 435), callOutButtonText, textColor=white, width=200, height=35, upColor=blue, overColor=blue, downColor=blue)
-            
-                        
+                   
             if isinstance(current_player, AIPlayer):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
@@ -76,13 +72,11 @@ class GameBoard(pyghelpers.Scene):
                 self.game.current_color = "yellow"
                 self.show_color_picker = False   
                 self.player_move(current_player,event)    
-            # checking to see that Call Uno button has been clicked
+            # checks if Call Uno, Draw card and Call out buttons have been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
-            # checking to see that Draw Card button has been clicked
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
-            # handle "Call out player" button click
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
     
