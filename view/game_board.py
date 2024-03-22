@@ -33,6 +33,9 @@ class GameBoard(pyghelpers.Scene):
         # initializing the "Call Uno" button
         self.callUnoButton = pygwidgets.TextButton(window, (350, 400), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         
+        # initializing the "Draw Card" button
+        self.drawCardButton = pygwidgets.TextButton(window, (305, 435), "Draw Card", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
+        
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
@@ -68,6 +71,9 @@ class GameBoard(pyghelpers.Scene):
             # checking to see that Call Uno button has been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
+            # checking to see that Draw Card button has been clicked
+            if self.drawCardButton.handleEvent(event):
+                print("Draw Card button was clicked!")
     
     def player_move(self, player, event):
         if self.game.check_hand(player):
@@ -126,7 +132,8 @@ class GameBoard(pyghelpers.Scene):
             self.blue_button.draw()
             self.green_button.draw()
             self.yellow_button.draw()
-        self.callUnoButton.draw() # drawing call uno button
+        self.callUnoButton.draw() # call uno button
+        self.drawCardButton.draw() # draw card button
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
