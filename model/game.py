@@ -29,7 +29,7 @@ class Game():
         for i in range(len(player.hand)):
             if player.check_conditions(player.hand[i],self.current_color, self.current_value):
                 return True
-        player.draw_card(self.draw_pile)
+        #player.draw_card(self.draw_pile)
         #print(player, " drew a card")    
         return False
     
@@ -82,7 +82,6 @@ class Game():
             return False
     
     def determine_next_player(self, skip=False):
-        
         self.current_player_index += self.current_direction
         self.current_player_index %= len(self.players_list)
         return self.current_player_index
@@ -98,6 +97,8 @@ class Game():
         if isinstance(card,DrawTwoCard):
             card.perform_action(self)
         if isinstance(card,Reverse):
+            card.perform_action(self)
+        if isinstance(card,WildPickFour):
             card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):

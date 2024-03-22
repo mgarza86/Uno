@@ -4,6 +4,10 @@ import pyghelpers
 import model.game
 from model.player import Player, AIPlayer
 
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 X_COORDINATE, Y_COORDINATE = (0,0)
 blue = (0, 9, 255)
 white = (255, 255, 255)
@@ -13,6 +17,17 @@ class GameBoard(pyghelpers.Scene):
     def __init__(self, window) -> None:
         self.window = window
         self.back_ground_color = (161, 59, 113)
+        self.window_width, self.window_height = self.window.get_size()
+        
+        self.x_coord = (self.window_width - 200) / 2
+        self.y_coord = (self.window_height - 80) / 2
+        
+        self.red_button = pygwidgets.TextButton(window, loc=(self.x_coord, self.y_coord), text='Red', upColor=RED)
+        self.green_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord), text='Green', upColor=GREEN)
+        self.blue_button = pygwidgets.TextButton(window, loc=(self.x_coord, self.y_coord + 40), text='Blue', upColor=BLUE)
+        self.yellow_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord + 40), text='Yellow', upColor=YELLOW)
+        
+        self.show_color_picker = False
         
         #self.enter()
         # initializing the "Call Uno" button
@@ -21,6 +36,12 @@ class GameBoard(pyghelpers.Scene):
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
+    
+    def update(self):
+        if self.game.current_color == 'black':
+            self.show_color_picker = True
+        else:
+            self.show_color_picker = False
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
@@ -29,24 +50,41 @@ class GameBoard(pyghelpers.Scene):
             if isinstance(current_player, AIPlayer):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
+                self.player_move(current_player,event)
+                
+            if self.red_button.handleEvent(event):
+                self.game.current_color = "red"
+                self.show_color_picker = False
+            if self.blue_button.handleEvent(event):
+                self.game.current_color = "blue"
+                self.show_color_picker = False
+            if self.green_button.handleEvent(event):
+                self.game.current_color = "green"
+                self.show_color_picker = False
+            if self.yellow_button.handleEvent(event):
+                self.game.current_color = "yellow"
+                self.show_color_picker = False   
                 self.player_move(current_player,event)    
             # checking to see that Call Uno button has been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
     
     def player_move(self, player, event):
-        self.game.check_hand(player)
-        for card in player.hand[:]:
-            if card.handle_event(event):
-                #if player.check_playable_card(card, self.game.discard_pile): #!change this
-                if player.check_conditions(card, self.game.current_color, self.game.current_value):
-                    #print(card.get_name())
-                    self.game.play_card(player,card)
-                    if self.game.check_game_end(player):
-                        self.goToScene('end',player.get_name())
-                    self.game.determine_next_player()
-                    print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
-                    break
+        if self.game.check_hand(player):
+            for card in player.hand[:]:
+                if card.handle_event(event):
+                    #if player.check_playable_card(card, self.game.discard_pile): #!change this
+                    if player.check_conditions(card, self.game.current_color, self.game.current_value):
+                        #print(card.get_name())
+                        self.game.play_card(player,card)
+                        if self.game.check_game_end(player):
+                            self.goToScene('end',player.get_name())
+                        self.game.determine_next_player()
+                        print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
+                        break
+        else:
+            player.draw_card(self.game.draw_pile)
+            self.game.determine_next_player()        
     
     def computer_move(self, player, event):
         if self.game.check_hand(player):
@@ -83,6 +121,11 @@ class GameBoard(pyghelpers.Scene):
     def draw(self):
         self.window.fill(self.back_ground_color)
         self.game.draw()
+        if self.show_color_picker:
+            self.red_button.draw()
+            self.blue_button.draw()
+            self.green_button.draw()
+            self.yellow_button.draw()
         self.callUnoButton.draw() # drawing call uno button
         
     def print_matching_cards(self, matching_cards):
