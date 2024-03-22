@@ -78,6 +78,7 @@ class GameBoard(pyghelpers.Scene):
     def draw(self):
         self.window.fill(self.back_ground_color)
         self.game.draw()
+        self.callUnoButton.draw() # drawing call uno button
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
