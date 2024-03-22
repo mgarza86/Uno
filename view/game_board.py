@@ -30,6 +30,9 @@ class GameBoard(pyghelpers.Scene):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
                 self.player_move(current_player,event)    
+            # checking to see that Call Uno button has been clicked
+            if self.callUnoButton.handleEvent(event):
+                print("Call Uno button was clicked!")
     
     def player_move(self, player, event):
         self.game.check_hand(player)
