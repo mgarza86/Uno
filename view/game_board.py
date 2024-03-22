@@ -31,14 +31,14 @@ class GameBoard(pyghelpers.Scene):
         
         #self.enter()
         # initializing the "Call Uno" button
-        self.callUnoButton = pygwidgets.TextButton(window, (350, 390), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
+        self.callUnoButton = pygwidgets.TextButton(window, (360, 390), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         
         # initializing the "Draw Card" button
-        self.drawCardButton = pygwidgets.TextButton(window, (290, 435), "Draw Card", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
+        self.drawCardButton = pygwidgets.TextButton(window, (270, 435), "Draw Card", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         
-        # initializing the "Call out player" button
-        self.callOutButton = pygwidgets.TextButton(window, (400, 435), "Call Out", textColor=white, width=150, height=35, upColor=blue, overColor=blue, downColor=blue)
+        self.callOutButton = pygwidgets.TextButton(window, (380, 435), "Call out", textColor=white, width=200, height=35, upColor=blue, overColor=blue, downColor=blue)
         
+                
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
@@ -53,10 +53,11 @@ class GameBoard(pyghelpers.Scene):
         for event in event_list:
             current_player = self.game.players_list[self.game.current_player_index]
             
-            # Update the "Call out player" button text with the current player's name or identifier
+            # dynamically create the "Call out player" button with the current player's name
             callOutButtonText = f"{current_player.get_name()} didn't call Uno"
-            self.callOutButton.setValue(callOutButtonText)
+            self.callOutButton = pygwidgets.TextButton(self.window, (380, 435), callOutButtonText, textColor=white, width=200, height=35, upColor=blue, overColor=blue, downColor=blue)
             
+                        
             if isinstance(current_player, AIPlayer):
                 self.computer_move(current_player,event)            
             elif isinstance(current_player, Player):
@@ -81,7 +82,7 @@ class GameBoard(pyghelpers.Scene):
             # checking to see that Draw Card button has been clicked
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
-            # checking to see that Call out button has been clicked
+            # handle "Call out player" button click
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
     
