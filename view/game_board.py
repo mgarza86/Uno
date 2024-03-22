@@ -14,7 +14,7 @@ class GameBoard(pyghelpers.Scene):
         
         #self.enter()
         # initializing the "Call Uno" button
-        self.callUnoButton = pygwidgets.TextButton(window, (350, 400), "Call Uno")
+        self.callUnoButton = pygwidgets.TextButton(window, (350, 400), "Call Uno", width=100, height=35)
         
     def enter(self,game):
         self.game = game
