@@ -22,10 +22,10 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
 
         # input fields
         self.player_name_field = pygwidgets.InputText(window, (100, 250), 
-                                                      value='Pre-generated name or create a nickname', 
+                                                      value='', 
                                                       width=600, fontSize=22, textColor=gray)
         self.lobby_name_field = pygwidgets.InputText(window, (100, 300), 
-                                                     value='Invite code text', 
+                                                     value='lobby-1', 
                                                      width=600, fontSize=22, textColor=gray)
 
         # play button
@@ -47,6 +47,11 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
                 lobby_name = self.lobby_name_field.getValue()
                 print(f"Player Name: {player_name}, Lobby Name: {lobby_name}")
                 # here the players would go to the game, passing along these values
+            elif self.player_name_field.handleEvent(event):
+                    self.player_name_field.setValue()    
+            elif self.lobby_name_field.handleEvent(event):
+                    self.lobby_name_field.setValue()
+                
             elif self.backButton.handleEvent(event):
                 self.goToScene('main_menu')
                 
