@@ -47,10 +47,14 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
                 lobby_name = self.lobby_name_field.getValue()
                 print(f"Player Name: {player_name}, Lobby Name: {lobby_name}")
                 # here the players would go to the game, passing along these values
+                scene_data = {"player_name": player_name, "lobby_name": lobby_name}
+                
+                self.goToScene('pre_game_lobby', data=scene_data)
             elif self.player_name_field.handleEvent(event):
                     self.player_name_field.setValue()    
             elif self.lobby_name_field.handleEvent(event):
                     self.lobby_name_field.setValue()
+            
                 
             elif self.backButton.handleEvent(event):
                 self.goToScene('main_menu')
