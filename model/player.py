@@ -10,6 +10,7 @@ class Player():
         self.hand = []
         self.angle = 0
         self.location = (0,0)
+        self.is_callable = False  # will indicate if the player can be called out for not saying Uno
         
     def draw_card(self, game_deck):
         print(self.get_name(), "drew a card")
