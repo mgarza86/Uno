@@ -100,9 +100,7 @@ class Game():
             card.perform_action(self)
         if isinstance(card,WildPickFour):
             card.perform_action(self)
-        # once the card has been played, check the number of cards in hand
-        if len(player.hand) == 1:
-            player.is_callable = True  # player can now be called out
+    
     
     def check_last_card_played(self, discard_pile):
         #print(discard_pile[0].get_name())
