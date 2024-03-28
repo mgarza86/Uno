@@ -42,10 +42,14 @@ class GameBoard(pyghelpers.Scene):
         self.game.initialize_players(7)
     
     def update(self):
-        if self.game.current_color == 'black':
-            self.show_color_picker = True
+        current_player = self.game.players_list[self.game.current_player_index]
+        if len(current_player.hand) == 1:
+            self.isPlayerCallable = True
+            self.callOutButton.show()  # showing the "Call Out" button if the player is callable
         else:
-            self.show_color_picker = False
+            self.isPlayerCallable = False
+            self.callOutButton.hide()  # hiding the "Call Out" button otherwise
+
             
     def handleInputs(self, event_list, key_pressed_list):
         for event in event_list:
