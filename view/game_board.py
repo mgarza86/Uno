@@ -82,16 +82,12 @@ class GameBoard(pyghelpers.Scene):
                 print("Call Uno button was clicked!")
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
-                # updated the call out button
-            if self.callOutButton.handleEvent(event):
-                if current_player.is_callable:
-                    print(f"Calling out {current_player.get_name()} for not saying Uno!")
-                    # implementing where the player draws 4 cards
-                    for _ in range(4):
-                        self.game.draw_card_for_player(current_player)
-                    current_player.is_callable = False  # this will reset the flag after calling out
-                else:
-                    print(f"{current_player.get_name()} already said Uno or can't be called out.")
+            # updated the call out button
+            if self.callOutButton.handleEvent(event) and self.isPlayerCallable:
+                print(f"Calling out {current_player.get_name()} for not saying Uno!")
+                for _ in range(4):  # make player draw 4 cards
+                    self.game.draw_card_for_player(current_player)
+                self.isPlayerCallable = False # this is to reset the flag after calling em out
                     
                     
     
