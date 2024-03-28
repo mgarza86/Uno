@@ -18,6 +18,7 @@ class GameBoard(pyghelpers.Scene):
         self.window = window
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
+        self.isPlayerCallable = False # flag if player can be called out or not
         
         self.x_coord = (self.window_width - 200) / 2
         self.y_coord = (self.window_height - 80) / 2
