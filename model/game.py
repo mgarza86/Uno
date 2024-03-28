@@ -86,6 +86,14 @@ class Game():
         self.current_player_index %= len(self.players_list)
         return self.current_player_index
     
+    # added new function
+    def draw_card_for_player(self, player):
+        player.draw_card(self.draw_pile)
+        # after drawing a card, check the number of cards in the player's hand
+        if len(player.hand) > 1:
+            player.is_callable = False  # the player cannot be called out
+    
+    
     def play_card(self,player,card):
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
@@ -100,7 +108,27 @@ class Game():
             card.perform_action(self)
         if isinstance(card,WildPickFour):
             card.perform_action(self)
+        if len(player.hand) == 1:
+            player.is_callable = True  # the player can now be called out
+            
+            
+    # function could be where a player needs to draw a card if they cannot play
+    def handle_no_playable_card(self, player):
+        # using the new method to ensure the is_callable flag is managed properly
+        self.draw_card_for_player(player)
     
+    def check_hand(self, player):
+        if len(self.discard_pile) == 0:
+            print("No card in play yet")
+            return True
+        for card in player.hand:
+            if player.check_conditions(card, self.current_color, self.current_value):
+                return True
+        # if no playable card is found, have the player draw a card
+        self.handle_no_playable_card(player)
+        return False
+        
+        
     
     def check_last_card_played(self, discard_pile):
         #print(discard_pile[0].get_name())
