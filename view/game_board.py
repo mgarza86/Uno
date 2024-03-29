@@ -43,6 +43,11 @@ class GameBoard(pyghelpers.Scene):
         self.game.initialize_players(7)
     
     def update(self):
+        if self.game.current_color == 'black':
+            self.show_color_picker = True
+        else:
+            self.show_color_picker = False
+            
         current_player = self.game.players_list[self.game.current_player_index]
         if len(current_player.hand) == 1:
             self.isPlayerCallable = True
@@ -87,14 +92,12 @@ class GameBoard(pyghelpers.Scene):
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
             # updated the call out button
-            if self.callOutButton.handleEvent(event):
-                if self.isPlayerCallable and current_player != self.lastUnoCaller:
-                    print(f"Calling out {current_player.get_name()} for not saying Uno!")
-                    for _ in range(4):  # make the player draw 4 cards
-                        self.game.draw_card_for_player(current_player)
-                    self.isPlayerCallable = False
-                else:
-                    print(f"Cannot call out {current_player.get_name()}.")
+            if self.callOutButton.handleEvent(event) and self.isPlayerCallable:
+                print(f"Calling out {current_player.get_name()} for not saying Uno!")
+                for _ in range(4):  # Make the player draw 4 cards
+                    self.game.draw_card_for_player(current_player)
+                self.isPlayerCallable = False  # Directly flip the flag here
+                self.callOutButton.hide()
                     
                     
     
