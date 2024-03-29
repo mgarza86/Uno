@@ -19,6 +19,7 @@ class GameBoard(pyghelpers.Scene):
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
         self.isPlayerCallable = False # flag if player can be called out or not
+        self.lastUnoCaller = None # tracking last player who called uno
         
         self.x_coord = (self.window_width - 200) / 2
         self.y_coord = (self.window_height - 80) / 2
@@ -80,14 +81,20 @@ class GameBoard(pyghelpers.Scene):
             # checks if Call Uno, Draw card and Call out buttons have been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
+                self.lastUnoCaller = current_player  # updating the last player who called Uno
+                self.isPlayerCallable = False
+                self.callOutButton.hide()
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
             # updated the call out button
-            if self.callOutButton.handleEvent(event) and self.isPlayerCallable:
-                print(f"Calling out {current_player.get_name()} for not saying Uno!")
-                for _ in range(4):  # make player draw 4 cards
-                    self.game.draw_card_for_player(current_player)
-                self.isPlayerCallable = False # this is to reset the flag after calling em out
+            if self.callOutButton.handleEvent(event):
+                if self.isPlayerCallable and current_player != self.lastUnoCaller:
+                    print(f"Calling out {current_player.get_name()} for not saying Uno!")
+                    for _ in range(4):  # make the player draw 4 cards
+                        self.game.draw_card_for_player(current_player)
+                    self.isPlayerCallable = False
+                else:
+                    print(f"Cannot call out {current_player.get_name()}.")
                     
                     
     
