@@ -11,6 +11,7 @@ class Game():
         self.current_value = ""
         self.current_player_index = 0
         self.window_width, self.window_height = self.window.get_size()
+        self.callable_players = [] 
                 
     def initialize_players(self, number_of_cards=7):
         self.rotate_player_hands(self.players_list)
