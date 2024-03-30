@@ -80,6 +80,14 @@ class Game():
             return True
         else:
             return False
+        
+    # adding new function
+    def check_callable(self, player):
+        if len(player.hand) == 1:
+            player.is_callable = True
+            return True
+        return False
+    ###
     
     def determine_next_player(self, skip=False):
         self.current_player_index += self.current_direction
