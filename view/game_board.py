@@ -88,13 +88,14 @@ class GameBoard(pyghelpers.Scene):
                 print("Draw Card button was clicked!")
             # updated the call out button
             if self.callOutButton.handleEvent(event):
-                if current_player.is_callable and self.lastUnoCaller != current_player:
-                    print(f"Calling out {current_player.get_name()} for not saying Uno!")
-                    for _ in range(4): 
-                        self.game.draw_card_for_player(current_player)
-                    current_player.is_callable = False 
+                if self.game.callable_players and self.game.current_player_index != self.game.callable_players[0]:
+                    player_to_call_out = self.game.callable_players.pop(0)
+                    print(f"Calling out {player_to_call_out.get_name()} for not saying Uno!")
+                    for _ in range(4):
+                        player_to_call_out.draw_card(self.game.draw_pile)
+                    player_to_call_out.is_callable = False
                 else:
-                    print(f"Cannot call out {current_player.get_name()}.")
+                    print(f"No player to call out or it's their turn.")
                 
                                
     
