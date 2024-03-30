@@ -18,7 +18,7 @@ class GameBoard(pyghelpers.Scene):
         self.window = window
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
-        self.isPlayerCallable = False # flag if player can be called out or not
+        self.show_player_callout_button = False # flag if player can be called out or not
         self.lastUnoCaller = None # tracking last player who called uno
         
         self.x_coord = (self.window_width - 200) / 2
@@ -48,13 +48,10 @@ class GameBoard(pyghelpers.Scene):
         else:
             self.show_color_picker = False
             
-        current_player = self.game.players_list[self.game.current_player_index]
-        if len(current_player.hand) == 1:
-            self.isPlayerCallable = True
-            self.callOutButton.show()  # showing the "Call Out" button if the player is callable
+        if self.game.players_list[self.game.current_player_index].is_callable:
+            self.show_player_callout_button = True
         else:
-            self.isPlayerCallable = False
-            self.callOutButton.hide()  # hiding the "Call Out" button otherwise
+            self.show_player_callout_button = False
 
             
     def handleInputs(self, event_list, key_pressed_list):
@@ -86,9 +83,7 @@ class GameBoard(pyghelpers.Scene):
             # checks if Call Uno, Draw card and Call out buttons have been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
-                self.lastUnoCaller = current_player  # updating the last player who called Uno
-                self.isPlayerCallable = False
-                self.callOutButton.hide()
+                self.game.player_list[self.game.current_player_index].is_callable = False
             if self.drawCardButton.handleEvent(event):
                 print("Draw Card button was clicked!")
             # updated the call out button
@@ -97,7 +92,7 @@ class GameBoard(pyghelpers.Scene):
                 for _ in range(4):  # Make the player draw 4 cards
                     self.game.draw_card_for_player(current_player)
                 self.isPlayerCallable = False  # Directly flip the flag here
-                self.callOutButton.hide()
+                
                     
                     
     
@@ -160,7 +155,8 @@ class GameBoard(pyghelpers.Scene):
             self.yellow_button.draw()
         self.callUnoButton.draw() # call uno button
         self.drawCardButton.draw() # draw card button
-        self.callOutButton.draw() # call out button
+        if self.show_player_callout_button:
+            self.callOutButton.draw() # call out button
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
