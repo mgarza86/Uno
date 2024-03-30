@@ -86,7 +86,8 @@ class Game():
         if len(player.hand) == 1:
             player.is_callable = True
             return True
-        return False
+        else:
+            return False
     ###
     
     def determine_next_player(self, skip=False):
