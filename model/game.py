@@ -18,6 +18,8 @@ class Game():
         self.card_flip_sound = pygwidgets.SoundEffect('sounds/cardFlip.wav')
         self.card_shuffle_sound = pygwidgets.SoundEffect('sounds/cardShuffle.wav')
         
+        self.card_shuffle_sound.play() # testing to see if the sound plays at the begninning
+        
                 
     def initialize_players(self, number_of_cards=7):
         self.rotate_player_hands(self.players_list)
