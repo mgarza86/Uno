@@ -18,7 +18,7 @@ class Game():
         self.card_flip_sound = pygwidgets.SoundEffect('sounds/cardFlip.wav')
         self.card_shuffle_sound = pygwidgets.SoundEffect('sounds/cardShuffle.wav')
         
-        self.card_shuffle_sound.play() # testing to see if the sound plays at the begninning
+        self.card_shuffle_sound.play() # testing to see if the shuffle sound plays at the begninning
         
                 
     def initialize_players(self, number_of_cards=7):
@@ -96,6 +96,7 @@ class Game():
         return self.current_player_index
     
     def play_card(self,player,card):
+        self.card_flip_sound.play() # flip card sound
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
         self.discard_pile[0].reveal()
