@@ -14,4 +14,7 @@ class lobby:
     def broadcast_player_list(self, player_list):
         pass
     
+    def broadcast_current_player_index(self, player):
+        pass
+    
     
