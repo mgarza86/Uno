@@ -4,16 +4,29 @@ import socket
 import threading
 import pygwidgets
 from time import sleep
+from model.player import Player
 
+class ServerPlayer(Player):
+    def __init__(self, name):
+        super().__init__(None, name)
+        self.is_host = False 
+        
+    def __str__(self) -> str:
+        return f"{self.get_name()}"
+    
+    def __repr__(self) -> str:
+        return f"player('{self.get_name()}')"
+        
 # Server setup
 server = None
 HOST_ADDR = "127.0.0.1"
 HOST_PORT = 8080
 clients = []
+players = []
 clients_names = []
 
-pygame.init()
 
+pygame.init()
 
 screen = pygame.display.set_mode((400, 300))
 pygame.display.set_caption('Server')
@@ -24,10 +37,9 @@ address_label = pygwidgets.DisplayText(screen, (20, 100), "Address: 127.0.0.1", 
 port_label = pygwidgets.DisplayText(screen, (20, 130), "Port: 8080", fontSize=18)
 client_list_label = pygwidgets.DisplayText(screen, (20, 160), "**********Client List**********", fontSize=18)
 
-
 # Create a thread for accepting connections
 def accept_connections():
-    global server, clients, clients_names
+    global server, clients, clients_names, players
     while True:
         client, addr = server.accept()
         client.send("NAME".encode())
@@ -36,20 +48,34 @@ def accept_connections():
         clients.append(client)
         clients_names.append(client_name)
 
+
+        player = ServerPlayer(client_name)
+        players.append(player)
+        
+        host_status_message = "host_status$no"  
+        if players[0] == player:
+            player.is_host = True
+            host_status_message = "host_status$yes"
+        print(f"Player {player.get_name()} has connected.")
+
+        print(f"Sending host status to {player.get_name()}: {host_status_message}")
+        client.send(host_status_message.encode())
+        
         update_client_list_display()
         broadcast_client_list()  # Update all clients with the new list
 
-        threading.Thread(target=handle_client, args=(client, client_name), daemon=True).start()
+        threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
         
-        
-def handle_client(client, client_name):
+def handle_client(client, player):
     while True:
         try:
             message = client.recv(4096).decode()
             # Handle messages
         except Exception as e:
             clients.remove(client)
-            clients_names.remove(client_name)
+            clients_names.remove(player.get_name())
+            players.remove(player)
+            print(f"Player {player.get_name()} has disconnected.")
             update_client_list_display()
             broadcast_client_list()  # Update all clients on disconnect
             client.close()
@@ -72,7 +98,7 @@ def update_client_list_display():
     client_list_label.setValue(display_text)
 
 def start_server():
-    global server, HOST_ADDR, HOST_PORT, clients, clients_names
+    global server, HOST_ADDR, HOST_PORT, clients, clients_names, players
     start_button.disable()
     stop_button.enable()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -83,12 +109,13 @@ def start_server():
     threading.Thread(target=accept_connections, daemon=True).start()
 
 def stop_server():
-    global server, clients, clients_names
+    global server, clients, clients_names, players
     for client in clients:
         client.close()
     server.close()
     clients = []
     clients_names = []
+    players = []
     update_client_list_display()
     start_button.enable()
     stop_button.disable()
