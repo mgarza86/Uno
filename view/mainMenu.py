@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import pyghelpers
+from variables import sfx_on
 
 # constants
 scene_main_menu = "Main Menu"
@@ -14,6 +15,7 @@ class MainMenuScene(pyghelpers.Scene):
     def __init__(self, window):
         super().__init__()
         self.window = window
+        print(sfx_on)
         self.title = pygwidgets.DisplayText(window, (200, 100), "Welcome to Py-UNO", fontSize=60, textColor="white")
         self.singlePlayerButton = pygwidgets.TextButton(window, (350, 250), "Single Player", upColor=yellow, overColor=yellow, downColor=yellow)
         self.multiplayerButton = pygwidgets.TextButton(window, (350, 350), "Multiplayer", upColor=yellow, overColor=yellow, downColor=yellow)

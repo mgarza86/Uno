@@ -1,6 +1,8 @@
 import pygame
 import pygwidgets
 import pyghelpers
+from variables import sfx_on
+
 
 # constants
 window_width = 800
@@ -22,7 +24,7 @@ class SettingsScene(pyghelpers.Scene):
         
         # SFX toggle button
         self.sfx_title = pygwidgets.DisplayText(window, (325, 290), "SFX Volume", fontSize=40, textColor="black")
-        self.sfx_on = True
+        self.sfx_on = sfx_on
         self.sfx_toggle = pygwidgets.TextButton(window, (300, 340), "SFX: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
         
         # Music toggle button
@@ -33,12 +35,18 @@ class SettingsScene(pyghelpers.Scene):
         # Back to Main Menu button
         self.backButton = pygwidgets.TextButton(window, (30, 550), "Back to Main Menu", upColor=yellow, overColor=yellow, downColor=yellow)
 
-    
+    ### Updated - WRONG
     def toggle_sfx_button(self):
-        # toggles the state and updates the button label
-        self.sfx_on = not self.sfx_on
-        new_label = "SFX: " + ("On" if self.sfx_on else "Off")
+        global sfx_on
+        #sfx_on is not sfx_on
+        if sfx_on: 
+            sfx_on = False
+        else:
+            sfx_on = True
+        print(sfx_on)
+        new_label = "SFX: " + ("On" if sfx_on else "Off")
         self.sfx_toggle = pygwidgets.TextButton(self.window, (300, 340), new_label, width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
+        
         
     def toggle_music_button(self):
         # toggles the state and updates the button label
@@ -47,8 +55,8 @@ class SettingsScene(pyghelpers.Scene):
         self.music_toggle = pygwidgets.TextButton(self.window, (300, 480), new_label, width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
 
     def handleInputs(self, events, keyPressedList):
-        for event in events:  # iterate over each event in the list of events
-            # pass each individual event to the handleEvent method of each button
+        global sfx_on
+        for event in events:
             if self.easy_button.handleEvent(event):
                 print("Easy difficulty selected")
             elif self.medium_button.handleEvent(event):
@@ -57,7 +65,7 @@ class SettingsScene(pyghelpers.Scene):
                 print("Hard difficulty selected")
             elif self.sfx_toggle.handleEvent(event):
                 self.toggle_sfx_button()  # update SFX button label
-                print("SFX " + ("on" if self.sfx_on else "off"))
+                print("SFX " + ("on" if sfx_on else "off"))
             elif self.music_toggle.handleEvent(event):
                 self.toggle_music_button()  # update Music button label
                 print("Music " + ("on" if self.music_on else "off"))

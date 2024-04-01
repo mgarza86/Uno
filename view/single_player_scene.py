@@ -4,6 +4,7 @@ import pyghelpers
 from model.game import Game
 from model.deck import Deck
 from model.player import Player, AIPlayer
+from variables import sfx_on
 
 # constants
 window_width = 800
@@ -14,6 +15,7 @@ black = (0, 0, 0)
 class SinglePlayerSetupScene(pyghelpers.Scene):
     def __init__(self, window):
         super().__init__()
+        print(sfx_on)
         self.window = window
         
         # text instruction for the player
