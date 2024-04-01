@@ -5,6 +5,10 @@ import threading
 import pygwidgets
 from time import sleep
 from model.player import Player
+from model.card import *
+from model.game import Game
+from model.deck import Deck
+
 
 class ServerPlayer(Player):
     def __init__(self, name):
