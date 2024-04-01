@@ -7,30 +7,16 @@ class Card():
     
     BACK_OF_CARD = pygame.image.load('./images/card_back_alt.png')
     
-    def __init__(self, window, color, value, file_name=None):
-        self.window = window
+    def __init__(self, color, value):
         self.color = color
         self.value = value
-        self.card_name = color + '_' + value
-        
-        if file_name is None:
-            file_name = './images/' + self.card_name + '.png'
-            
-        self.images = pygwidgets.ImageCollection(window, (0,0), 
-                                                 {'front': file_name,
-                                                  'back': Card.BACK_OF_CARD},'back')
+        self.card_name = f"{self.color}_{self.value}"
         
     def __str__(self):
         return f"{self.color} {self.value}"
 
     def __repr__(self):
         return f"Card('{self.color}', {self.value},{self.card_name})"
-    
-    def conceal(self):
-        self.images.replace('back')
-        
-    def reveal(self):
-        self.images.replace('front')
     
     def perform_action(self):
         pass
@@ -43,42 +29,7 @@ class Card():
     
     def get_name(self):
         return self.card_name
-    
-    def get_location(self):
-        return self.images.getLoc()
-    
-    def set_location(self, location):
-        self.images.setLoc(location)
-    
-    def set_centered_location(self, location):
-        self.images.setCenteredLoc(location)
-    
-    def draw(self):
-        self.images.draw()
-    
-    def rotate_card(self, angle):
-        self.images.rotateTo(angle)
-    
-    def set_scale(self, scale, scaleFromCenter=False):
-        self.images.scale(scale, scaleFromCenter)
-        
-    def get_rect(self):
-        return self.images.getRect()
-    
-    def get_collide_point(self,mouse_x, mouse_y):
-        return self.images.getRect().collidepoint(mouse_x, mouse_y)
-    
-    def get_size(self):
-        return self.images.getSize()
 
-    def move_x(self, pixels):
-        self.images.moveX(pixels)
-    
-    def handle_event(self, event):
-        if self.images.handleEvent(event):
-            return True
-        else:
-            return False
         
     
         
