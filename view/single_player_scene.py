@@ -34,7 +34,7 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
 
         # variable to keep track of selected NPC count
         self.selected_npc_count = None
-        self.deck = Deck(self.window)
+        self.deck = Deck()
         self.deck.shuffle()
         self.pc = Player(self.window,"Player One")
         self.npc1 = AIPlayer(self.window,"Player Two")
