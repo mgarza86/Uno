@@ -15,7 +15,6 @@ class CardView():
             self.images = pygwidgets.ImageCollection(window, (0,0), 
                                                     {'front': file_name,
                                                     'back': CardView.BACK_OF_CARD},'back')
-        
         def conceal(self):
             self.images.replace('back')
             
