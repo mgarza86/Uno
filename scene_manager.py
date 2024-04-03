@@ -9,7 +9,7 @@ from view.multi_player_scene import MultiPlayerLobbyScene
 from view.game_board import GameBoard
 from view.end_screen import EndScreen
 from view.pre_game_lobby import PreGameLobby
-
+from view.multiplayer_game_board import MultiplayerGameBoard
 
 # constants
 window_width = 800
@@ -28,6 +28,7 @@ multi_player_scene = MultiPlayerLobbyScene(window)
 game_board = GameBoard(window)
 end = EndScreen(window)
 pre_game_lobby = PreGameLobby(window)
+multiplayer_game_board = MultiplayerGameBoard(window)
 
 
 # scene management: store scenes in a dictionary
@@ -37,6 +38,7 @@ scenes_dict = {
         'single_player_setup': single_player_scene,
         'multi_player_lobby': multi_player_scene,
         'pre_game_lobby': pre_game_lobby,
+        'multiplayer_game_board': multiplayer_game_board,
         'game': game_board,
         'end': end
     }

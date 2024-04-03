@@ -74,7 +74,13 @@ def handle_client(client, player):
     while True:
         try:
             message = client.recv(4096).decode()
-            # Handle messages
+            
+            if message == "start_game$":
+                
+                # need a create game function
+                create_game(players)
+                broadcast("start_game$".encode())
+                
         except Exception as e:
             clients.remove(client)
             clients_names.remove(player.get_name())
@@ -84,6 +90,14 @@ def handle_client(client, player):
             broadcast_client_list()  # Update all clients on disconnect
             client.close()
             break
+
+def create_game(players):
+    deck = Deck()
+    deck.shuffle()
+    game = Game(players, Deck())
+    running = True
+    while running:
+        game.initialize_players(7)
         
 def broadcast(message):
     for client in clients:

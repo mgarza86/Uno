@@ -43,7 +43,12 @@ class PreGameLobby(pyghelpers.Scene):
         
     def handleInputs(self, events, keyPressedList):
         for event in events:
-            pass
+            if self.is_host and self.play_button.handleEvent(event):
+                if self.client is not None:
+                    self.client.send("start_game$".encode())
+                else:
+                    print("Connection to server not established.")
+
         
     def draw(self):
         self.window.fill((0, 0, 0))
@@ -69,7 +74,10 @@ class PreGameLobby(pyghelpers.Scene):
         while True:
             from_server = sck.recv(4096).decode()
             
-            if not from_server:
+            if from_server.startswith("game_start$"):
+                pyghelpers.goToScene('MultiplayerGameBoard')
+            
+            elif not from_server:
                 break
             if from_server.startswith("host_status$"):
                 self.is_host = from_server.split("$")[1] == "yes"

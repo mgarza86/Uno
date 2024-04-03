@@ -6,5 +6,15 @@ import threading
 import queue
 
 class MultiplayerGameBoard(pyghelpers.Scene):
-    def __init__(self) -> None:
+    def __init__(self, window) -> None:
         super().__init__()
+        self.window = window
+    
+    def enter(self):
+        return super().enter()
+        
+    def handleInputs(self, events, keyPressedList):
+        return super().handleInputs(events, keyPressedList)
+      
+    def draw(self):
+        return super().draw()
