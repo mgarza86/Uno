@@ -38,5 +38,17 @@ class Player():
         elif card.get_value() == value: 
             return True
         return False
+    
+    def to_dict(self, include_hand=False):
+        player_dict = {
+            'name': self.name,
+        }
+        if include_hand:
+            # Use Card's to_dict() for each card in the hand
+            player_dict['hand'] = [card.to_dict() for card in self.hand]
+        return player_dict
+
+    def to_json(self, include_hand=False):
+        return json.dumps(self.to_dict(include_hand=include_hand))
 
     

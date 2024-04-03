@@ -13,6 +13,17 @@ class Card():
 
     def __repr__(self):
         return f"Card('{self.color}', {self.value},{self.card_name})"
+    
+    def to_dict(self):
+        return {
+            'color': self.color,
+            'value': self.value,
+            'is_concealed': self.is_concealed,
+            'card_name': self.card_name
+        }
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), sort_keys=True, indent=4)
         
     def get_color(self):
         return self.color
@@ -22,9 +33,6 @@ class Card():
     
     def get_name(self):
         return self.card_name
-
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 class WildChanger(Card):
     
