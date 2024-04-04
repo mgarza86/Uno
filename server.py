@@ -4,10 +4,10 @@ import socket
 import threading
 import pygwidgets
 from time import sleep
-from model.player import Player
-from model.card import *
-from model.game import Game
-from model.deck import Deck
+from model.player_net import Player
+from model.card_net import *
+from model.game_net import Game
+from model.deck_net import Deck
 
 
 class ServerPlayer(Player):
@@ -53,7 +53,7 @@ def accept_connections():
         clients_names.append(client_name)
 
 
-        player = ServerPlayer(client_name)
+        player = Player(client_name)
         players.append(player)
         
         host_status_message = "host_status$no"  
