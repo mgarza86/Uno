@@ -20,6 +20,9 @@ class ServerPlayer(Player):
     
     def __repr__(self) -> str:
         return f"player('{self.get_name()}')"
+    
+    def to_json(self, include_hand=False):
+        return super().to_json(include_hand)
         
 # Server setup
 server = None
@@ -28,6 +31,7 @@ HOST_PORT = 8080
 clients = []
 players = []
 clients_names = []
+deck = Deck()
 
 
 pygame.init()
@@ -43,7 +47,7 @@ client_list_label = pygwidgets.DisplayText(screen, (20, 160), "**********Client 
 
 # Create a thread for accepting connections
 def accept_connections():
-    global server, clients, clients_names, players
+    global server, clients, clients_names, players, deck
     while True:
         client, addr = server.accept()
         client.send("NAME".encode())
@@ -71,10 +75,22 @@ def accept_connections():
         threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
         
 def handle_client(client, player):
+    global players, deck
+    deck.shuffle()
     while True:
         try:
             message = client.recv(4096).decode()
             
+            if message.startswith("draw_cards$"):
+                for _ in range(7):
+                    player.draw_card(deck)
+                    #print(f"Player {player.get_name()} has drawn 7 cards.")
+                    
+                hand_json = player.to_json(include_hand=True)
+                send_hand = f"hand${hand_json}"
+                client.send(send_hand.encode())    
+
+                
             if message == "start_game$":
                 
                 # need a create game function
@@ -82,6 +98,7 @@ def handle_client(client, player):
                 broadcast("start_game$".encode())
                 
         except Exception as e:
+            print(f"Error handling client: {e}")
             clients.remove(client)
             clients_names.remove(player.get_name())
             players.remove(player)
@@ -94,7 +111,7 @@ def handle_client(client, player):
 def create_game(players):
     deck = Deck()
     deck.shuffle()
-    game = Game(players, Deck())
+    game = Game(players, deck)
     running = True
     while running:
         game.initialize_players(7)
