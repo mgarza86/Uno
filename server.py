@@ -12,7 +12,7 @@ from model.deck_net import Deck
 
 class ServerPlayer(Player):
     def __init__(self, name):
-        super().__init__(None, name)
+        super().__init__(name)
         self.is_host = False 
         
     def __str__(self) -> str:
@@ -53,7 +53,7 @@ def accept_connections():
         clients_names.append(client_name)
 
 
-        player = Player(client_name)
+        player = ServerPlayer(client_name)
         players.append(player)
         
         host_status_message = "host_status$no"  
