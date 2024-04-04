@@ -1,4 +1,4 @@
-from card_net import *
+from model.card_net import *
 
 class Game():
     def __init__(self,  players, deck) -> None:

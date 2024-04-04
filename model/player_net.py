@@ -4,6 +4,8 @@ class Player():
     def __init__(self, name):
         self.name = name
         self.hand = []
+        self.angle = 0
+        self.location = (0,0)
     
     def __str__(self):
         return f"{self.name}"
@@ -13,7 +15,7 @@ class Player():
         
     def draw_card(self, deck):
         print(self.get_name(), "drew a card")
-        self.hand.append(deck.draw())
+        self.hand.append(deck.draw_card())
      
     def play_card(self, card):
         for cards in self.hand:

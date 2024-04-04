@@ -1,5 +1,5 @@
 import random
-from card_net import *
+from model.card_net import *
 
 class CardFactory:
     @staticmethod
@@ -60,10 +60,3 @@ class Deck:
     def print_deck(self):
         for card in self.cards:
             print(f"{card.card_name}")
-
-# # Usage
-# deck = Deck()
-# deck.shuffle()
-# deck.shuffle()
-# deck.shuffle()
-# deck.print_deck() 

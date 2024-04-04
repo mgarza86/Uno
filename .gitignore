@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 game_loop.py
 test.py
+test_server.py
+test_client.py
