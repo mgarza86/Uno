@@ -88,7 +88,7 @@ class Player():
             if vertical_layout:
                 card_location = self.next_card_location(self.hand[hovered_index-1], overlap=overlap_amount, vertical=vertical_layout) if hovered_index > 0 else self.set_card_on_center(self.hand[hovered_index])
                 self.hand[hovered_index].set_location(card_location)
-            self.hand[hovered_index].reveal()
+
             self.hand[hovered_index].set_scale(60)
             self.hand[hovered_index].draw()
 
