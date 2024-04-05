@@ -6,6 +6,8 @@ import threading
 import sys
 import queue
 import json
+from model.card_factory import CardFactory
+from view.hand_view import HandView
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -21,6 +23,9 @@ class PreGameLobby(pyghelpers.Scene):
         self.play_button = pygwidgets.TextButton(window, (100, 200), "Play", width=100, height=50)
         self.is_host = False
         self.bg_color = BLACK
+        self.client_hand = []
+        self.hand_ready = False
+        self.show_hand = None
         #self.window.fill((0, 0, 0))
         
     def enter(self, data):
@@ -43,6 +48,8 @@ class PreGameLobby(pyghelpers.Scene):
             elif message.startswith("host_status$"):
                 # Handle host status message
                 self.is_host = message.split("$")[1] == "yes"
+        self.client_hand = self.create_cards_from_json(self.client_hand)        
+        
 
     def handleInputs(self, events, keyPressedList):
         for event in events:
@@ -63,6 +70,8 @@ class PreGameLobby(pyghelpers.Scene):
             #self.notification.setValue("You are the host. Waiting for other players to join...")
             self.play_button.draw()
         self.notification.draw()
+        if self.hand_ready:
+            self.show_hand.draw()
     
     def connect(self):
         global client, HOST_ADDR, HOST_PORT
@@ -90,12 +99,14 @@ class PreGameLobby(pyghelpers.Scene):
                 json_hand = from_server[5:]
                 try:
                     hand_data = json.loads(json_hand)
-                    print(f"Received hand data: {hand_data}")
+                    #print(f"Received hand data: {hand_data}")
+
+                    self.show_hand = HandView(self.window, hand_data)
+                    self.hand_ready = True
                 except json.JSONDecodeError as e:
                     print(f"Error decoding hand JSON: {e}")
                     continue
-                
-
+            
             if from_server.startswith("host_status$"):
                 self.is_host = from_server.split("$")[1] == "yes"
                 print(f"Received host status: {self.is_host}")
@@ -104,3 +115,10 @@ class PreGameLobby(pyghelpers.Scene):
                             
         sck.close()
         
+        
+    def create_cards_from_json(self, hand_data):
+        cards = []
+        for card_data in hand_data:
+            card = CardFactory.create_card(self.window, card_data['card_type'], card_data['color'], card_data['value'])
+            cards.append(card)
+        return cards

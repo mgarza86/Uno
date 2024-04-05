@@ -33,7 +33,6 @@ players = []
 clients_names = []
 deck = Deck()
 
-
 pygame.init()
 
 screen = pygame.display.set_mode((400, 300))
