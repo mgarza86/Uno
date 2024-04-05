@@ -55,9 +55,9 @@ class HandView:
                 card.reveal()
                 card.set_scale(60)
                 card.draw()
-                
-        self.cards[hovered_index].set_scale(60)
-        self.cards[hovered_index].draw()
+        if hovered_index is not None:        
+            self.cards[hovered_index].set_scale(60)
+            self.cards[hovered_index].draw()
     
     def calculate_hand_width(self, overlap):
         if not self.cards:

@@ -11,7 +11,7 @@ class Card():
         self.window = window
         self.color = color
         self.value = value
-        self.card_name = color + '_' + value
+        self.card_name = color + '_' + str(value)
         
         if file_name is None:
             file_name = './images/' + self.card_name + '.png'
