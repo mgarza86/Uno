@@ -55,7 +55,6 @@ def accept_connections():
         clients.append(client)
         clients_names.append(client_name)
 
-
         player = ServerPlayer(client_name)
         players.append(player)
         
@@ -80,24 +79,11 @@ def handle_client(client, player):
         try:
             message = client.recv(4096).decode()
             
-            if message.startswith("draw_cards$"):
-                for _ in range(7):
-                    player.draw_card(deck)
-                    #print(f"Player {player.get_name()} has drawn 7 cards.")
-                    
-                hand_json = player.to_json(include_hand=True)
-                send_hand = f"hand${hand_json}"
-                client.send(send_hand.encode())    
-
-                
-            if message == "start_game$":
-                
-                # need a create game function
-                create_game(players)
-                broadcast("start_game$".encode())
+            
                 
         except Exception as e:
             print(f"Error handling client: {e}")
+            # Error handling and cleanup
             clients.remove(client)
             clients_names.remove(player.get_name())
             players.remove(player)
@@ -107,6 +93,7 @@ def handle_client(client, player):
             client.close()
             break
 
+
 def create_game(players):
     deck = Deck()
     deck.shuffle()
@@ -114,6 +101,11 @@ def create_game(players):
     running = True
     while running:
         game.initialize_players(7)
+        
+        for player in players:
+           hand_json = game.players[player].to_json(include_hand=True)
+           send_hand = f"hand${hand_json}"
+           player.send(send_hand.encode()) 
         
 def broadcast(message):
     for client in clients:

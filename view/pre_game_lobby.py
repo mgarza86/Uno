@@ -58,8 +58,8 @@ class PreGameLobby(pyghelpers.Scene):
                 
                 if self.client:
                     try:
-                        print("sending draw cards message to server")
-                        self.client.send("draw_cards$".encode())
+                        print("sending $start_game message to server")
+                        self.client.send("start_game$".encode())
                     except Exception as e:
                         print(f"Error sending draw cards message: {e}")
                 
