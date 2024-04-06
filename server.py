@@ -74,12 +74,16 @@ def accept_connections():
         
 def handle_client(client, player):
     global players, deck
-    deck.shuffle()
     while True:
         try:
             message = client.recv(4096).decode()
-            
-            
+            if message == "start_game$":
+                if player.is_host:  # Ensuring only the host can start the game
+                    print("Starting the game...")
+                    create_game(players)
+                else:
+                    print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
+            # You can add more commands here as needed
                 
         except Exception as e:
             print(f"Error handling client: {e}")
@@ -95,17 +99,17 @@ def handle_client(client, player):
 
 
 def create_game(players):
+    global clients  # Ensure you have access to the global clients list
     deck = Deck()
     deck.shuffle()
     game = Game(players, deck)
-    running = True
-    while running:
-        game.initialize_players(7)
-        
-        for player in players:
-           hand_json = game.players[player].to_json(include_hand=True)
-           send_hand = f"hand${hand_json}"
-           player.send(send_hand.encode()) 
+    game.initialize_players(7)  # Initialize players with 7 cards each
+    
+    for player in players:
+        hand_json = player.to_json(include_hand=True)
+        send_hand = f"hand${hand_json}"
+        client_index = players.index(player)  # Find the index of the player to match with the client list
+        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
         
 def broadcast(message):
     for client in clients:

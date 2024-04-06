@@ -11,11 +11,11 @@ class Game():
         self.current_player_index = 0
                 
     def initialize_players(self, number_of_cards=7):
-        self.rotate_player_hands(self.players)
+        #self.rotate_player_hands(self.players)
         for o_player in self.players:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
-            o_player.initialize_card_positions()
+            #o_player.initialize_card_positions()
         
     def check_direction(self):
         return self.current_direction
