@@ -166,4 +166,6 @@ class AIPlayer(Player):
     #     pass
     
     
- 
+    def set_card_on_center_edge(self, card, edge):
+        card_width, card_height = card.getSize()
+        window_width, window_height = self.window.get_size()

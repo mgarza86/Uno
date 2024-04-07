@@ -8,8 +8,6 @@ from model.player_net import Player
 from model.card_net import *
 from model.game_net import Game
 from model.deck_net import Deck
-
-
 class ServerPlayer(Player):
     def __init__(self, name):
         super().__init__(name)
@@ -97,13 +95,13 @@ def handle_client(client, player):
             client.close()
             break
 
-
 def create_game(players):
     global clients  # Ensure you have access to the global clients list
     deck = Deck()
     deck.shuffle()
     game = Game(players, deck)
     game.initialize_players(7)  # Initialize players with 7 cards each
+    broadcast_opponent_card_count()
     
     for player in players:
         hand_json = player.to_json(include_hand=True)
@@ -126,6 +124,16 @@ def update_client_list_display():
     global client_list_label, clients_names
     display_text = "**********Client List**********\n" + "\n".join(clients_names)
     client_list_label.setValue(display_text)
+    
+def broadcast_opponent_card_count():
+    global players, clients
+    for index, client in enumerate(clients):
+        message_parts = []
+        for opponent_index, opponent in enumerate(players):
+            if opponent_index != index:
+                message_parts.append(f"{opponent.get_name()},{opponent.get_card_count()}")
+        message = "opponent_cards_count$" + ";".join(message_parts)
+        client.send(message.encode())
 
 def start_server():
     global server, HOST_ADDR, HOST_PORT, clients, clients_names, players
@@ -151,11 +159,9 @@ def stop_server():
     stop_button.disable()
     print("Server stopped.")
 
-
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (200, 200, 200)
-
 
 running = True
 while running:

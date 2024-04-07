@@ -52,5 +52,8 @@ class Player():
 
     def to_json(self, include_hand=False):
         return json.dumps(self.to_dict(include_hand=include_hand))
-
+    
+    def get_card_count(self):
+        return len(self.hand)
+    
     

@@ -8,6 +8,7 @@ import queue
 import json
 from model.card_factory import CardFactory
 from view.hand_view import HandView
+from view.view_opponent import ViewOpponent
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -26,7 +27,8 @@ class PreGameLobby(pyghelpers.Scene):
         self.client_hand = []
         self.hand_ready = False
         self.show_hand = None
-        #self.window.fill((0, 0, 0))
+        self.view_opponent = ViewOpponent(self.window)
+
         
     def enter(self, data):
         self.client_name = data.get("player_name")
@@ -50,7 +52,6 @@ class PreGameLobby(pyghelpers.Scene):
                 self.is_host = message.split("$")[1] == "yes"
         self.client_hand = self.create_cards_from_json(self.client_hand)        
         
-
     def handleInputs(self, events, keyPressedList):
         for event in events:
             if self.play_button.handleEvent(event):
@@ -67,9 +68,11 @@ class PreGameLobby(pyghelpers.Scene):
         self.window.fill((self.bg_color))
         #print("Drawing scene, is_host:", self.is_host)
         if self.is_host:
-            #self.notification.setValue("You are the host. Waiting for other players to join...")
             self.play_button.draw()
         self.notification.draw()
+        
+        self.view_opponent.draw()
+        
         if self.hand_ready:
             self.show_hand.draw()
     
@@ -107,6 +110,12 @@ class PreGameLobby(pyghelpers.Scene):
                     print(f"Error decoding hand JSON: {e}")
                     continue
             
+            if from_server.startswith("opponent_cards_count$"):
+                opponent_data = from_server.split("$")[1]
+                #self.view_opponent = ViewOpponent(self.window)
+                self.view_opponent.update_opponent(opponent_data)
+                #self.update_opponents(opponent_data)
+            
             if from_server.startswith("host_status$"):
                 self.is_host = from_server.split("$")[1] == "yes"
                 print(f"Received host status: {self.is_host}")
@@ -114,7 +123,6 @@ class PreGameLobby(pyghelpers.Scene):
                 self.message_queue.put(from_server)
                             
         sck.close()
-        
         
     def create_cards_from_json(self, hand_data):
         cards = []
