@@ -11,11 +11,11 @@ class Game():
         self.current_player_index = 0
                 
     def initialize_players(self, number_of_cards=7):
-        self.rotate_player_hands(self.players)
+        #self.rotate_player_hands(self.players)
         for o_player in self.players:
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
-            o_player.initialize_card_positions()
+            #o_player.initialize_card_positions()
         
     def check_direction(self):
         return self.current_direction
@@ -80,7 +80,18 @@ class Game():
             "current_color": self.current_color,
             "current_value": self.current_value,
             "current_player_index": self.current_player_index,
+            "current_player": self.players[self.current_player_index].name,
+            "next_player": self.players[(self.current_player_index + self.current_direction) % 
+                                        len(self.players)].name,
         }
         
     def game_state_to_json(self):
         return json.dumps(self.game_state_to_dict(), sort_keys=True, indent=4)
+    
+    def players_hand_to_dict(self):
+        return {player.name: player.hand_to_dict() for player in self.players}
+    
+    def get_current_player(self):
+        return self.players[self.current_player_index]
+    
+    

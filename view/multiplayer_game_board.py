@@ -9,6 +9,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
     def __init__(self, window) -> None:
         super().__init__()
         self.window = window
+        
     
     def enter(self):
         return super().enter()
@@ -17,4 +18,4 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         return super().handleInputs(events, keyPressedList)
       
     def draw(self):
-        return super().draw()
+        self.window.fill((255, 255, 255))
