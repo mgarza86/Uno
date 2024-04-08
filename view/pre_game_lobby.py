@@ -28,6 +28,7 @@ class PreGameLobby(pyghelpers.Scene):
         self.hand_ready = False
         self.show_hand = None
         self.view_opponent = ViewOpponent(self.window)
+        self.current_player = None
 
         
     def enter(self, data):
@@ -53,6 +54,7 @@ class PreGameLobby(pyghelpers.Scene):
         self.client_hand = self.create_cards_from_json(self.client_hand)        
         
     def handleInputs(self, events, keyPressedList):
+        
         for event in events:
             if self.play_button.handleEvent(event):
                 self.bg_color = (0, 0, 255)
@@ -63,6 +65,10 @@ class PreGameLobby(pyghelpers.Scene):
                         self.client.send("start_game$".encode())
                     except Exception as e:
                         print(f"Error sending draw cards message: {e}")
+                        
+
+            #current_player = self.game.players_list[self.game.current_player_index]
+            
                 
     def draw(self):
         self.window.fill((self.bg_color))

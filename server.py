@@ -78,7 +78,7 @@ def handle_client(client, player):
             if message == "start_game$":
                 if player.is_host:  # Ensuring only the host can start the game
                     print("Starting the game...")
-                    create_game(players)
+                    game_loop(message, players)
                 else:
                     print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
             # You can add more commands here as needed
@@ -109,7 +109,7 @@ def create_game(players):
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
         
-def game_loop(message, players, deck):
+def game_loop(message, players):
     global clients  
     deck = Deck()
     deck.shuffle()
@@ -127,23 +127,37 @@ def game_loop(message, players, deck):
         current_player = game.get_current_player()
         
         # notify current player to all clients
+        broadcast(f"current_player${current_player.get_name()}".encode())
         
         # wait for current player to play card or draw card
+        if message.startswith("play_card$"):
+            card_played = message.split("$")[1]
+            current_player.play_card(card_played)
+            
+        elif message.startswith("draw_card$"):
+            current_player.draw_card(deck)
         
         # check if current player has won
-        
-        # if current player has won, notify all clients who won break out of loop
+        if game.check_game_end(current_player):
+            broadcast("game_end$".encode())
+            break
         
         # if current player has not won, check the card played
         # if card played is a special card, perform the action
         
         # determine next player
-        
+            
         # broadcast the updated card count to all clients
         # broadcast the updated discard pile to all clients
         # broadcast the updated current player to all clients
-        
+            
         # continue loop until game ends
+        
+    # if current player has won, notify all clients who won break out of loop
+    winner = current_player.get_name()
+    notification = f"game_end${winner} has won!"
+        
+    
         
 def broadcast(message):
     for client in clients:
