@@ -30,7 +30,7 @@ clients = []
 players = []
 clients_names = []
 deck = Deck()
-
+game = Game(players, deck)
 pygame.init()
 
 screen = pygame.display.set_mode((400, 300))
@@ -44,7 +44,7 @@ client_list_label = pygwidgets.DisplayText(screen, (20, 160), "**********Client 
 
 # Create a thread for accepting connections
 def accept_connections():
-    global server, clients, clients_names, players, deck
+    global server, clients, clients_names, players, deck, game
     while True:
         client, addr = server.accept()
         client.send("NAME".encode())
@@ -96,7 +96,7 @@ def handle_client(client, player):
             break
 
 def create_game(players):
-    global clients  # Ensure you have access to the global clients list
+    global clients  
     deck = Deck()
     deck.shuffle()
     game = Game(players, deck)
@@ -108,6 +108,42 @@ def create_game(players):
         send_hand = f"hand${hand_json}"
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
+        
+def game_loop(message, players, deck):
+    global clients  
+    deck = Deck()
+    deck.shuffle()
+    game = Game(players, deck)
+    game.initialize_players(7)  # Initialize players with 7 cards each
+    broadcast_opponent_card_count()
+    
+    for player in players:
+        hand_json = player.to_json(include_hand=True)
+        send_hand = f"hand${hand_json}"
+        client_index = players.index(player)  # Find the index of the player to match with the client list
+        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
+    
+    while not game.check_game_end():
+        current_player = game.get_current_player()
+        
+        # notify current player to all clients
+        
+        # wait for current player to play card or draw card
+        
+        # check if current player has won
+        
+        # if current player has won, notify all clients who won break out of loop
+        
+        # if current player has not won, check the card played
+        # if card played is a special card, perform the action
+        
+        # determine next player
+        
+        # broadcast the updated card count to all clients
+        # broadcast the updated discard pile to all clients
+        # broadcast the updated current player to all clients
+        
+        # continue loop until game ends
         
 def broadcast(message):
     for client in clients:
