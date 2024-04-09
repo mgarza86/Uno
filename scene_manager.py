@@ -1,6 +1,5 @@
 import pygame
 import pyghelpers
-from model.settings_class import Settings
 
 # importing scenes from the view folder
 from view.mainMenu import MainMenuScene
@@ -10,6 +9,7 @@ from view.multi_player_scene import MultiPlayerLobbyScene
 from view.game_board import GameBoard
 from view.end_screen import EndScreen
 from view.pre_game_lobby import PreGameLobby
+from model.settings_class import Settings
 
 
 # constants
