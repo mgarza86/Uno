@@ -2,6 +2,7 @@ import pygame
 import pygwidgets
 from model.card import *
 
+
 class Game():
     def __init__(self,window,  players, deck, settings) -> None:
         super().__init__()
