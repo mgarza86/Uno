@@ -1,5 +1,6 @@
 import pygame
 import pyghelpers
+from model.settings_class import Settings
 
 # importing scenes from the view folder
 from view.mainMenu import MainMenuScene
