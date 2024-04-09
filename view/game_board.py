@@ -14,8 +14,9 @@ white = (255, 255, 255)
 
 class GameBoard(pyghelpers.Scene):
     
-    def __init__(self, window) -> None:
+    def __init__(self, window, settings) -> None:
         self.window = window
+        self.settings = settings
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
         
