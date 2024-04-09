@@ -11,9 +11,10 @@ gray = (141, 141, 141)
 
 
 class MultiPlayerLobbyScene(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         
         # title and instructions
         self.lobby_title = pygwidgets.DisplayText(window, (100, 80), "Lets play Py-Uno with friends!", fontSize=48, textColor=black, width=600, justified='center')

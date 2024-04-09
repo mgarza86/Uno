@@ -5,8 +5,10 @@ import model.game
 
 class EndScreen(pyghelpers.Scene):
     
-    def __init__(self, window) -> None:
+    def __init__(self, window, settings) -> None:
+        super().__init__()
         self.window = window
+        self.settings = settings
         self.back_ground_color = (161, 59, 113)
         
     

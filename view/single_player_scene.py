@@ -12,9 +12,10 @@ yellow = (255, 255, 0)
 black = (0, 0, 0)
 
 class SinglePlayerSetupScene(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         
         # text instruction for the player
         self.instructions_text = pygwidgets.DisplayText(window, (75, 60), 

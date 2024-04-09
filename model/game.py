@@ -4,6 +4,7 @@ from model.card import *
 
 class Game():
     def __init__(self,window,  players, deck, settings) -> None:
+        super().__init__()
         self.window = window
         self.settings = settings
         self.players_list = players

@@ -9,9 +9,10 @@ yellow = (255, 255, 0)
 
 # settings scene class
 class SettingsScene(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         self.main_title = pygwidgets.DisplayText(window, (305, 40), "Settings", fontSize=75, textColor="black")
 
         # AI difficulty buttons
