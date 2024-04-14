@@ -1,18 +1,20 @@
 import json
+import uuid
 
 class Player():
-    def __init__(self, name):
+    def __init__(self, name, client_id=None):
         self.name = name
         self.hand = []
         self.angle = 0
         self.location = (0,0)
+        self.client_id = client_id
     
     def __str__(self):
         return f"{self.name}"
     
     def __repr__(self):
         return f"Player('{self.name}')"
-        
+    
     def draw_card(self, deck):
         print(self.get_name(), "drew a card")
         self.hand.append(deck.draw_card())
@@ -24,6 +26,9 @@ class Player():
                 self.hand.append(self.hand.pop(card_index))
 
         return self.hand.pop()   
+    
+    def get_client_id(self):
+        return self.client_id
     
     def get_name(self):
         return self.name
@@ -46,7 +51,6 @@ class Player():
             'name': self.name,
         }
         if include_hand:
-            # Use Card's to_dict() for each card in the hand
             player_dict['hand'] = [card.to_dict() for card in self.hand]
         return player_dict
 
@@ -55,6 +59,3 @@ class Player():
     
     def get_card_count(self):
         return len(self.hand)
-    
-    
-    

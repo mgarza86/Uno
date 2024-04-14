@@ -29,10 +29,13 @@ class PreGameLobby(pyghelpers.Scene):
         self.show_hand = None
         self.view_opponent = ViewOpponent(self.window)
         self.current_player = None
+        self.current_player_banner = pygwidgets.DisplayText(self.window, (100, 100), f"Current Player: {self.current_player}", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
+        
 
         
     def enter(self, data):
         self.client_name = data.get("player_name")
+        self.client_id = data.get("client_id")
         self.lobby_name = data.get("lobby_name")
         self.notification = pygwidgets.DisplayText(self.window, (100, 80), f"{self.client_name} has joined. Waiting for other players to join...", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
         self.connect()
@@ -49,9 +52,11 @@ class PreGameLobby(pyghelpers.Scene):
                 display_message = f"**********Client List**********\n{client_list_str}"
                 self.notification.setValue(display_message)
             elif message.startswith("host_status$"):
-                # Handle host status message
+                # Handle host status 
+                print(self.is_host)
                 self.is_host = message.split("$")[1] == "yes"
-        self.client_hand = self.create_cards_from_json(self.client_hand)        
+        self.client_hand = self.create_cards_from_json(self.client_hand)
+                
         
     def handleInputs(self, events, keyPressedList):
         
@@ -88,7 +93,9 @@ class PreGameLobby(pyghelpers.Scene):
         try:
             self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client.connect((HOST_ADDR, HOST_PORT))
-            self.client.send(self.client_name.encode())  # Send name to server after connecting
+            self.client.send(f"NAME:{self.client_name}".encode())  # Send name to server after connecting
+            self.client.send(f"ID:{self.client_id}".encode())  # Send client ID to server after connecting
+            
             
             threading.Thread(target=self.receive_message_from_server, args=(self.client,), daemon=True).start()
         except Exception as e:
@@ -121,6 +128,9 @@ class PreGameLobby(pyghelpers.Scene):
                 #self.view_opponent = ViewOpponent(self.window)
                 self.view_opponent.update_opponent(opponent_data)
                 #self.update_opponents(opponent_data)
+                
+            if from_server.startswith("current_player$"):
+                pass
             
             if from_server.startswith("host_status$"):
                 self.is_host = from_server.split("$")[1] == "yes"

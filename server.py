@@ -9,8 +9,8 @@ from model.card_net import *
 from model.game_net import Game
 from model.deck_net import Deck
 class ServerPlayer(Player):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, client_id=None) -> None:
+        super().__init__(name, client_id)
         self.is_host = False 
         
     def __str__(self) -> str:
@@ -42,33 +42,39 @@ address_label = pygwidgets.DisplayText(screen, (20, 100), "Address: 127.0.0.1", 
 port_label = pygwidgets.DisplayText(screen, (20, 130), "Port: 8080", fontSize=18)
 client_list_label = pygwidgets.DisplayText(screen, (20, 160), "**********Client List**********", fontSize=18)
 
-# Create a thread for accepting connections
 def accept_connections():
     global server, clients, clients_names, players, deck, game
     while True:
         client, addr = server.accept()
-        client.send("NAME".encode())
-        client_name = client.recv(1024).decode()
-
+        data_received = ""
+        while len(data_received.split(':')) < 3:  # Ensure both NAME: and ID: are received
+            data_received += client.recv(1024).decode()
+        
+        data_parts = data_received.split(':')
+        client_name = data_parts[1] if "NAME" in data_parts[0] else data_parts[3]
+        client_id = data_parts[3] if "ID" in data_parts[2] else data_parts[1]
+        
         clients.append(client)
         clients_names.append(client_name)
 
-        player = ServerPlayer(client_name)
+        # Create a ServerPlayer object with name and ID
+        player = ServerPlayer(client_name, client_id)
         players.append(player)
-        
-        host_status_message = "host_status$no"  
+
+        # Determine and send host status
+        host_status_message = "host_status$no"
         if players[0] == player:
             player.is_host = True
             host_status_message = "host_status$yes"
-        print(f"Player {player.get_name()} has connected.")
+        print(f"Player {player.get_name()} with ID {player.get_client_id()} has connected.")
 
-        print(f"Sending host status to {player.get_name()}: {host_status_message}")
         client.send(host_status_message.encode())
-        
+
         update_client_list_display()
         broadcast_client_list()  # Update all clients with the new list
-
+        
         threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
+
         
 def handle_client(client, player):
     global players, deck
@@ -81,7 +87,6 @@ def handle_client(client, player):
                     game_loop(message, players)
                 else:
                     print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
-            # You can add more commands here as needed
                 
         except Exception as e:
             print(f"Error handling client: {e}")
@@ -94,20 +99,6 @@ def handle_client(client, player):
             broadcast_client_list()  # Update all clients on disconnect
             client.close()
             break
-
-def create_game(players):
-    global clients  
-    deck = Deck()
-    deck.shuffle()
-    game = Game(players, deck)
-    game.initialize_players(7)  # Initialize players with 7 cards each
-    broadcast_opponent_card_count()
-    
-    for player in players:
-        hand_json = player.to_json(include_hand=True)
-        send_hand = f"hand${hand_json}"
-        client_index = players.index(player)  # Find the index of the player to match with the client list
-        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
         
 def game_loop(message, players):
     global clients  
@@ -124,10 +115,10 @@ def game_loop(message, players):
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
     
     while not game.check_game_end():
-        current_player = game.get_current_player()
+        current_player = game.broadcast_current_player()
         
         # notify current player to all clients
-        broadcast(f"current_player${current_player.get_name()}".encode())
+        broadcast(f"current_player${current_player}".encode())
         
         # wait for current player to play card or draw card
         if message.startswith("play_card$"):

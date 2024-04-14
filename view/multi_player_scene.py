@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import pyghelpers
+import uuid
 
 # Constants
 window_width = 800
@@ -45,9 +46,10 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
             if self.play_button.handleEvent(event):
                 player_name = self.player_name_field.getValue()
                 lobby_name = self.lobby_name_field.getValue()
+                client_id = str(uuid.uuid4())
                 print(f"Player Name: {player_name}, Lobby Name: {lobby_name}")
                 # here the players would go to the game, passing along these values
-                scene_data = {"player_name": player_name, "lobby_name": lobby_name}
+                scene_data = {"player_name": player_name, "lobby_name": lobby_name, "client_id": client_id}
                 
                 self.goToScene('pre_game_lobby', data=scene_data)
             elif self.player_name_field.handleEvent(event):

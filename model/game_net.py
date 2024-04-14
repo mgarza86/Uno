@@ -94,3 +94,11 @@ class Game():
     def get_current_player(self):
         return self.players[self.current_player_index]
     
+    def broadcast_current_player(self):
+        
+        return json.dumps({"current_player": self.players[self.current_player_index].name 
+                           ,"client_id": self.players[self.current_player_index].client_id}, indent=4)
+
+    def get_current_player_client_id(self):
+        return json.dumps({"client_id": self.players[self.current_player_index].client_id}, indent=4)
+    
