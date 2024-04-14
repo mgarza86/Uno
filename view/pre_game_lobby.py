@@ -6,6 +6,7 @@ import threading
 import sys
 import queue
 import json
+import logging
 from model.card_factory import CardFactory
 from view.hand_view import HandView
 from view.view_opponent import ViewOpponent
@@ -13,7 +14,20 @@ from view.view_opponent import ViewOpponent
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 HOST_ADDR = "127.0.0.1"
-HOST_PORT = 8080
+HOST_PORT = 
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='app.log',  # Log to a file
+                    filemode='w')  # Use 'a' to append; 'w' to overwrite each time
+
+# Additional configuration for console logging
+console_logger = logging.StreamHandler()
+console_logger.setLevel(logging.ERROR)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_logger.setFormatter(console_formatter)
+logging.getLogger('').addHandler(console_logger)
 
 class PreGameLobby(pyghelpers.Scene):
     def __init__(self, window):
@@ -30,7 +44,7 @@ class PreGameLobby(pyghelpers.Scene):
         self.view_opponent = ViewOpponent(self.window)
         self.current_player = None
         self.current_player_banner = pygwidgets.DisplayText(self.window, (100, 100), f"Current Player: {self.current_player}", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
-        
+
 
         
     def enter(self, data):
@@ -55,6 +69,10 @@ class PreGameLobby(pyghelpers.Scene):
                 # Handle host status 
                 print(self.is_host)
                 self.is_host = message.split("$")[1] == "yes"
+            elif message.startswith("current_player$"):
+                # Handle current player message
+                self.current_player = message.split("$")[1]
+                self.current_player_banner.setValue(f"Current Player: {self.current_player}")
         self.client_hand = self.create_cards_from_json(self.client_hand)
                 
         
@@ -81,7 +99,7 @@ class PreGameLobby(pyghelpers.Scene):
         if self.is_host:
             self.play_button.draw()
         self.notification.draw()
-        
+        self.current_player_banner.draw()
         self.view_opponent.draw()
         
         if self.hand_ready:
@@ -93,8 +111,8 @@ class PreGameLobby(pyghelpers.Scene):
         try:
             self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client.connect((HOST_ADDR, HOST_PORT))
-            self.client.send(f"NAME:{self.client_name}".encode())  # Send name to server after connecting
-            self.client.send(f"ID:{self.client_id}".encode())  # Send client ID to server after connecting
+            self.client.send(f"NAME:{self.client_name};".encode())  # Send name to server after connecting
+            self.client.send(f"ID:{self.client_id};".encode())  # Send client ID to server after connecting
             
             
             threading.Thread(target=self.receive_message_from_server, args=(self.client,), daemon=True).start()

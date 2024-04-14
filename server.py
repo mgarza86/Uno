@@ -2,12 +2,29 @@ import pygame
 import sys
 import socket
 import threading
+import logging
 import pygwidgets
 from time import sleep
 from model.player_net import Player
 from model.card_net import *
 from model.game_net import Game
 from model.deck_net import Deck
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='app.log',  # Log to a file
+                    filemode='w')  # Use 'a' to append; 'w' to overwrite each time
+
+# Additional configuration for console logging
+console_logger = logging.StreamHandler()
+console_logger.setLevel(logging.ERROR)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_logger.setFormatter(console_formatter)
+logging.getLogger('').addHandler(console_logger)
+
+
+
 class ServerPlayer(Player):
     def __init__(self, name, client_id=None) -> None:
         super().__init__(name, client_id)
@@ -47,20 +64,23 @@ def accept_connections():
     while True:
         client, addr = server.accept()
         data_received = ""
-        while len(data_received.split(':')) < 3:  # Ensure both NAME: and ID: are received
+        while 'NAME:' not in data_received or 'ID:' not in data_received:
             data_received += client.recv(1024).decode()
-        
-        data_parts = data_received.split(':')
-        client_name = data_parts[1] if "NAME" in data_parts[0] else data_parts[3]
-        client_id = data_parts[3] if "ID" in data_parts[2] else data_parts[1]
-        
+
+        name_index = data_received.find("NAME:") + 5
+        id_index = data_received.find("ID:") + 3
+        name_end = data_received.find(";", name_index)
+        id_end = data_received.find(";", id_index)
+
+        client_name = data_received[name_index:name_end if name_end != -1 else None]
+        client_id = data_received[id_index:id_end if id_end != -1 else None]
+
         clients.append(client)
         clients_names.append(client_name)
 
         # Create a ServerPlayer object with name and ID
         player = ServerPlayer(client_name, client_id)
         players.append(player)
-
         # Determine and send host status
         host_status_message = "host_status$no"
         if players[0] == player:
@@ -81,13 +101,15 @@ def handle_client(client, player):
     while True:
         try:
             message = client.recv(4096).decode()
-            if message == "start_game$":
-                if player.is_host:  # Ensuring only the host can start the game
-                    print("Starting the game...")
-                    game_loop(message, players)
-                else:
-                    print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
+            if isinstance(player, Player):
                 
+                if message == "start_game$":
+                    if player.is_host:  # Ensuring only the host can start the game
+                        print("Starting the game...")
+                        game_loop(message, players)
+                    else:
+                        print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
+            else:raise TypeError(f"Excpected Player object, got {type(player)}: {player}")        
         except Exception as e:
             print(f"Error handling client: {e}")
             # Error handling and cleanup
@@ -113,8 +135,8 @@ def game_loop(message, players):
         send_hand = f"hand${hand_json}"
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
-    
-    while not game.check_game_end():
+    in_progress = True
+    while in_progress:
         current_player = game.broadcast_current_player()
         
         # notify current player to all clients
@@ -131,6 +153,7 @@ def game_loop(message, players):
         # check if current player has won
         if game.check_game_end(current_player):
             broadcast("game_end$".encode())
+            in_progress = False
             break
         
         # if current player has not won, check the card played

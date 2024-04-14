@@ -162,4 +162,5 @@ game_loop.py
 test.py
 test_server.py
 test_client.py
-test_manager.py
+test_manager.
+app.log
