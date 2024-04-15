@@ -95,10 +95,13 @@ class Game():
         return self.players[self.current_player_index]
     
     def broadcast_current_player(self):
+        dictionary = {"current_player": self.players[self.current_player_index].name 
+                           ,"client_id": self.players[self.current_player_index].client_id}
         
-        return json.dumps({"current_player": self.players[self.current_player_index].name 
-                           ,"client_id": self.players[self.current_player_index].client_id}, indent=4)
+        
+        return json.dumps(dictionary, indent=4)
 
     def get_current_player_client_id(self):
-        return json.dumps({"client_id": self.players[self.current_player_index].client_id}, indent=4)
+        current_player = str(self.players[self.current_player_index].client_id)
+        return json.dumps({"client_id": current_player})
     

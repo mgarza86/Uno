@@ -66,7 +66,7 @@ def accept_connections():
         data_received = ""
         while 'NAME:' not in data_received or 'ID:' not in data_received:
             data_received += client.recv(1024).decode()
-            logging.debug(f"Data received: {data_received}")
+            #logging.debug(f"Data received: {data_received}")
 
         name_index = data_received.find("NAME:") + 5
         id_index = data_received.find("ID:") + 3
@@ -103,7 +103,7 @@ def handle_client(client, player):
         try:
             message = client.recv(4096).decode()
             if isinstance(player, Player):
-                logging.debug(f"Received message from {player.get_name()}: {message}")
+                #logging.debug(f"Received message from {player.get_name()}: {message}")
                 if message == "start_game$":
                     if player.is_host:  # Ensuring only the host can start the game
                         print("Starting the game...")
@@ -135,27 +135,29 @@ def game_loop(message, players):
     for player in players:
         hand_json = player.to_json(include_hand=True)
         send_hand = f"hand${hand_json}\n"
-        logging.debug(f"Sending hand to {player.get_name()}: {send_hand}")
+        #logging.debug(f"Sending hand to {player.get_name()}: {send_hand}")
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding 
-        logging.debug(f"Sent hand to {player.get_name()}")
+        #logging.debug(f"Sent hand to {player.get_name()}")
         
     in_progress = True
     while in_progress:
         broadcast_opponent_card_count()
-        current_player = game.broadcast_current_player()
+        broadcast_current_player()
+        #current_player = game.broadcast_current_player()
         
         # notify current player to all clients
-        broadcast(f"current_player${current_player}".encode())
+        #broadcast(f"current_player${current_player}".encode())
         #logging.debug(f"Current player (server side): {current_player}")
         
         # wait for current player to play card or draw card
         if message.startswith("play_card$"):
             card_played = message.split("$")[1]
-            current_player.play_card(card_played)
+            #current_player.play_card(card_played)
             
         elif message.startswith("draw_card$"):
-            current_player.draw_card(deck)
+            pass
+            #current_player.draw_card(deck)
         
         # check if current player has won
         if game.check_game_end(game.get_current_player()):
@@ -195,6 +197,12 @@ def update_client_list_display():
     global client_list_label, clients_names
     display_text = "**********Client List**********\n" + "\n".join(clients_names)
     client_list_label.setValue(display_text)
+
+def broadcast_current_player():
+    global players, clients
+    current_player = game.get_current_player_client_id() + "\n"
+    for index, client in enumerate(clients):
+        client.send(f"current_player${current_player}".encode())
     
 def broadcast_opponent_card_count():
     global players, clients

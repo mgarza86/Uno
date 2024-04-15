@@ -43,8 +43,12 @@ class PreGameLobby(pyghelpers.Scene):
         self.show_hand = None
         self.view_opponent = ViewOpponent(self.window)
         self.current_player = None
-        self.current_player_banner = pygwidgets.DisplayText(self.window, (100, 100), f"Current Player: {self.current_player}", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
-
+        self.current_player_banner = pygwidgets.DisplayText(self.window, (100, 100), 
+                                                            f"Current Player: {self.current_player}", 
+                                                            fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
+        self.is_current_player = False
+        self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=80, textColor=(255, 255, 255), width=100, justified='center')
+        self.alert_player = False 
 
     def enter(self, data):
         self.client_name = data.get("player_name")
@@ -56,7 +60,7 @@ class PreGameLobby(pyghelpers.Scene):
     def update(self):
         while not self.message_queue.empty():
             message = self.message_queue.get()
-
+            
             if message.startswith("client_list$"):
                 # Existing logic to handle client list updates
                 client_names = message.split("$")[1]
@@ -68,13 +72,13 @@ class PreGameLobby(pyghelpers.Scene):
                 # Handle host status 
                 print(self.is_host)
                 self.is_host = message.split("$")[1] == "yes"
-            elif message.startswith("current_player$"):
-                # Handle current player message
-                self.current_player = message.split("$")[1]
-                self.current_player_banner.setValue(f"Current Player: {self.current_player}")
+            
+                    
         self.client_hand = self.create_cards_from_json(self.client_hand)
-                
         
+        if self.is_current_player:
+            self.alert_player = True
+            
     def handleInputs(self, events, keyPressedList):
         
         for event in events:
@@ -100,6 +104,9 @@ class PreGameLobby(pyghelpers.Scene):
         self.notification.draw()
         self.current_player_banner.draw()
         self.view_opponent.draw()
+        
+        if self.alert_player:
+            self.notify_client.draw()
         
         if self.hand_ready:
             self.show_hand.draw()
@@ -130,6 +137,7 @@ class PreGameLobby(pyghelpers.Scene):
                     message, buffer = buffer.split('\n', 1)
                     logging.debug(f"Received message: {message}")
                     self.process_message(message)
+                logging.debug(f"Received message: {message}")
             except socket.error as e:
                 logging.error(f"Error receiving message from server: {e}")
                 break
@@ -144,21 +152,29 @@ class PreGameLobby(pyghelpers.Scene):
             json_hand = message[5:]
             try:
                 hand_data = json.loads(json_hand)
-                logging.debug(f"Received hand data: {hand_data}")
+                #logging.debug(f"Received hand data: {hand_data}")
                 self.show_hand = HandView(self.window, hand_data)
                 self.hand_ready = True
             except json.JSONDecodeError as e:
                 logging.error(f"Error decoding hand JSON: {e}")
         elif message.startswith("opponent_cards_count$"):
             opponent_data = message.split("$")[1]
-            logging.debug(f"Received opponent data: {opponent_data}")
+            #logging.debug(f"Received opponent data: {opponent_data}")
             self.view_opponent.update_opponent(opponent_data)
         elif message.startswith("current_player$"):
-            current_player = message.split("$")[1]
-            #logging.debug(f"Current player (client side): {current_player}")
+            try:
+                data = message.split("$")[1]
+                logging.debug(f"Current player data: {data}")
+                current_player = json.loads(data)
+                #print(current_player.client_id, self.client_id)
+                if current_player['client_id'] == self.client_id:
+                    print("Current player is me")
+                    self.is_current_player = True
+            except json.JSONDecodeError as e:
+                logging.error(f"Error decoding current player JSON: {e}")
         elif message.startswith("host_status$"):
             self.is_host = message.split("$")[1] == "yes"
-            logging.debug(f"Host status: {self.is_host}")
+            #logging.debug(f"Host status: {self.is_host}")
         else:
             self.message_queue.put(message)
   
