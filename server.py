@@ -66,6 +66,7 @@ def accept_connections():
         data_received = ""
         while 'NAME:' not in data_received or 'ID:' not in data_received:
             data_received += client.recv(1024).decode()
+            logging.debug(f"Data received: {data_received}")
 
         name_index = data_received.find("NAME:") + 5
         id_index = data_received.find("ID:") + 3
@@ -82,10 +83,10 @@ def accept_connections():
         player = ServerPlayer(client_name, client_id)
         players.append(player)
         # Determine and send host status
-        host_status_message = "host_status$no"
+        host_status_message = "host_status$no\n"
         if players[0] == player:
             player.is_host = True
-            host_status_message = "host_status$yes"
+            host_status_message = "host_status$yes\n"
         print(f"Player {player.get_name()} with ID {player.get_client_id()} has connected.")
 
         client.send(host_status_message.encode())
@@ -102,7 +103,7 @@ def handle_client(client, player):
         try:
             message = client.recv(4096).decode()
             if isinstance(player, Player):
-                
+                logging.debug(f"Received message from {player.get_name()}: {message}")
                 if message == "start_game$":
                     if player.is_host:  # Ensuring only the host can start the game
                         print("Starting the game...")
@@ -112,6 +113,7 @@ def handle_client(client, player):
             else:raise TypeError(f"Excpected Player object, got {type(player)}: {player}")        
         except Exception as e:
             print(f"Error handling client: {e}")
+            logging.error(f"Error handling client: {e}")
             # Error handling and cleanup
             clients.remove(client)
             clients_names.remove(player.get_name())
@@ -132,15 +134,20 @@ def game_loop(message, players):
     
     for player in players:
         hand_json = player.to_json(include_hand=True)
-        send_hand = f"hand${hand_json}"
+        send_hand = f"hand${hand_json}\n"
+        logging.debug(f"Sending hand to {player.get_name()}: {send_hand}")
         client_index = players.index(player)  # Find the index of the player to match with the client list
-        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding client
+        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding 
+        logging.debug(f"Sent hand to {player.get_name()}")
+        
     in_progress = True
     while in_progress:
+        broadcast_opponent_card_count()
         current_player = game.broadcast_current_player()
         
         # notify current player to all clients
         broadcast(f"current_player${current_player}".encode())
+        #logging.debug(f"Current player (server side): {current_player}")
         
         # wait for current player to play card or draw card
         if message.startswith("play_card$"):
@@ -151,7 +158,7 @@ def game_loop(message, players):
             current_player.draw_card(deck)
         
         # check if current player has won
-        if game.check_game_end(current_player):
+        if game.check_game_end(game.get_current_player()):
             broadcast("game_end$".encode())
             in_progress = False
             break
@@ -196,7 +203,7 @@ def broadcast_opponent_card_count():
         for opponent_index, opponent in enumerate(players):
             if opponent_index != index:
                 message_parts.append(f"{opponent.get_name()},{opponent.get_card_count()}")
-        message = "opponent_cards_count$" + ";".join(message_parts)
+        message = "opponent_cards_count$" + ";".join(message_parts)+"\n"
         client.send(message.encode())
 
 def start_server():

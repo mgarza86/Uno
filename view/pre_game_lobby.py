@@ -14,7 +14,7 @@ from view.view_opponent import ViewOpponent
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 HOST_ADDR = "127.0.0.1"
-HOST_PORT = 
+HOST_PORT = 8080
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -46,7 +46,6 @@ class PreGameLobby(pyghelpers.Scene):
         self.current_player_banner = pygwidgets.DisplayText(self.window, (100, 100), f"Current Player: {self.current_player}", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
 
 
-        
     def enter(self, data):
         self.client_name = data.get("player_name")
         self.client_id = data.get("client_id")
@@ -118,46 +117,52 @@ class PreGameLobby(pyghelpers.Scene):
             threading.Thread(target=self.receive_message_from_server, args=(self.client,), daemon=True).start()
         except Exception as e:
             print(f"Error connecting to server: {e}")
-            
-    def receive_message_from_server(self, sck):
-        while True:
-            from_server = sck.recv(4096).decode()
-            
-            if from_server.startswith("game_start$"):
-                pyghelpers.goToScene('MultiplayerGameBoard')
-            
-            elif not from_server:
-                break
-            
-            if from_server.startswith("hand$"):
-                json_hand = from_server[5:]
-                try:
-                    hand_data = json.loads(json_hand)
-                    #print(f"Received hand data: {hand_data}")
 
-                    self.show_hand = HandView(self.window, hand_data)
-                    self.hand_ready = True
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding hand JSON: {e}")
-                    continue
-            
-            if from_server.startswith("opponent_cards_count$"):
-                opponent_data = from_server.split("$")[1]
-                #self.view_opponent = ViewOpponent(self.window)
-                self.view_opponent.update_opponent(opponent_data)
-                #self.update_opponents(opponent_data)
-                
-            if from_server.startswith("current_player$"):
-                pass
-            
-            if from_server.startswith("host_status$"):
-                self.is_host = from_server.split("$")[1] == "yes"
-                print(f"Received host status: {self.is_host}")
-            else:
-                self.message_queue.put(from_server)
-                            
+    def receive_message_from_server(self, sck):
+        buffer = ""
+        while True:
+            try:
+                data_received = sck.recv(4096).decode()
+                if not data_received:  # Check for an empty string, which indicates a closed connection
+                    break
+                buffer += data_received
+                while '\n' in buffer:
+                    message, buffer = buffer.split('\n', 1)
+                    logging.debug(f"Received message: {message}")
+                    self.process_message(message)
+            except socket.error as e:
+                logging.error(f"Error receiving message from server: {e}")
+                break
+            except Exception as e:
+                logging.error(f"Unhandled error: {e}")
+                break
+                                
         sck.close()
-        
+
+    def process_message(self, message):
+        if message.startswith("hand$"):
+            json_hand = message[5:]
+            try:
+                hand_data = json.loads(json_hand)
+                logging.debug(f"Received hand data: {hand_data}")
+                self.show_hand = HandView(self.window, hand_data)
+                self.hand_ready = True
+            except json.JSONDecodeError as e:
+                logging.error(f"Error decoding hand JSON: {e}")
+        elif message.startswith("opponent_cards_count$"):
+            opponent_data = message.split("$")[1]
+            logging.debug(f"Received opponent data: {opponent_data}")
+            self.view_opponent.update_opponent(opponent_data)
+        elif message.startswith("current_player$"):
+            current_player = message.split("$")[1]
+            #logging.debug(f"Current player (client side): {current_player}")
+        elif message.startswith("host_status$"):
+            self.is_host = message.split("$")[1] == "yes"
+            logging.debug(f"Host status: {self.is_host}")
+        else:
+            self.message_queue.put(message)
+  
+  
     def create_cards_from_json(self, hand_data):
         cards = []
         for card_data in hand_data:
