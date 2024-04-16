@@ -52,7 +52,7 @@ class Game():
     def play_card(self,player,card):
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
-        self.discard_pile[0].reveal()
+        #self.discard_pile[0].reveal()
         self.current_color = card.get_color()
         self.current_value = card.get_value()
         if isinstance(card,Skip):
@@ -98,10 +98,17 @@ class Game():
         dictionary = {"current_player": self.players[self.current_player_index].name 
                            ,"client_id": self.players[self.current_player_index].client_id}
         
-        
         return json.dumps(dictionary, indent=4)
 
     def get_current_player_client_id(self):
         current_player = str(self.players[self.current_player_index].client_id)
         return json.dumps({"client_id": current_player})
     
+    def get_current_color(self):
+        return json.dumps({"current_color": self.current_color})
+    
+    def get_current_value(self):
+        return json.dumps({"current_value": self.current_value})
+    
+    def get_current_card(self):
+        return {"current_color": self.current_color, "current_value": self.current_value}

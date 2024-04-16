@@ -49,6 +49,10 @@ clients_names = []
 deck = Deck()
 game = Game(players, deck)
 pygame.init()
+last_current_player = None
+last_current_color = ""
+last_current_value = ""
+
 
 screen = pygame.display.set_mode((400, 300))
 pygame.display.set_caption('Server')
@@ -139,10 +143,10 @@ def game_loop(message, players):
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding 
         #logging.debug(f"Sent hand to {player.get_name()}")
-        
+        broadcast_opponent_card_count()
+
     in_progress = True
     while in_progress:
-        broadcast_opponent_card_count()
         broadcast_current_player()
         #current_player = game.broadcast_current_player()
         
@@ -152,7 +156,11 @@ def game_loop(message, players):
         
         # wait for current player to play card or draw card
         if message.startswith("play_card$"):
+            print("played card received")
             card_played = message.split("$")[1]
+            player = game.get_current_player()
+            game.play_card(player, card_played)
+            
             #current_player.play_card(card_played)
             
         elif message.startswith("draw_card$"):
@@ -177,8 +185,8 @@ def game_loop(message, players):
         # continue loop until game ends
         
     # if current player has won, notify all clients who won break out of loop
-    winner = current_player.get_name()
-    notification = f"game_end${winner} has won!"
+    #winner = current_player.get_name()
+    notification = f"game_end BLANK has won!"
         
     
         
@@ -199,10 +207,16 @@ def update_client_list_display():
     client_list_label.setValue(display_text)
 
 def broadcast_current_player():
-    global players, clients
-    current_player = game.get_current_player_client_id() + "\n"
-    for index, client in enumerate(clients):
-        client.send(f"current_player${current_player}".encode())
+    global players, clients, last_current_player, game
+    current_player = game.get_current_player_client_id()
+    if current_player != last_current_player:
+         last_current_player = current_player
+         message = "current_player$" + current_player + "\n"
+         for client in clients:
+             client.send(message.encode()) 
+    # for index, client in enumerate(clients):
+    #     message = "current_player$" + current_player + "\n"
+    #     client.send(message.encode())
     
 def broadcast_opponent_card_count():
     global players, clients
@@ -213,6 +227,21 @@ def broadcast_opponent_card_count():
                 message_parts.append(f"{opponent.get_name()},{opponent.get_card_count()}")
         message = "opponent_cards_count$" + ";".join(message_parts)+"\n"
         client.send(message.encode())
+
+def broadcast_discard_pile():
+    pass
+
+def game_conditions():
+    global game, last_current_color, last_current_value, clients
+    current_color = game.get_current_color()
+    current_value = game.get_current_value()
+    if current_color != last_current_color or current_value != last_current_value:
+        last_current_color = current_color
+        last_current_value = current_value
+        message = f"game_conditions${current_color},{current_value}\n"
+        for client in clients:
+            client.send(message.encode())
+    
 
 def start_server():
     global server, HOST_ADDR, HOST_PORT, clients, clients_names, players

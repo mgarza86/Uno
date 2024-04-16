@@ -10,15 +10,25 @@ class HandView:
 
     def load_hand(self, hand_data):
         ''' Parse the hand data and creates card objects'''
-        for card_data in hand_data['hand']:
-            card = self.create_card_from_json(card_data)
-            self.cards.append(card)
+        self.cards = []
+        
+        if 'hand' in hand_data and isinstance(hand_data['hand'], list):
+            for card_data in hand_data['hand']:
+                card = self.create_card_from_json(card_data)
+                self.cards.append(card)
+        # for card_data in hand_data['hand']:
+        #     card = self.create_card_from_json(card_data)
+        #     self.cards.append(card)
+
+    def update(self, hand_data):
+        ''' Update the hand with new data '''
+        self.load_hand(hand_data)
 
     def create_card_from_json(self, card_data):
         '''Determine the type of card to create based on card_data'''
         card_type = self.get_card_type(card_data['value'])
         return CardFactory.create_card(self.window, card_type, card_data['color'], card_data['value'])
-
+    
     @staticmethod
     def get_card_type(value):
         if value in ['wild', 'wild_pickfour']:
