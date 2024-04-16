@@ -4,7 +4,7 @@ import socket
 import threading
 import logging
 import pygwidgets
-from time import sleep
+import time
 from model.player_net import Player
 from model.card_net import *
 from model.game_net import Game
@@ -98,23 +98,39 @@ def accept_connections():
         update_client_list_display()
         broadcast_client_list()  # Update all clients with the new list
         
-        threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
+        # Assuming `clients` is a list of socket objects connected to the server
+        heartbeat_thread = threading.Thread(target=send_heartbeat_to_clients, args=(clients,))
+        heartbeat_thread.start()
 
+        threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
         
 def handle_client(client, player):
     global players, deck
     while True:
         try:
-            message = client.recv(4096).decode()
-            if isinstance(player, Player):
-                #logging.debug(f"Received message from {player.get_name()}: {message}")
-                if message == "start_game$":
-                    if player.is_host:  # Ensuring only the host can start the game
-                        print("Starting the game...")
-                        game_loop(message, players)
-                    else:
-                        print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
-            else:raise TypeError(f"Excpected Player object, got {type(player)}: {player}")        
+            print(client)
+            message = client.recv(4096).decode().strip()
+            logging.debug(f"Received message from {player.get_name()}: {message}")
+            print(f"Received message from {player.get_name()}: {message}")
+            if "start_game$" in message:
+                print("Start game message received")
+                if player.is_host:  # Ensuring only the host can start the game
+                    print("Starting the game...")
+                    game_loop(message, players)
+                else:
+                    print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
+            elif message.startswith("play_card$"):
+                print("Play card message received")
+                # Here, process the play_card logic
+                process_played_card(message, player)
+            elif message.startswith("draw_card$"):
+                # Handle draw card logic
+                pass
+                #process_draw_card(player)
+            elif message.startswith("heartbeat$"):
+                print("Heartbeat received from client.")
+            else:
+                print(f"Unhandled message: {message}")
         except Exception as e:
             print(f"Error handling client: {e}")
             logging.error(f"Error handling client: {e}")
@@ -127,6 +143,7 @@ def handle_client(client, player):
             broadcast_client_list()  # Update all clients on disconnect
             client.close()
             break
+
         
 def game_loop(message, players):
     global clients  
@@ -188,7 +205,9 @@ def game_loop(message, players):
     #winner = current_player.get_name()
     notification = f"game_end BLANK has won!"
         
-    
+def process_played_card(message,player):
+    card_info = message.split("$")[1]
+    print(f"Card played: {card_info}")
         
 def broadcast(message):
     for client in clients:
@@ -198,7 +217,7 @@ def broadcast(message):
             clients.remove(client)
 
 def broadcast_client_list():
-    clients_list_str = "client_list$" + ",".join(clients_names)  # Create a string that holds all client names
+    clients_list_str = "client_list$" + ",".join(clients_names)+"\n"  # Create a string that holds all client names
     broadcast(clients_list_str.encode())
     
 def update_client_list_display():
@@ -241,7 +260,22 @@ def game_conditions():
         message = f"game_conditions${current_color},{current_value}\n"
         for client in clients:
             client.send(message.encode())
-    
+
+def send_heartbeat_to_clients(clients, interval=5):
+    while True:
+        for client in clients:
+            try:
+                client.send(b'heartbeat$\n')
+            except socket.error as e:
+                print(f"Error sending heartbeat: {e}")
+                handle_disconnect(client)
+        time.sleep(interval)
+        
+def handle_disconnect(client):
+    # Remove the client from the list and close the socket
+    clients.remove(client)
+    client.close()
+    print("Client disconnected and removed due to failed heartbeat.")
 
 def start_server():
     global server, HOST_ADDR, HOST_PORT, clients, clients_names, players

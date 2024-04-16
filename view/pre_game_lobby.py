@@ -6,6 +6,7 @@ import threading
 import sys
 import queue
 import json
+import time
 import logging
 from model.card_factory import CardFactory
 from view.hand_view import HandView
@@ -103,20 +104,32 @@ class PreGameLobby(pyghelpers.Scene):
                 if self.client:
                     try:
                         print("sending $start_game message to server")
-                        self.client.send("start_game$".encode())
+                        #print(self.client)
+                        message = "start_game$".encode()
+                        try:
+                            bytes_sent = self.client.send(message)
+                            if bytes_sent != len(message):
+                                print(f"Error sending start_game message to server. {bytes_sent} bytes sent")
+                            else:
+                                print(f"Successfully sent all {bytes_sent} bytes to server")
+                        except Exception as e:
+                            print(f"Error sending start_game message: {e}")       
+                        #self.client.send("start_game$".encode())
                     except Exception as e:
                         print(f"Error sending draw cards message: {e}")
             if self.is_current_player:
                 for card in self.show_hand.cards:
-                    if card.handle_event(event):
+                    if card.handle_event(event):  # Assuming handle_event method checks for some interaction like a mouse click
+                        self.client.s
                         if self.check_conditions(card, self.current_color, self.current_value):
-                            print("sending play card message to server")
-                            self.client.send(f"play_card${card.to_json()}".encode())
-                        
-                        
-                        
-                        print(f"Card clicked: {card.get_name()}")
-                        # try:
+                            card_data = json.dumps(card.to_json())
+                            try:
+                                print("Sending 'play_card' message to server")
+                                self.client.send(f"play_card${card_data}\n".encode())
+                            except Exception as e:
+                                print(f"Error sending 'play_card' message: {e}")
+
+            # try:
                         #     self.client.send(f"play_card${card.to_json()}".encode())
                         # except Exception as e:
                         #     print(f"Error sending play card message: {e}")
@@ -144,6 +157,7 @@ class PreGameLobby(pyghelpers.Scene):
         try:
             self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client.connect((HOST_ADDR, HOST_PORT))
+            #threading.Thread(target=receive_messages_from_server, args=(client,)).start()
             self.client.send(f"NAME:{self.client_name};".encode())  # Send name to server after connecting
             self.client.send(f"ID:{self.client_id};".encode())  # Send client ID to server after connecting
             
@@ -157,24 +171,35 @@ class PreGameLobby(pyghelpers.Scene):
         while True:
             try:
                 data_received = sck.recv(4096).decode()
-                if not data_received:  # Check for an empty string, which indicates a closed connection
-                    break
-                buffer += data_received
-                while '\n' in buffer:
-                    message, buffer = buffer.split('\n', 1)
-                    # logging.debug(f"Received message: {message}")
-                    self.process_message(message)
-                # logging.debug(f"Received message: {message}")
-            except socket.error as e:
-                logging.error(f"Error receiving message from server: {e}")
-                break
+                if data_received:
+                    buffer += data_received
+                    while '\n' in buffer:
+                        message, buffer = buffer.split('\n', 1)
+                        if message == 'heartbeat$':
+                            print("Received heartbeat message from server")
+                            try:
+                                
+                                sck.send("heartbeat_ack$\n".encode())
+                                print("Sending heartbeat_ack message to server")
+                            except Exception as e:
+                                print(f"Error sending heartbeat_ack message: {e}")
+                            
+                        else:
+                            self.process_message(message)
+
+                    # No data received; non-blocking mode would often end up here
+                    time.sleep(0.1)  # Prevent spinning too rapidly
+            except BlockingIOError:
+                # No data available to read; non-blocking mode would raise this often
+                time.sleep(0.1)  # Prevent spinning too rapidly
             except Exception as e:
                 logging.error(f"Unhandled error: {e}")
                 break
-                                
+                                    
         sck.close()
 
     def process_message(self, message):
+        print(f"Processing message: {message}")
         if message.startswith("hand$"):
             json_hand = message[5:]
             try:
