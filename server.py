@@ -99,8 +99,8 @@ def accept_connections():
         broadcast_client_list()  # Update all clients with the new list
         
         # Assuming `clients` is a list of socket objects connected to the server
-        heartbeat_thread = threading.Thread(target=send_heartbeat_to_clients, args=(clients,))
-        heartbeat_thread.start()
+        #heartbeat_thread = threading.Thread(target=send_heartbeat_to_clients, args=(clients,))
+        #heartbeat_thread.start()
 
         threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
         
@@ -126,9 +126,9 @@ def handle_client(client, player):
             elif message.startswith("draw_card$"):
                 # Handle draw card logic
                 pass
-                #process_draw_card(player)
-            elif message.startswith("heartbeat$"):
-                print("Heartbeat received from client.")
+            #     #process_draw_card(player)
+            # elif message.startswith("heartbeat$"):
+            #     print("Heartbeat received from client.")
             else:
                 print(f"Unhandled message: {message}")
         except Exception as e:
@@ -261,15 +261,15 @@ def game_conditions():
         for client in clients:
             client.send(message.encode())
 
-def send_heartbeat_to_clients(clients, interval=5):
-    while True:
-        for client in clients:
-            try:
-                client.send(b'heartbeat$\n')
-            except socket.error as e:
-                print(f"Error sending heartbeat: {e}")
-                handle_disconnect(client)
-        time.sleep(interval)
+# def send_heartbeat_to_clients(clients, interval=5):
+#     while True:
+#         for client in clients:
+#             try:
+#                 client.send(b'heartbeat$\n')
+#             except socket.error as e:
+#                 print(f"Error sending heartbeat: {e}")
+#                 handle_disconnect(client)
+#         time.sleep(interval)
         
 def handle_disconnect(client):
     # Remove the client from the list and close the socket
@@ -283,7 +283,7 @@ def start_server():
     stop_button.enable()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST_ADDR, HOST_PORT))
-    server.listen(5)  # Listen for connections
+    server.listen(20)  # Listen for connections
     print(f"Server started at {HOST_ADDR} on port {HOST_PORT}.")
 
     threading.Thread(target=accept_connections, daemon=True).start()

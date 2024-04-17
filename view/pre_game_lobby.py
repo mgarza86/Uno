@@ -120,7 +120,7 @@ class PreGameLobby(pyghelpers.Scene):
             if self.is_current_player:
                 for card in self.show_hand.cards:
                     if card.handle_event(event):  # Assuming handle_event method checks for some interaction like a mouse click
-                        self.client.s
+                        #self.client.s
                         if self.check_conditions(card, self.current_color, self.current_value):
                             card_data = json.dumps(card.to_json())
                             try:
