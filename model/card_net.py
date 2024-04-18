@@ -15,12 +15,7 @@ class Card():
         return f"Card('{self.color}', {self.value},{self.card_name})"
     
     def to_dict(self):
-        return {
-            'color': self.color,
-            'value': self.value,
-            'is_concealed': self.is_concealed,
-            'card_name': self.card_name
-        }
+        return {"color": self.color, "value": self.value}
 
     def to_json(self):
         return json.dumps(self.to_dict(), sort_keys=True, indent=4)

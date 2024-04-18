@@ -20,6 +20,10 @@ class HandView:
         #     card = self.create_card_from_json(card_data)
         #     self.cards.append(card)
 
+    def remove(self, card):
+        ''' Remove a card from the hand '''
+        self.cards.remove(card)
+    
     def update(self, hand_data):
         ''' Update the hand with new data '''
         self.load_hand(hand_data)

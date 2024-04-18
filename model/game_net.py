@@ -112,3 +112,7 @@ class Game():
     
     def get_current_card(self):
         return {"current_color": self.current_color, "current_value": self.current_value}
+    
+    def get_current_conditions(self):
+        conditions = {"current_color": self.current_color, "current_value": self.current_value}
+        return json.dumps(conditions, indent=4)

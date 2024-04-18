@@ -9,8 +9,10 @@ import json
 import time
 import logging
 from model.card_factory import CardFactory
+from model.card import *
 from view.hand_view import HandView
 from view.view_opponent import ViewOpponent
+from view.view_discard import ViewDiscard
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -41,6 +43,7 @@ class PreGameLobby(pyghelpers.Scene):
         self.bg_color = BLACK
         self.client_hand = []
         self.hand_ready = False
+        self.discard_pile = []
         
         self.show_hand = HandView(self.window, [])
         self.view_opponent = ViewOpponent(self.window)
@@ -54,7 +57,8 @@ class PreGameLobby(pyghelpers.Scene):
                                                             fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
         self.is_current_player = False
         self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(255, 255, 255), width=100, justified='center')
-        self.alert_player = False 
+        self.alert_player = False
+        self.window_width, self.window_height = self.window.get_size()
 
     def enter(self, data):
         self.client_name = data.get("player_name")
@@ -62,10 +66,26 @@ class PreGameLobby(pyghelpers.Scene):
         self.lobby_name = data.get("lobby_name")
         self.notification = pygwidgets.DisplayText(self.window, (100, 80), f"{self.client_name} has joined. Waiting for other players to join...", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
         self.connect()
-     
+
+    def parse_card_info(self, card_info):
+        try:
+            info = json.loads(card_info)
+            #print(f" line 166: {info}")
+            color = info['color']
+            value = info['value']
+            #print(f"Color info: {color}, Value info: {value}")
+            
+        except json.JSONDecodeError as e:
+            print(f"Error parsing card info: {e}")
+            return None
+        except KeyError as e:
+            print(f"Invalid card data: {e}")
+            return None
+
     def update(self):
         while not self.message_queue.empty():
             message = self.message_queue.get()
+            print(f"Processing message: {message}")
             
             if message.startswith("client_list$"):
                 # Existing logic to handle client list updates
@@ -90,12 +110,15 @@ class PreGameLobby(pyghelpers.Scene):
                 except json.JSONDecodeError as e:
                     logging.error(f"Error decoding current player JSON: {e}")
             
-                    
+            
+
         self.client_hand = self.create_cards_from_json(self.client_hand)
+        
         
         # if self.is_current_player:
         #     self.alert_player = True
-            
+
+                
     def handleInputs(self, events, keyPressedList):
         
         for event in events:
@@ -120,12 +143,14 @@ class PreGameLobby(pyghelpers.Scene):
             if self.is_current_player:
                 for card in self.show_hand.cards:
                     if card.handle_event(event):  # Assuming handle_event method checks for some interaction like a mouse click
-                        #self.client.s
+                        print(f"condition: {self.check_conditions(card, self.current_color, self.current_value)}")
                         if self.check_conditions(card, self.current_color, self.current_value):
-                            card_data = json.dumps(card.to_json())
+                            card_data = card.to_json()
                             try:
                                 print("Sending 'play_card' message to server")
                                 self.client.send(f"play_card${card_data}\n".encode())
+                                #self.show_hand.remove(card)
+                                self.is_current_player = False
                             except Exception as e:
                                 print(f"Error sending 'play_card' message: {e}")
 
@@ -150,6 +175,10 @@ class PreGameLobby(pyghelpers.Scene):
             self.notify_client.draw()
         if self.hand_ready:
             self.show_hand.draw()
+        if len(self.discard_pile) != 0:
+            self.discard_pile[0].card.set_centered_location((self.window_width/2,self.window_height/2))
+            self.discard_pile[0].card.reveal()
+            self.discard_pile[0].card.draw()
     
     def connect(self):
         global client, HOST_ADDR, HOST_PORT
@@ -171,21 +200,25 @@ class PreGameLobby(pyghelpers.Scene):
         while True:
             try:
                 data_received = sck.recv(4096).decode()
+                print(f"Received data: {data_received}")
                 if data_received:
-                    buffer += data_received
-                    while '\n' in buffer:
-                        message, buffer = buffer.split('\n', 1)
-                        if message == 'heartbeat$':
-                            print("Received heartbeat message from server")
-                            try:
+                    if data_received.startswith("discard_pile"):
+                        self.process_message(data_received)
+                    else:
+                        buffer += data_received
+                        while '\n' in buffer:
+                            message, buffer = buffer.split('\n', 1)
+                            if message == 'heartbeat$':
+                                print("Received heartbeat message from server")
+                                try:
+                                    
+                                    sck.send("heartbeat_ack$\n".encode())
+                                    print("Sending heartbeat_ack message to server")
+                                except Exception as e:
+                                    print(f"Error sending heartbeat_ack message: {e}")
                                 
-                                sck.send("heartbeat_ack$\n".encode())
-                                print("Sending heartbeat_ack message to server")
-                            except Exception as e:
-                                print(f"Error sending heartbeat_ack message: {e}")
-                            
-                        else:
-                            self.process_message(message)
+                            else:
+                                self.process_message(message)
 
                     # No data received; non-blocking mode would often end up here
                     time.sleep(0.1)  # Prevent spinning too rapidly
@@ -198,8 +231,47 @@ class PreGameLobby(pyghelpers.Scene):
                                     
         sck.close()
 
+    def parse_card_info(self, card_info):
+        try:
+            info = json.loads(card_info)
+            #print(f" line 166: {info}")
+            color = info['color']
+            value = info['value']
+            #print(f"Color info: {color}, Value info: {value}")
+            card = ViewDiscard(self.window, color, value)
+            return card
+        except json.JSONDecodeError as e:
+            print(f"Error parsing card info: {e}")
+            return None
+        except KeyError as e:
+            print(f"Invalid card data: {e}")
+            return 
+    
+    import json
+
+    def extract_game_conditions(self, message):
+        # Assuming the message is in the correct format: 'prefix$JSON'
+        prefix, json_part = message.split('$', 1)
+        
+        # Now parse the JSON part
+        try:
+            data = json.loads(json_part)
+            current_color = data['current_color']
+            current_value = data['current_value']
+            return current_color, current_value
+        except json.JSONDecodeError as e:
+            print(f"Failed to decode JSON: {e}")
+            return None, None
+        except KeyError as e:
+            print(f"Missing a required key in JSON data: {e}")
+            return None, None
+
+
+
+    
     def process_message(self, message):
         print(f"Processing message: {message}")
+        print(f"host status: {self.is_host}")
         if message.startswith("hand$"):
             json_hand = message[5:]
             try:
@@ -221,11 +293,26 @@ class PreGameLobby(pyghelpers.Scene):
             self.is_host = message.split("$")[1] == "yes"
             #logging.debug(f"Host status: {self.is_host}")
         elif message.startswith("game_conditions$"):
-            self.current_color, self.current_value = message.split("$")[1].split(",")
+            color, value = self.extract_game_conditions(message)
+            print(f"Current color: {color}, Current value: {value}")
+            
+            
+        elif message.startswith("discard_pile$"):
+            
+            parts = message.split('$', 1)
+                
+            if len(parts) > 1:
+                card_info = parts[1]
+                print(f"JSON String before parsing: {card_info}")
+                card = self.parse_card_info(card_info)
+                #print(f"Received discard pile data: {data}")
+                #card = ViewOpponent(self.window, data)
+                self.discard_pile = [card]
         else:
             self.message_queue.put(message)
   
-  
+    
+        
     def create_cards_from_json(self, hand_data):
         cards = []
         for card_data in hand_data:
@@ -241,7 +328,11 @@ class PreGameLobby(pyghelpers.Scene):
         elif card.get_color() == "black":
             return True
         elif card.get_color() == color:  
+            print(f"Card color: {card.get_color()}, Current color: {color}")
             return True
         elif card.get_value() == value: 
+            print(f"Card value: {card.get_value()}, Current value: {value}")
             return True
+        print(f"Card color: {card.get_color()}, Current color: {color}")
+        print(f"Card value: {card.get_value()}, Current value: {value}")
         return False
