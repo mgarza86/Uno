@@ -32,17 +32,19 @@ class SettingsScene(pyghelpers.Scene):
         # Back to Main Menu button
         self.backButton = pygwidgets.TextButton(window, (30, 550), "Back to Main Menu", upColor=yellow, overColor=yellow, downColor=yellow)
 
-    
+        
     def toggle_sfx_button(self):
         # toggles the state and updates the button label
-        self.sfx_on = not self.sfx_on
-        new_label = "SFX: " + ("On" if self.sfx_on else "Off")
+        self.settings.toggle_sfx()
+        new_label = "SFX: " + ("On" if self.settings.sfx_enabled else "Off")
         self.sfx_toggle = pygwidgets.TextButton(self.window, (300, 340), new_label, width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
+
+        
         
     def toggle_music_button(self):
         # toggles the state and updates the button label
-        self.music_on = not self.music_on
-        new_label = "Music: " + ("On" if self.music_on else "Off")
+        self.settings.toggle_music()
+        new_label = "Music: " + ("On" if self.settings.music_enabled else "Off")
         self.music_toggle = pygwidgets.TextButton(self.window, (300, 480), new_label, width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
 
     def handleInputs(self, events, keyPressedList):
@@ -55,11 +57,11 @@ class SettingsScene(pyghelpers.Scene):
             elif self.hard_button.handleEvent(event):
                 print("Hard difficulty selected")
             elif self.sfx_toggle.handleEvent(event):
-                self.toggle_sfx_button()  # update SFX button label
-                print("SFX " + ("on" if self.sfx_on else "off"))
+                self.toggle_sfx_button()  # toggle SFX and update button label
+                print("SFX " + ("on" if self.settings.sfx_enabled else "off"))
             elif self.music_toggle.handleEvent(event):
-                self.toggle_music_button()  # update Music button label
-                print("Music " + ("on" if self.music_on else "off"))
+                self.toggle_music_button()
+                print("Music " + ("on" if self.settings.music_enabled else "off"))
             elif self.backButton.handleEvent(event):
                 self.goToScene('main_menu')
                 
