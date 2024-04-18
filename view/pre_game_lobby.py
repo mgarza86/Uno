@@ -10,9 +10,10 @@ HOST_ADDR = "127.0.0.1"
 HOST_PORT = 8080
 
 class PreGameLobby(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         self.client = None
         self.message_queue = queue.Queue()
         

@@ -12,9 +12,10 @@ yellow = (255, 255, 0)
 black = (0, 0, 0)
 
 class SinglePlayerSetupScene(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         
         # text instruction for the player
         self.instructions_text = pygwidgets.DisplayText(window, (75, 60), 
@@ -72,7 +73,7 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
                 if self.selected_npc_count is not None:
                     print(f"Starting game with {self.selected_npc_count} NPCs")
                     # Then afterwards, you would go to the game scene
-                    game = Game(self.window,self.player_list, self.deck)
+                    game = Game(self.window,self.player_list, self.deck, self.settings)
                     self.goToScene('game', game)
                 else:
                     print("Please select the number of NPCs before playing")
