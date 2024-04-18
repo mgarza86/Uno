@@ -23,12 +23,10 @@ class SettingsScene(pyghelpers.Scene):
         
         # SFX toggle button
         self.sfx_title = pygwidgets.DisplayText(window, (325, 290), "SFX Volume", fontSize=40, textColor="black")
-        self.sfx_on = True
         self.sfx_toggle = pygwidgets.TextButton(window, (300, 340), "SFX: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
         
         # Music toggle button
         self.music_title = pygwidgets.DisplayText(window, (310, 430), "Music Volume", fontSize=40, textColor="black")
-        self.music_on = True
         self.music_toggle = pygwidgets.TextButton(window, (300, 480), "Music: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
         
         # Back to Main Menu button
