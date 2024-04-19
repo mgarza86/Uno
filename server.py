@@ -5,6 +5,8 @@ import threading
 import logging
 import pygwidgets
 import time
+import json
+from queue import Queue
 from model.player_net import Player
 from model.card_net import *
 from model.game_net import Game
@@ -52,6 +54,9 @@ pygame.init()
 last_current_player = None
 last_current_color = ""
 last_current_value = ""
+game_in_progress = False
+game_actions = Queue()
+
 
 
 screen = pygame.display.set_mode((400, 300))
@@ -62,6 +67,17 @@ stop_button = pygwidgets.TextButton(screen, (160, 50), "Stop")
 address_label = pygwidgets.DisplayText(screen, (20, 100), "Address: 127.0.0.1", fontSize=18)
 port_label = pygwidgets.DisplayText(screen, (20, 130), "Port: 8080", fontSize=18)
 client_list_label = pygwidgets.DisplayText(screen, (20, 160), "**********Client List**********", fontSize=18)
+
+def start_game():
+    global game_in_progress, game_loop_thread
+    if not game_in_progress:
+        game_in_progress = True
+        logging.info("Game started.")
+    
+def stop_game():
+    global game_in_progress
+    game_in_progress = False
+    game_loop_thread.join()
 
 def accept_connections():
     global server, clients, clients_names, players, deck, game
@@ -104,106 +120,89 @@ def accept_connections():
 
         threading.Thread(target=handle_client, args=(client, player), daemon=True).start()
         
-def handle_client(client, player):
-    global players, deck
-    while True:
-        try:
-            print(client)
-            message = client.recv(4096).decode().strip()
-            logging.debug(f"Received message from {player.get_name()}: {message}")
-            print(f"Received message from {player.get_name()}: {message}")
-            if "start_game$" in message:
-                print("Start game message received")
-                if player.is_host:  # Ensuring only the host can start the game
-                    print("Starting the game...")
-                    game_loop(message, players)
-                else:
-                    print(f"Player {player.get_name()} attempted to start the game, but is not the host.")
-            elif message.startswith("play_card$"):
-                print("Play card message received")
-                # Here, process the play_card logic
-                process_played_card(message, player)
-            elif message.startswith("draw_card$"):
-                # Handle draw card logic
-                pass
-            #     #process_draw_card(player)
-            # elif message.startswith("heartbeat$"):
-            #     print("Heartbeat received from client.")
-            else:
-                print(f"Unhandled message: {message}")
-        except Exception as e:
-            print(f"Error handling client: {e}")
-            logging.error(f"Error handling client: {e}")
-            # Error handling and cleanup
-            clients.remove(client)
-            clients_names.remove(player.get_name())
-            players.remove(player)
-            print(f"Player {player.get_name()} has disconnected.")
-            update_client_list_display()
-            broadcast_client_list()  # Update all clients on disconnect
-            client.close()
-            break
-
         
-def game_loop(message, players):
-    global clients  
-    deck = Deck()
-    deck.shuffle()
-    game = Game(players, deck)
-    game.initialize_players(7)  # Initialize players with 7 cards each
-    broadcast_opponent_card_count()
+def game_loop():
+    global current_color, current_value
+    while True:            
+        try:
+            while not game_actions.empty():
+                player, action = game_actions.get_nowait()
+                if "start_game$" in action and not game_in_progress:
+                    process_control_action(player, action)
+                elif game_in_progress:
+                    process_game_action(player, action)
+                    
+            if game_in_progress:
+                broadcast_current_player()        
+                
+            # Other game logic here...
+        except Exception as e:
+                print(f"Error in game loop: {e}")
+        time.sleep(0.1)  # Sleep to reduce CPU usage
+
+def process_game_action(player, action):
     
+    if "play_card$" in action:
+        parts = action.split('$', 1)
+        if len(parts) > 1:
+            card_info = parts[1]
+            print(f"JSON String before parsing: {card_info}")
+            card = parse_card_info(card_info)
+            #print(f"Card info: {card}")
+            print(player.hand)
+            game.play_card(player, card)
+            print(player.hand)
+            #print(game.discard_pile[0].to_json())
+            broadcast_discard_pile(game.discard_pile[0])
+            update_hands()
+            game.determine_next_player()
+            broadcast_current_player()
+            game_conditions()
+            
+        else:
+            print("No card data received.")
+
+def update_hands():
+    global players
     for player in players:
         hand_json = player.to_json(include_hand=True)
         send_hand = f"hand${hand_json}\n"
-        #logging.debug(f"Sending hand to {player.get_name()}: {send_hand}")
         client_index = players.index(player)  # Find the index of the player to match with the client list
         clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding 
-        #logging.debug(f"Sent hand to {player.get_name()}")
         broadcast_opponent_card_count()
 
-    in_progress = True
-    while in_progress:
-        broadcast_current_player()
-        #current_player = game.broadcast_current_player()
+def process_control_action(player, action):
+    if "start_game$" in action:
+        initialize_game()
+
+
+def parse_card_info(card_info):
+    try:
+        info = json.loads(card_info)
+        #print(f" line 166: {info}")
+        color = info['color']
+        value = info['value']
+        #print(f"Color info: {color}, Value info: {value}")
+        card = Card(color, value)
+        return card
+    except json.JSONDecodeError as e:
+        print(f"Error parsing card info: {e}")
+        return None
+    except KeyError as e:
+        print(f"Invalid card data: {e}")
+        return None
         
-        # notify current player to all clients
-        #broadcast(f"current_player${current_player}".encode())
-        #logging.debug(f"Current player (server side): {current_player}")
-        
-        # wait for current player to play card or draw card
-        if message.startswith("play_card$"):
-            print("played card received")
-            card_played = message.split("$")[1]
-            player = game.get_current_player()
-            game.play_card(player, card_played)
-            
-            #current_player.play_card(card_played)
-            
-        elif message.startswith("draw_card$"):
-            pass
-            #current_player.draw_card(deck)
-        
-        # check if current player has won
-        if game.check_game_end(game.get_current_player()):
-            broadcast("game_end$".encode())
-            in_progress = False
-            break
-        
-        # if current player has not won, check the card played
-        # if card played is a special card, perform the action
-        
-        # determine next player
-            
-        # broadcast the updated card count to all clients
-        # broadcast the updated discard pile to all clients
-        # broadcast the updated current player to all clients
-            
-        # continue loop until game ends
-        
-    # if current player has won, notify all clients who won break out of loop
-    #winner = current_player.get_name()
-    notification = f"game_end BLANK has won!"
+
+def handle_client(client, player):
+    while True:
+        try:
+            message = client.recv(4096).decode().strip()
+            # Enqueue the player action along with identifying who made it
+            game_actions.put((player, message))
+        except Exception as e:
+            print(f"Error with client {player.get_name()}: {e}")
+            break  # Or handle disconnection and cleanup here
+
         
 def process_played_card(message,player):
     card_info = message.split("$")[1]
@@ -247,30 +246,28 @@ def broadcast_opponent_card_count():
         message = "opponent_cards_count$" + ";".join(message_parts)+"\n"
         client.send(message.encode())
 
-def broadcast_discard_pile():
-    pass
+def broadcast_discard_pile(card):
+    global clients, players, game
+    message = f"discard_pile${card.to_json()}\n"
+    print(f"(line 254){message}")
+    for client in clients:
+        client.send(message.encode())
+        
 
 def game_conditions():
     global game, last_current_color, last_current_value, clients
-    current_color = game.get_current_color()
-    current_value = game.get_current_value()
+    current_color = game.current_color
+    current_value = game.current_value
     if current_color != last_current_color or current_value != last_current_value:
         last_current_color = current_color
         last_current_value = current_value
-        message = f"game_conditions${current_color},{current_value}\n"
+        
+        message = f"game_conditions${game.condition_to_json()}\n"
+        print(f"(line 268) {message}")
+        
         for client in clients:
             client.send(message.encode())
 
-# def send_heartbeat_to_clients(clients, interval=5):
-#     while True:
-#         for client in clients:
-#             try:
-#                 client.send(b'heartbeat$\n')
-#             except socket.error as e:
-#                 print(f"Error sending heartbeat: {e}")
-#                 handle_disconnect(client)
-#         time.sleep(interval)
-        
 def handle_disconnect(client):
     # Remove the client from the list and close the socket
     clients.remove(client)
@@ -278,12 +275,14 @@ def handle_disconnect(client):
     print("Client disconnected and removed due to failed heartbeat.")
 
 def start_server():
-    global server, HOST_ADDR, HOST_PORT, clients, clients_names, players
+    global server, HOST_ADDR, HOST_PORT, clients, clients_names, players, game_loop_thread
     start_button.disable()
     stop_button.enable()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST_ADDR, HOST_PORT))
     server.listen(20)  # Listen for connections
+    game_loop_thread = threading.Thread(target=game_loop, daemon=True)
+    game_loop_thread.start()
     print(f"Server started at {HOST_ADDR} on port {HOST_PORT}.")
 
     threading.Thread(target=accept_connections, daemon=True).start()
@@ -300,6 +299,32 @@ def stop_server():
     start_button.enable()
     stop_button.disable()
     print("Server stopped.")
+
+def initialize_game():
+    global players, deck, game, game_in_progress
+    deck = Deck()
+    deck.shuffle()
+    game = Game(players, deck)
+    game.initialize_players(7)
+    for player in players:
+        hand_json = player.to_json(include_hand=True)
+        send_hand = f"hand${hand_json}\n"
+        #logging.debug(f"Sending hand to {player.get_name()}: {send_hand}")
+        client_index = players.index(player)  # Find the index of the player to match with the client list
+        clients[client_index].send(send_hand.encode())  # Send the initial hand to the corresponding 
+        #logging.debug(f"Sent hand to {player.get_name()}")
+        broadcast_opponent_card_count()
+
+    game_in_progress = True
+    print("Game initialized.")
+
+def update_clients():
+    global clients, players
+    for index, client in enumerate(clients):
+        player = players[index]
+        hand_json = player.to_json(include_hand=True)
+        send_hand = f"hand${hand_json}\n"
+        client.send(send_hand.encode())
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
