@@ -20,6 +20,7 @@ class GameBoard(pyghelpers.Scene):
         self.settings = settings
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
+    
         
         self.x_coord = (self.window_width - 200) / 2
         self.y_coord = (self.window_height - 80) / 2
@@ -79,8 +80,10 @@ class GameBoard(pyghelpers.Scene):
             # checks if Call Uno, Draw card and Call out buttons have been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
-            if self.drawCardButton.handleEvent(event):
-                print("Draw Card button was clicked!")
+            if self.drawCardButton.handleEvent(event):  #checking if the draw card button was clicked
+                self.game.play_card(self.game.players_list[self.game.current_player_index])
+                self.show_draw_button = False  #hiding the draw button after a card is drawn
+                print("Draw Card button was clicked")
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
     
@@ -98,7 +101,8 @@ class GameBoard(pyghelpers.Scene):
                         print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
                         break
         else:
-            player.draw_card(self.game.draw_pile)
+            self.show_draw_button = True ##IDKKKKKKKK
+            #player.draw_card(self.game.draw_pile)
             self.game.determine_next_player()        
     
     def computer_move(self, player, event):
@@ -142,7 +146,8 @@ class GameBoard(pyghelpers.Scene):
             self.green_button.draw()
             self.yellow_button.draw()
         self.callUnoButton.draw() # call uno button
-        self.drawCardButton.draw() # draw card button
+        if self.show_draw_button:
+            self.drawCardButton.draw()
         self.callOutButton.draw() # call out button
         
     def print_matching_cards(self, matching_cards):
