@@ -80,10 +80,11 @@ class GameBoard(pyghelpers.Scene):
             # checks if Call Uno, Draw card and Call out buttons have been clicked
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
-            if self.drawCardButton.handleEvent(event):  #checking if the draw card button was clicked
-                self.game.play_card(self.game.players_list[self.game.current_player_index])
+            if self.drawCardButton.handleEvent(event):
+                current_player = self.game.players_list[self.game.current_player_index]
+                current_player.draw_card(self.game.draw_pile) 
                 self.show_draw_button = False  #hiding the draw button after a card is drawn
-                print("Draw Card button was clicked")
+                print(f"{current_player.get_name()} drew a card.")
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
     
