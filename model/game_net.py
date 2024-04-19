@@ -29,6 +29,12 @@ class Game():
                 return True
             
         return False
+    
+    def condition_to_dict(self):
+        return f"{self.current_color},{self.current_value}"
+    
+    def condition_to_json(self):
+        return json.dumps(self.condition_to_dict(), indent=4)
         
     def discard(self, discard_pile, new_card):
         discard_pile.insert(0,new_card)
