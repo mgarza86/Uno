@@ -164,3 +164,5 @@ test_server.py
 test_client.py
 test_manager.
 app.log
+new_server.py
+g_server.py
