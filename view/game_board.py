@@ -30,6 +30,8 @@ class GameBoard(pyghelpers.Scene):
         self.yellow_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord + 40), text='Yellow', upColor=YELLOW)
         
         self.show_color_picker = False
+        # initializing the flag for showing the draw card button
+        self.show_draw_button = False
         
         #self.enter()
         # initializing the "Call Uno", "Draw Card" and "Call Out buttons
