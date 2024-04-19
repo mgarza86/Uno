@@ -202,7 +202,9 @@ class PreGameLobby(pyghelpers.Scene):
                 data_received = sck.recv(4096).decode()
                 print(f"Received data: {data_received}")
                 if data_received:
-                    if data_received.startswith("discard_pile"):
+                    if data_received.startswith("discard_pile$"):
+                        self.process_message(data_received)
+                    elif data_received.startswith("game_conditions$"):
                         self.process_message(data_received)
                     else:
                         buffer += data_received
@@ -294,7 +296,7 @@ class PreGameLobby(pyghelpers.Scene):
             #logging.debug(f"Host status: {self.is_host}")
         elif message.startswith("game_conditions$"):
             color, value = self.extract_game_conditions(message)
-            print(f"Current color: {color}, Current value: {value}")
+            print(f"Line 297 Current color: {color}, Current value: {value}")
             
             
         elif message.startswith("discard_pile$"):
