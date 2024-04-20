@@ -131,10 +131,6 @@ class PreGameLobby(pyghelpers.Scene):
                         message = "start_game$".encode()
                         try:
                             bytes_sent = self.client.send(message)
-                            if bytes_sent != len(message):
-                                print(f"Error sending start_game message to server. {bytes_sent} bytes sent")
-                            else:
-                                print(f"Successfully sent all {bytes_sent} bytes to server")
                         except Exception as e:
                             print(f"Error sending start_game message: {e}")       
                         #self.client.send("start_game$".encode())
@@ -208,22 +204,11 @@ class PreGameLobby(pyghelpers.Scene):
                         buffer += data_received
                         while '\n' in buffer:
                             message, buffer = buffer.split('\n', 1)
-                            if message == 'heartbeat$':
-                                print("Received heartbeat message from server")
-                                try:
-                                    
-                                    sck.send("heartbeat_ack$\n".encode())
-                                    print("Sending heartbeat_ack message to server")
-                                except Exception as e:
-                                    print(f"Error sending heartbeat_ack message: {e}")
-                                
-                            else:
-                                self.process_message(message)
+                            self.process_message(message)
 
-                    # No data received; non-blocking mode would often end up here
                     time.sleep(0.1)  # Prevent spinning too rapidly
             except BlockingIOError:
-                # No data available to read; non-blocking mode would raise this often
+               
                 time.sleep(0.1)  # Prevent spinning too rapidly
             except Exception as e:
                 logging.error(f"Unhandled error: {e}")
@@ -265,9 +250,6 @@ class PreGameLobby(pyghelpers.Scene):
         except KeyError as e:
             print(f"Missing a required key in JSON data: {e}")
             return None, None
-
-
-
     
     def process_message(self, message):
         print(f"Processing message: {message}")
@@ -276,8 +258,7 @@ class PreGameLobby(pyghelpers.Scene):
             json_hand = message[5:]
             try:
                 hand_data = json.loads(json_hand)
-                #logging.debug(f"Received hand data: {hand_data}")
-                #! I think i need to create the object in the init and only update the hand data here
+         
                 self.show_hand.update(hand_data)
                 self.hand_ready = True
             except json.JSONDecodeError as e:

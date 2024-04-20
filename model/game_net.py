@@ -16,7 +16,10 @@ class Game():
             for _ in range(number_of_cards):
                 o_player.draw_card(self.draw_pile)
             #o_player.initialize_card_positions()
-        
+    
+    def add_player(self, player):
+        self.players.append(player)
+            
     def check_direction(self):
         return self.current_direction
     
