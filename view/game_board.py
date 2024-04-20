@@ -11,6 +11,8 @@ YELLOW = (255, 255, 0)
 X_COORDINATE, Y_COORDINATE = (0,0)
 blue = (0, 9, 255)
 white = (255, 255, 255)
+grey = (196, 196, 196)
+black = (0, 0, 0)
 
 class GameBoard(pyghelpers.Scene):
     
@@ -44,6 +46,19 @@ class GameBoard(pyghelpers.Scene):
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
+
+        player_one_name = self.game.players_list[0].get_name()
+        self.player_one_name_display = pygwidgets.DisplayText(
+            self.window, (self.window_width / 1.35, self.window_height - 80),
+            player_one_name,
+            fontSize=22,
+            textColor=black,
+            backgroundColor=grey,
+            width=130,
+            height=20,
+            justified='center'
+        )
+
     
     def update(self):
         if self.game.current_color == 'black':
@@ -150,6 +165,7 @@ class GameBoard(pyghelpers.Scene):
         if self.show_draw_button:
             self.drawCardButton.draw()
         self.callOutButton.draw() # call out button
+        self.player_one_name_display.draw()
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
