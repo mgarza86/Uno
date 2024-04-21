@@ -1,8 +1,13 @@
+import pygame
+import pygwidgets
 from model.card import *
 
+
 class Game():
-    def __init__(self,window,  players, deck) -> None:
+    def __init__(self,window,  players, deck, settings) -> None:
+        super().__init__()
         self.window = window
+        self.settings = settings
         self.players_list = players
         self.discard_pile= []
         self.draw_pile = deck
@@ -11,8 +16,16 @@ class Game():
         self.current_value = ""
         self.current_player_index = 0
         self.window_width, self.window_height = self.window.get_size()
+        
+        # initializing the sound effects:
+        self.card_flip_sound = pygwidgets.SoundEffect('sounds/cardFlip.wav')
+        self.card_shuffle_sound = pygwidgets.SoundEffect('sounds/cardShuffle.wav')
+        
+        
                 
     def initialize_players(self, number_of_cards=7):
+        if self.settings.sfx_enabled:
+            self.card_shuffle_sound.play() # shuffle sound plays
         self.rotate_player_hands(self.players_list)
         for o_player in self.players_list:
             for _ in range(number_of_cards):
@@ -87,6 +100,8 @@ class Game():
         return self.current_player_index
     
     def play_card(self,player,card):
+        if self.settings.sfx_enabled:
+            self.card_flip_sound.play() # flip card sound
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
         self.discard_pile[0].reveal()

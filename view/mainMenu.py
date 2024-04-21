@@ -11,9 +11,10 @@ buttonWidth = 150
 buttonHeight = 50  
 
 class MainMenuScene(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         self.title = pygwidgets.DisplayText(window, (200, 100), "Welcome to Py-UNO", fontSize=60, textColor="white")
         self.singlePlayerButton = pygwidgets.TextButton(window, (350, 250), "Single Player", upColor=yellow, overColor=yellow, downColor=yellow)
         self.multiplayerButton = pygwidgets.TextButton(window, (350, 350), "Multiplayer", upColor=yellow, overColor=yellow, downColor=yellow)

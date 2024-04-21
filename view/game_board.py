@@ -11,13 +11,18 @@ YELLOW = (255, 255, 0)
 X_COORDINATE, Y_COORDINATE = (0,0)
 blue = (0, 9, 255)
 white = (255, 255, 255)
+grey = (196, 196, 196)
+black = (0, 0, 0)
 
 class GameBoard(pyghelpers.Scene):
     
-    def __init__(self, window) -> None:
+    def __init__(self, window, settings) -> None:
+        super().__init__()
         self.window = window
+        self.settings = settings
         self.back_ground_color = (161, 59, 113)
         self.window_width, self.window_height = self.window.get_size()
+    
         
         self.x_coord = (self.window_width - 200) / 2
         self.y_coord = (self.window_height - 80) / 2
@@ -28,6 +33,8 @@ class GameBoard(pyghelpers.Scene):
         self.yellow_button = pygwidgets.TextButton(window, loc=(self.x_coord + 100, self.y_coord + 40), text='Yellow', upColor=YELLOW)
         
         self.show_color_picker = False
+        # initializing the flag for showing the draw card button
+        self.show_draw_button = False
         
         #self.enter()
         # initializing the "Call Uno", "Draw Card" and "Call Out buttons
@@ -39,6 +46,19 @@ class GameBoard(pyghelpers.Scene):
     def enter(self,game):
         self.game = game
         self.game.initialize_players(7)
+
+        player_one_name = self.game.players_list[0].get_name()
+        self.player_one_name_display = pygwidgets.DisplayText(
+            self.window, (self.window_width / 1.35, self.window_height - 80),
+            player_one_name,
+            fontSize=22,
+            textColor=black,
+            backgroundColor=grey,
+            width=130,
+            height=20,
+            justified='center'
+        )
+
     
     def update(self):
         if self.game.current_color == 'black':
@@ -76,7 +96,10 @@ class GameBoard(pyghelpers.Scene):
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
             if self.drawCardButton.handleEvent(event):
-                print("Draw Card button was clicked!")
+                current_player = self.game.players_list[self.game.current_player_index]
+                current_player.draw_card(self.game.draw_pile) 
+                self.show_draw_button = False  #hiding the draw button after a card is drawn
+                print(f"{current_player.get_name()} drew a card.")
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
     
@@ -94,7 +117,8 @@ class GameBoard(pyghelpers.Scene):
                         print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
                         break
         else:
-            player.draw_card(self.game.draw_pile)
+            self.show_draw_button = True ##IDKKKKKKKK
+            #player.draw_card(self.game.draw_pile)
             self.game.determine_next_player()        
     
     def computer_move(self, player, event):
@@ -138,9 +162,12 @@ class GameBoard(pyghelpers.Scene):
             self.green_button.draw()
             self.yellow_button.draw()
         self.callUnoButton.draw() # call uno button
-        self.drawCardButton.draw() # draw card button
+        if self.show_draw_button:
+            self.drawCardButton.draw()
         self.callOutButton.draw() # call out button
+        self.player_one_name_display.draw()
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
             print(card.get_name())    
+            

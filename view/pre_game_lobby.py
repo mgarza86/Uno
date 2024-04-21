@@ -33,9 +33,10 @@ console_logger.setFormatter(console_formatter)
 logging.getLogger('').addHandler(console_logger)
 
 class PreGameLobby(pyghelpers.Scene):
-    def __init__(self, window):
+    def __init__(self, window, settings):
         super().__init__()
         self.window = window
+        self.settings = settings
         self.client = None
         self.message_queue = queue.Queue()
         self.play_button = pygwidgets.TextButton(window, (100, 200), "Play", width=100, height=50)
