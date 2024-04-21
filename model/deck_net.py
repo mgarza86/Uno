@@ -1,25 +1,28 @@
 import random
 from model.card_net import *
+from collections import Counter
 
 class CardFactory:
+    
     @staticmethod
-    def create_card(card_type, color, value):
-        if card_type == 'normal':
-            return Card(color, value)
-        elif card_type == 'wild_pickfour':
+    def create_card(color, value):
+        if value == 'pickfour':
             return WildPickFour(color, value)
-        elif card_type == 'wild_changer':
+        elif value == 'wild':
             return WildChanger(color, value)
-        elif card_type == 'skip':
+        elif value == 'skip':
             return Skip(color, value)
-        elif card_type == 'reverse':
+        elif value == 'reverse':
             return Reverse(color, value)
-        elif card_type == 'draw_two':
+        elif value == 'picker':
             return DrawTwoCard(color, value)
+        else:
+            return Card(color, value)
         
 class Deck:
     COLOR_TUPLE = ('red', 'blue', 'green', 'yellow')
-    STANDARD_DICT = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'skip': 'skip', 'reverse': 'reverse', 'picker': 'picker'}
+    STANDARD_DICT = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, 
+                     '9': 9, 'skip': 'skip', 'reverse': 'reverse', 'picker': 'picker'}
     
     def __init__(self):
         self.cards = self._create_uno_deck()
@@ -28,23 +31,23 @@ class Deck:
         self.cards = []
         
         for color in Deck.COLOR_TUPLE:
-            self.cards.append(CardFactory.create_card('normal', color, 0))
+            self.cards.append(CardFactory.create_card(color, 0))
             
             
             for key, value in Deck.STANDARD_DICT.items():
                 for _ in range(2):               
                     if key == 'skip':
-                        self.cards.append(CardFactory.create_card('skip', color, key))
+                        self.cards.append(CardFactory.create_card(color, key))
                     elif key == 'reverse':
-                        self.cards.append(CardFactory.create_card('reverse', color, key))
+                        self.cards.append(CardFactory.create_card(color, key))
                     elif key == 'picker':
-                        self.cards.append(CardFactory.create_card('draw_two', color, key))
+                        self.cards.append(CardFactory.create_card(color, key))
                     else:
-                        self.cards.append(CardFactory.create_card('normal', color, key))
+                        self.cards.append(CardFactory.create_card(color, key))
         
         for _ in range(4):
-            self.cards.append(CardFactory.create_card('wild_changer', 'black', 'wild'))
-            self.cards.append(CardFactory.create_card('wild_pickfour', 'black', 'pickfour'))
+            self.cards.append(CardFactory.create_card('black', 'wild'))
+            self.cards.append(CardFactory.create_card('black', 'pickfour'))
             
         return self.cards
     
@@ -60,3 +63,22 @@ class Deck:
     def print_deck(self):
         for card in self.cards:
             print(f"{card.card_name}")
+
+def test_deck():
+    # Create a new deck
+    deck = Deck()
+    #deck.shuffle()  # Shuffle the deck to simulate randomness, although not necessary for counting
+
+    # Create a counter to track the types of cards based on their class type
+    card_types = Counter()
+
+    # Count each card type based on its class
+    for card in deck.cards:
+        card_types[type(card).__name__] += 1
+
+    # Print the count of each unique card type
+    for card_type, count in card_types.items():
+        print(f"{card_type}: {count}")
+
+if __name__ == "__main__":
+    test_deck()

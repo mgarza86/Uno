@@ -16,9 +16,6 @@ class HandView:
             for card_data in hand_data['hand']:
                 card = self.create_card_from_json(card_data)
                 self.cards.append(card)
-        # for card_data in hand_data['hand']:
-        #     card = self.create_card_from_json(card_data)
-        #     self.cards.append(card)
 
     def remove(self, card):
         ''' Remove a card from the hand '''
@@ -49,16 +46,16 @@ class HandView:
     def draw(self):
         '''Draw all the cards in the hand'''
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        
         overlap_amount = 30
-        
         hovered_index = None
         
+        # Determine the hovered card index
         for i, card in enumerate(self.cards):
             if card.get_collide_point(mouse_x, mouse_y):
                 hovered_index = i
                 break
-            
+
+        # Draw all non-hovered cards
         for i, card in enumerate(self.cards):
             if i != hovered_index:
                 if i == 0:
@@ -69,9 +66,12 @@ class HandView:
                 card.reveal()
                 card.set_scale(60)
                 card.draw()
-        if hovered_index is not None:        
+
+        # Draw the hovered card last to make it appear on top
+        if hovered_index is not None and hovered_index < len(self.cards):
             self.cards[hovered_index].set_scale(60)
             self.cards[hovered_index].draw()
+
     
     def calculate_hand_width(self, overlap):
         if not self.cards:
