@@ -10,7 +10,6 @@ from view.game_board import GameBoard
 from view.end_screen import EndScreen
 from view.pre_game_lobby import PreGameLobby
 from view.multiplayer_game_board import MultiplayerGameBoard
-from model.settings_class import Settings
 
 # constants
 window_width = 800
@@ -21,30 +20,17 @@ pygame.init()
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Py-UNO")
 
-# Settings object
-settings = Settings()
-
 # scene creation: instantiating each scene
-main_menu_scene = MainMenuScene(window, settings)
-settings_scene = SettingsScene(window, settings)
-single_player_scene = SinglePlayerSetupScene(window, settings)
-multi_player_scene = MultiPlayerLobbyScene(window, settings)
-game_board = GameBoard(window, settings)
-end = EndScreen(window, settings)
-pre_game_lobby = PreGameLobby(window, settings)
+multi_player_scene = MultiPlayerLobbyScene(window)
+pre_game_lobby = PreGameLobby(window)
 multiplayer_game_board = MultiplayerGameBoard(window)
 
 
 # scene management: store scenes in a dictionary
 scenes_dict = {
-        'main_menu': main_menu_scene,
-        'settings': settings_scene,
-        'single_player_setup': single_player_scene,
         'multi_player_lobby': multi_player_scene,
         'pre_game_lobby': pre_game_lobby,
         'multiplayer_game_board': multiplayer_game_board,
-        'game': game_board,
-        'end': end
     }
 
 # create an instance of pyghelpers.SceneMgr with the dictionary of scenes and frame rate

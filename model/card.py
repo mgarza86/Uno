@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import os
+import json
 from abc import ABC, abstractmethod
 
 class Card():
@@ -11,7 +12,7 @@ class Card():
         self.window = window
         self.color = color
         self.value = value
-        self.card_name = color + '_' + value
+        self.card_name = color + '_' + str(value)
         
         if file_name is None:
             file_name = './images/' + self.card_name + '.png'
@@ -79,8 +80,15 @@ class Card():
             return True
         else:
             return False
-        
     
+    def to_dict(self):
+        return {
+            'color': self.color,
+            'value': self.value
+        }
+    
+    def to_json(self):
+        return json.dumps(self.to_dict(), sort_keys=True, indent=4)    
         
     
 class WildChanger(Card):
