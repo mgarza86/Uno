@@ -117,41 +117,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             else:
                 self.broadcast_game_state()
 
-
-    # def play_card(self,data):
-    #     with self.lock:
-    #         print(f"data as it arrives: {data}")
-    #         if len(data) > 1:
-    #             card_info = data[1]
-    #             print(f"Card info: {card_info}")
-    #             try:
-    #                 info = json.loads(card_info)
-    #                 print(f"Info: {info}")
-    #                 color = info['color']
-    #                 value = info['value']
-    #                 card = CardFactory.create_card(color, value)  
-    #                 print(f"Player {self.game.get_current_player().get_name()} played {card.get_name()}")
-    #                 self.game.play_card(self.game.get_current_player(), card)
-    #                 print(f"passing card object: {card}, type: {type(card)}" )
-    #                 self.broadcast_discard_pile(card)
-    #                 self.broadcast_opponent_card_count()
-    #                 self.broadcast_player_hand()
-                    
-
-    #                 if self.game.check_game_end(self.game.get_current_player()):
-    #                     print(f"Game over! {self.game.get_current_player().get_name()} wins!")
-    #                     self.broadcast_game_end()
-    #                     self.game_started = False
-    #                     self.game_loop_thread = None
-                    
-    #                 if isinstance(card, Skip):
-    #                     self.game.determine_next_player(skip=True)
-    #                 else:
-    #                     self.game.determine_next_player(skip=False)
-                        
-    #             except json.JSONDecodeError as e:
-    #                 print(f"Error decoding card info: {e}")
-
     def broadcast_game_conditions(self):
         message = f"game_conditions${self.game.condition_to_json()}\n"
         self.broadcast(message)
@@ -182,8 +147,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.broadcast_opponent_card_count()
             
     def broadcast_discard_pile(self, card):
+        print(f"Broadcasting discard pile: {card}")
         try:
-            message = f"discard_pile${card.to_json()}"
+            message = f"discard_pile${card.color},{card.value}\n"
+            print(f"Broadcasting discard pile message: {message}")
             for client in self.clients:
                 client.send(message.encode())
         except Exception as e:

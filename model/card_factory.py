@@ -2,16 +2,16 @@ from model.card import *
 
 class CardFactory:
     @staticmethod
-    def create_card(window, card_type, color, value):
-        if card_type == 'normal':
-            return Card(window, color, value)
-        elif card_type == 'wild_pickfour':
+    def create_card(window, color, value):
+        if value == 'pickfour':
             return WildPickFour(window, color, value)
-        elif card_type == 'wild_changer':
+        elif value == 'wild':
             return WildChanger(window, color, value)
-        elif card_type == 'skip':
+        elif value == 'skip':
             return Skip(window, color, value)
-        elif card_type == 'reverse':
+        elif value == 'reverse':
             return Reverse(window, color, value)
-        elif card_type == 'draw_two':
+        elif value == 'picker':
             return DrawTwoCard(window, color, value)
+        else:
+            return Card(window, color, value)

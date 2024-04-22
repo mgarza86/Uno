@@ -10,7 +10,7 @@ import time
 import logging
 from model.card_factory import CardFactory
 from model.card import *
-from view.hand_view import HandView
+from view.view_hand import HandView
 from view.view_opponent import ViewOpponent
 from view.view_discard import ViewDiscard
 
