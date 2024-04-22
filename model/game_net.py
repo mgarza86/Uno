@@ -84,14 +84,9 @@ class Game():
 
     def game_state_to_dict(self):
         return {
-            "players": [player.name for player in self.players],  # List of player names
-            "current_direction": self.current_direction,
             "current_color": self.current_color,
             "current_value": self.current_value,
-            "current_player_index": self.current_player_index,
-            "current_player": self.players[self.current_player_index].name,
-            "next_player": self.players[(self.current_player_index + self.current_direction) % 
-                                        len(self.players)].name,
+            "client_id": self.players[self.current_player_index].client_id
         }
         
     def game_state_to_json(self):

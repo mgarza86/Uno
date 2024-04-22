@@ -22,14 +22,13 @@ pygame.display.set_caption("Py-UNO")
 
 # scene creation: instantiating each scene
 multi_player_scene = MultiPlayerLobbyScene(window)
-pre_game_lobby = PreGameLobby(window)
+#pre_game_lobby = PreGameLobby(window)
 multiplayer_game_board = MultiplayerGameBoard(window)
 
 
 # scene management: store scenes in a dictionary
 scenes_dict = {
         'multi_player_lobby': multi_player_scene,
-        'pre_game_lobby': pre_game_lobby,
         'multiplayer_game_board': multiplayer_game_board,
     }
 

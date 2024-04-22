@@ -138,16 +138,10 @@ class PreGameLobby(pyghelpers.Scene):
                         print(f"Error sending draw cards message: {e}")
             if self.is_current_player:
                 for card in self.show_hand.cards:
-                    if card.handle_event(event):  # Assuming handle_event method checks for some interaction like a mouse click
+                    if card.handle_event(event): 
                         print(f"condition: {self.check_conditions(card, self.current_color, self.current_value)}")
-                        if self.check_conditions(card, self.current_color, self.current_value):
-                            card_data = card.to_json()
-                            try:
-                                print("Sending 'play_card' message to server")
-                                self.client.send(f"play_card${card_data}\n".encode())
-                                self.is_current_player = False
-                            except Exception as e:
-                                print(f"Error sending 'play_card' message: {e}")
+                        #if self.check_conditions(card, self.current_color, self.current_value):
+                        self.player_move(card)
                 
     def draw(self):
         self.window.fill((self.bg_color))
@@ -161,9 +155,10 @@ class PreGameLobby(pyghelpers.Scene):
         if len(self.show_hand.cards) != 0:
             self.show_hand.draw()
         if len(self.discard_pile) != 0:
-            self.discard_pile[0].card.set_centered_location((self.window_width/2,self.window_height/2))
-            self.discard_pile[0].card.reveal()
-            self.discard_pile[0].card.draw()
+            if self.discard_pile[0] is not None:
+                self.discard_pile[0].card.set_centered_location((self.window_width/2,self.window_height/2))
+                self.discard_pile[0].card.reveal()
+                self.discard_pile[0].card.draw()
         if self.winner is not None:
             self.winner_banner.draw()
     
@@ -179,6 +174,16 @@ class PreGameLobby(pyghelpers.Scene):
             threading.Thread(target=self.receive_message_from_server, args=(self.client,), daemon=True).start()
         except Exception as e:
             print(f"Error connecting to server: {e}")
+
+    def player_move(self, card):
+        try:
+            card_data = card.to_json()
+            print("Sending 'play_card' message to server")
+            self.client.send(f"play_card${card_data}\n".encode())
+            self.is_current_player = False
+        except Exception as e:
+            print(f"Error sending 'play_card' message: {e}")
+        
 
     def receive_message_from_server(self, sck):
         buffer = ""
