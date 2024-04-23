@@ -115,9 +115,9 @@ class Game():
         if len(self.discard_pile) == 0:
             print("No card in play yet")
             return True
-        for i in range(len(player.hand)):
-            if player.check_conditions(player.hand[i],self.current_color, self.current_value):
-                return True
-            
-        return False
-    
+        else:
+            for card in player.hand:
+                if player.check_conditions(card, self.current_color, self.current_value):
+                    return True
+
+            return False

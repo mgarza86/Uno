@@ -48,6 +48,11 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     action = {"type": ActionType.PLAY_CARD, "data": parts[1]}
                     self.server.game_actions.put(action)
                     self.data_received = ""
+                if "draw_card$" in self.data_received:
+                    parts = self.data_received.split('$',1)
+                    action = {"type": ActionType.DRAW_CARD, "data": parts[1]}
+                    self.server.game_actions.put(action)
+                    self.data_received = ""
         except Exception as e:
             print(f"Error: {e}")
             
@@ -107,7 +112,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
             self.game.play_card(player, card)
-            ...
             # After playing a card, update all clients
             if self.game.check_game_end(self.game.get_current_player()):
                         print(f"Game over! {self.game.get_current_player().get_name()} wins!")
@@ -184,14 +188,14 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             print(f"Current player: {current_player}")
             for client in self.clients:
                 client.send(message.encode())
-            if self.game.check_hand(self.game.get_current_player()):
+            if not self.game.check_hand(self.game.get_current_player()):
                 self.send_draw_card(self.game.current_player_index)
-                # function to draw card 
             
 
     # send draw_card$
     def send_draw_card(self, index):
         message = "draw_card$\n"
+        print(f"Sending draw card message to {self.clients_names[index]}")
         self.clients[index].send(message.encode())
 
     def initialize_game(self):
@@ -214,6 +218,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 action = self.game_actions.get()
                 if action["type"] == ActionType.PLAY_CARD:
                     self.play_card(json.loads(action["data"]))
+                if action["type"] == ActionType.DRAW_CARD:
+                    self.game.get_current_player().draw_card(self.game.draw_pile)
+                    #self.game.determine_next_player(skip=False)
+                    self.broadcast_game_state()
 
             self.broadcast_current_player()
             time.sleep(0.1)
