@@ -140,6 +140,7 @@ class DrawTwoCard(Card):
         
         game.players_list[victim_index].draw_card(game.draw_pile)
         game.players_list[victim_index].draw_card(game.draw_pile)
+        
 class Reverse(Card):
         
     def perform_action(self, game):
