@@ -46,20 +46,41 @@ class WildPickFour(WildChanger):
         self.card_name = "black_pickfour"
         
     def perform_action(self, game):
-        pass
+        victim_index =  game.current_player_index + game.current_direction
+        
+        
+        if game.check_direction() == 1 and victim_index >= len(game.players_list):
+            victim_index = 0
+        elif game.check_direction() == -1 and victim_index < 0:
+            victim_index = len(game.players_list) -1
+            
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
 
 class Skip(Card):
         
     def perform_action(self, game):
-        pass
+        game.determine_next_player(skip=True)
 
 class DrawTwoCard(Card):
         
     def perform_action(self, game):
-        pass
+        victim_index =  game.current_player_index + game.current_direction
+        
+        
+        if game.check_direction() == 1 and victim_index >= len(game.players_list):
+            victim_index = 0
+        elif game.check_direction() == -1 and victim_index < 0:
+            victim_index = len(game.players_list) -1
+        
+        
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
         
 class Reverse(Card):
         
     def perform_action(self, game):
-        pass
+        game.change_direction()
     
