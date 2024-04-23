@@ -125,7 +125,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             print("host_status message received")
             self.host_status = message.split('$')[1] == "yes"
             print(self.host_status)
-
+        elif message.startswith("draw_card$"):
+            pass
         elif message.startswith("current_player$"):
             current_player_id = message.split('$')[1]
             current_player = json.loads(current_player_id)

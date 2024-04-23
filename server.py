@@ -183,7 +183,16 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             message = "current_player$" + current_player + "\n"
             print(f"Current player: {current_player}")
             for client in self.clients:
-                client.send(message.encode()) 
+                client.send(message.encode())
+            if self.game.check_hand(self.game.get_current_player()):
+                self.send_draw_card(self.game.current_player_index)
+                # function to draw card 
+            
+
+    # send draw_card$
+    def send_draw_card(self, index):
+        message = "draw_card$\n"
+        self.clients[index].send(message.encode())
 
     def initialize_game(self):
         for player in self.game.players:
