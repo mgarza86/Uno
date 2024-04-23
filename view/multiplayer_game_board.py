@@ -66,10 +66,13 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.host_status = False
         self.game_started = False
         self.is_current_player = False
+        self.must_draw = False
         self.discard_pile = []
         self.bg_color = (255, 255, 255)
         self.current_color = ""
         self.current_value = ""
+
+        self.draw_card_button = pygwidgets.TextButton(window, (100, 300), "Draw Card", width=100, height=50)
 
     def enter(self, data):
         self.client_name = data.get('player_name')
@@ -86,7 +89,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             self.process_message(message)
 
     def process_message(self, message):
-        #print(f"Processing message: {message}")
+        print(f"Processing message: {message}")
         if message.startswith("start_game$"):
             print("Game started")
             self.game_started = True
@@ -125,7 +128,11 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             print("host_status message received")
             self.host_status = message.split('$')[1] == "yes"
             print(self.host_status)
-
+        elif message.startswith("draw_card$"):
+            print("Must draw card")
+            if len(self.discard_pile) != 0:
+                self.must_draw = True
+            
         elif message.startswith("current_player$"):
             current_player_id = message.split('$')[1]
             current_player = json.loads(current_player_id)
@@ -133,6 +140,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 self.is_current_player = True
             else:
                 self.is_current_player = False
+        
+            
 
     def handleInputs(self, events, keyPressedList):
         for event in events:
@@ -145,6 +154,10 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                             self.game_client.send_message(f"play_card${card.to_json()}\n")            
                         else:
                             print("Invalid card played")
+                    elif self.must_draw:
+                        if self.draw_card_button.handleEvent(event):
+                            self.game_client.send_message("draw_card$")
+                            self.must_draw = False
 
     def draw(self):
         # Clear the screen first
@@ -166,6 +179,9 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         if len(self.discard_pile) != 0 and self.discard_pile[0] is not None:
             #sprint(f"Discard pile {self.discard_pile[0].card}")
             self.discard_pile[0].draw()
+        
+        if self.must_draw and len(self.discard_pile) != 0:
+            self.draw_card_button.draw()
 
 
     def check_conditions(self, card, color, value):

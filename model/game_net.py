@@ -23,16 +23,6 @@ class Game():
     def check_direction(self):
         return self.current_direction
     
-    def check_hand(self, player):
-        if len(self.discard_pile) == 0:
-            print("No card in play yet")
-            return True
-        for i in range(len(player.hand)):
-            if player.check_conditions(player.hand[i],self.current_color, self.current_value):
-                return True
-            
-        return False
-    
     def condition_to_dict(self):
         return f"{self.current_color},{self.current_value}"
     
@@ -121,4 +111,13 @@ class Game():
         conditions = {"current_color": self.current_color, "current_value": self.current_value}
         return json.dumps(conditions, indent=4)
     
-    
+    def check_hand(self, player):
+        if len(self.discard_pile) == 0:
+            print("No card in play yet")
+            return True
+        else:
+            for card in player.hand:
+                if player.check_conditions(card, self.current_color, self.current_value):
+                    return True
+
+            return False
