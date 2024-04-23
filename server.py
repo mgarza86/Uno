@@ -13,6 +13,7 @@ class ActionType(Enum):
     PLAY_CARD = auto()
     DRAW_CARD = auto()
     START_GAME = auto()
+    PLAY_WILD = auto()
     END_TURN = auto()
 
 class ServerPlayer(Player):
@@ -53,6 +54,12 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     action = {"type": ActionType.DRAW_CARD, "data": parts[1]}
                     self.server.game_actions.put(action)
                     self.data_received = ""
+                if "play_wild$" in self.data_received:
+                    parts = self.data_received.split('$',1)
+                    action = {"type": ActionType.PLAY_WILD, "data": parts[1]}
+                    self.server.game_actions.put(action)
+                    self.data_received = ""
+
         except Exception as e:
             print(f"Error: {e}")
             
@@ -90,7 +97,6 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
         client_index = self.server.clients.index(self.request)
         self.server.clients.pop(client_index)
         self.server.clients_names.pop(client_index)
-        #self.server.game.remove_player(client_index)
         print("Client disconnected.")
               
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -112,7 +118,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
             self.game.play_card(player, card)
-            # After playing a card, update all clients
+            if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
+
+                pass
+
             if self.game.check_game_end(self.game.get_current_player()):
                         print(f"Game over! {self.game.get_current_player().get_name()} wins!")
                         self.broadcast_game_end()
@@ -191,8 +200,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             if not self.game.check_hand(self.game.get_current_player()):
                 self.send_draw_card(self.game.current_player_index)
             
-
-    # send draw_card$
     def send_draw_card(self, index):
         message = "draw_card$\n"
         print(f"Sending draw card message to {self.clients_names[index]}")
@@ -204,6 +211,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             send_hand = f"hand${hand_json}\n"
             client_index = self.game.players.index(player)
             self.clients[client_index].send(send_hand.encode())
+
+    def broadcast_wild_color(self, color):
+        for client in self.clients:
+            client.send(f"wild_color${color}\n".encode())
 
     def broadcast_game_state(self):
         self.broadcast_discard_pile(self.game.check_last_card_played(self.game.discard_pile))
@@ -222,6 +233,11 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     self.game.get_current_player().draw_card(self.game.draw_pile)
                     #self.game.determine_next_player(skip=False)
                     self.broadcast_game_state()
+                if action["type"] == ActionType.PLAY_WILD:
+                    parts = action["data"].split(",")
+                    color = parts[1]
+                    message = f"wild_color${color}\n"
+                    self.broadcast(message)
 
             self.broadcast_current_player()
             time.sleep(0.1)

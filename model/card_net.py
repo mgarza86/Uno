@@ -82,5 +82,8 @@ class DrawTwoCard(Card):
 class Reverse(Card):
         
     def perform_action(self, game):
-        game.change_direction()
+        if len(game.players) == 2:
+            game.determine_next_player(skip=True)
+        else:
+            game.change_direction()
     
