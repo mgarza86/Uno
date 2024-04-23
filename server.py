@@ -6,6 +6,14 @@ from model.deck_net import Deck, CardFactory
 from model.player_net import Player 
 from queue import Queue
 from model.card_net import *
+from enum import Enum, auto
+import time
+
+class ActionType(Enum):
+    PLAY_CARD = auto()
+    DRAW_CARD = auto()
+    START_GAME = auto()
+    END_TURN = auto()
 
 class ServerPlayer(Player):
     def __init__(self, name, client_id=None) -> None:
@@ -37,9 +45,9 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     self.data_received = ""
                 if "play_card$" in self.data_received:
                     parts = self.data_received.split('$',1)
-                    self.server.play_card(parts)
+                    action = {"type": ActionType.PLAY_CARD, "data": parts[1]}
+                    self.server.game_actions.put(action)
                     self.data_received = ""
-                     
         except Exception as e:
             print(f"Error: {e}")
             
@@ -77,12 +85,14 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
         client_index = self.server.clients.index(self.request)
         self.server.clients.pop(client_index)
         self.server.clients_names.pop(client_index)
-        self.server.game.remove_player(client_index)
+        #self.server.game.remove_player(client_index)
         print("Client disconnected.")
               
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def __init__(self, server_address, RequestHandlerClass):
         socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
+        self.lock = threading.Lock()
+        self.allow_reuse_address = True
         self.clients = []
         self.clients_names = []
         self.deck = Deck()
@@ -92,44 +102,38 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.game_loop_thread = None
         self.last_current_player = ""
 
-    def play_card(self,data):
-        print(f"data as it arrives: {data}")
-        if len(data) > 1:
-            card_info = data[1]
-            print(f"Card info: {card_info}")
-            try:
-                info = json.loads(card_info)
-                print(f"Info: {info}")
-                color = info['color']
-                value = info['value']
-                card = CardFactory.create_card(color, value)  #
-                print(f"Player {self.game.get_current_player().get_name()} played {card.get_name()}")
-                self.game.play_card(self.game.get_current_player(), card)
-                
-                self.broadcast_discard_pile(card)
-                self.broadcast_opponent_card_count()
-                self.broadcast_player_hand()
-                
-                if self.game.check_game_end(self.game.get_current_player()):
-                    print(f"Game over! {self.game.get_current_player().get_name()} wins!")
-                    self.broadcast_game_end()
-                    self.game_started = False
-                    self.game_loop_thread = None
-                
-                if isinstance(card, Skip):
-                    self.game.determine_next_player(skip=True)
-                else:
-                    self.game.determine_next_player(skip=False)
-                    
-            except json.JSONDecodeError as e:
-                print(f"Error decoding card info: {e}")
-            
+    def play_card(self, card_info):
+        with self.lock:
+            player = self.game.get_current_player()
+            card = CardFactory.create_card(card_info['color'], card_info['value'])
+            self.game.play_card(player, card)
+            ...
+            # After playing a card, update all clients
+            if self.game.check_game_end(self.game.get_current_player()):
+                        print(f"Game over! {self.game.get_current_player().get_name()} wins!")
+                        self.broadcast_game_end()
+                        self.game_started = False
+                        self.game_loop_thread = None
+            else:
+                self.broadcast_game_state()
+
+    def broadcast_game_conditions(self):
+        message = f"game_conditions${self.game.condition_to_json()}\n"
+        self.broadcast(message)
+
     def broadcast_game_end(self):
         player = self.game.get_current_player()
         message = f"game_end${player.get_name()}\n"
         for client in self.clients:
             client.send(message.encode())
     
+    def broadcast(self, message):
+        for client in self.clients:
+            try:
+                client.send(message)
+            except:
+                self.clients.remove(client)
+
     def start_game(self):
         if not self.game_started:
             self.game.draw_pile.shuffle()
@@ -143,9 +147,14 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.broadcast_opponent_card_count()
             
     def broadcast_discard_pile(self, card):
-        message = f"discard_pile${card.to_json()}\n"
-        for client in self.clients:
-            client.send(message.encode())
+        print(f"Broadcasting discard pile: {card}")
+        try:
+            message = f"discard_pile${card.color},{card.value}\n"
+            print(f"Broadcasting discard pile message: {message}")
+            for client in self.clients:
+                client.send(message.encode())
+        except Exception as e:
+            print(f"Error broadcasting discard pile: {e}")
     
     def broadcast_player_hand(self):
         player = self.game.get_current_player()
@@ -175,15 +184,30 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             print(f"Current player: {current_player}")
             for client in self.clients:
                 client.send(message.encode()) 
-                    
-    def game_loop(self):
+
+    def initialize_game(self):
         for player in self.game.players:
             hand_json = player.to_json(include_hand=True)
             send_hand = f"hand${hand_json}\n"
             client_index = self.game.players.index(player)
             self.clients[client_index].send(send_hand.encode())
+
+    def broadcast_game_state(self):
+        self.broadcast_discard_pile(self.game.check_last_card_played(self.game.discard_pile))
+        self.broadcast_opponent_card_count()
+        self.broadcast_player_hand()
+        self.game.determine_next_player(skip=False)
+
+    def game_loop(self):
+        self.initialize_game()
         while self.game_started:
+            if not self.game_actions.empty():
+                action = self.game_actions.get()
+                if action["type"] == ActionType.PLAY_CARD:
+                    self.play_card(json.loads(action["data"]))
+
             self.broadcast_current_player()
+            time.sleep(0.1)
    
 def start_server():
     HOST, PORT = "127.0.0.1", 8080
@@ -192,9 +216,20 @@ def start_server():
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
     server_thread.start()
-    print("Server started at {}:{}".format(HOST, PORT))
+    print(f"Server started at {HOST}:{PORT}")
+
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        print("Shutting down server...")
+        server.shutdown()  # Shuts down the server
+        server.server_close()  # Closes the server socket
+        server_thread.join()  # Waits for the server thread to close
+        print("Server has been shut down.")
 
     return server
+
 
 
 if __name__ == "__main__":

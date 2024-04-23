@@ -13,7 +13,7 @@ class Card():
         self.color = color
         self.value = value
         self.card_name = color + '_' + str(value)
-        
+        self.is_discarded = False
         if file_name is None:
             file_name = './images/' + self.card_name + '.png'
             
@@ -33,9 +33,6 @@ class Card():
     def reveal(self):
         self.images.replace('front')
     
-    def perform_action(self):
-        pass
-        
     def get_color(self):
         return self.color
     
@@ -82,14 +79,10 @@ class Card():
             return False
     
     def to_dict(self):
-        return {
-            'color': self.color,
-            'value': self.value
-        }
-    
+        return {"color": self.color, "value": self.value}
+
     def to_json(self):
-        return json.dumps(self.to_dict(), sort_keys=True, indent=4)    
-        
+        return json.dumps(self.to_dict(), sort_keys=True, indent=4)
     
 class WildChanger(Card):
     

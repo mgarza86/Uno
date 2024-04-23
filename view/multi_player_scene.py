@@ -12,10 +12,10 @@ gray = (141, 141, 141)
 
 
 class MultiPlayerLobbyScene(pyghelpers.Scene):
-    def __init__(self, window, settings):
+    def __init__(self, window):
         super().__init__()
         self.window = window
-        self.settings = settings
+    
         
         # title and instructions
         self.lobby_title = pygwidgets.DisplayText(window, (100, 80), "Lets play Py-Uno with friends!", fontSize=48, textColor=black, width=600, justified='center')
@@ -52,7 +52,7 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
                 # here the players would go to the game, passing along these values
                 scene_data = {"player_name": player_name, "lobby_name": lobby_name, "client_id": client_id}
                 
-                self.goToScene('pre_game_lobby', data=scene_data)
+                self.goToScene('multiplayer_game_board', data=scene_data)
             elif self.player_name_field.handleEvent(event):
                     self.player_name_field.setValue()    
             elif self.lobby_name_field.handleEvent(event):

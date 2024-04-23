@@ -8,8 +8,9 @@ from view.single_player_scene import SinglePlayerSetupScene
 from view.multi_player_scene import MultiPlayerLobbyScene
 from view.game_board import GameBoard
 from view.end_screen import EndScreen
-from view.pre_game_lobby import PreGameLobby
+#from view.pre_game_lobby import PreGameLobby
 from view.multiplayer_game_board import MultiplayerGameBoard
+from model.settings_class import Settings
 
 # constants
 window_width = 800
@@ -19,17 +20,16 @@ frames_per_second = 60
 pygame.init()
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Py-UNO")
-
+settings = Settings()
 # scene creation: instantiating each scene
 multi_player_scene = MultiPlayerLobbyScene(window)
-pre_game_lobby = PreGameLobby(window)
-multiplayer_game_board = MultiplayerGameBoard(window)
+#pre_game_lobby = PreGameLobby(window)
+multiplayer_game_board = MultiplayerGameBoard(window, settings)
 
 
 # scene management: store scenes in a dictionary
 scenes_dict = {
         'multi_player_lobby': multi_player_scene,
-        'pre_game_lobby': pre_game_lobby,
         'multiplayer_game_board': multiplayer_game_board,
     }
 

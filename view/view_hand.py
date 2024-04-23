@@ -2,7 +2,7 @@ import pygame
 import pygwidgets
 from model.card_factory import CardFactory  
 
-class HandView:
+class ViewHand:
     def __init__(self, window, hand_data):
         self.window = window
         self.cards = []
@@ -27,21 +27,7 @@ class HandView:
 
     def create_card_from_json(self, card_data):
         '''Determine the type of card to create based on card_data'''
-        card_type = self.get_card_type(card_data['value'])
-        return CardFactory.create_card(self.window, card_type, card_data['color'], card_data['value'])
-    
-    @staticmethod
-    def get_card_type(value):
-        if value in ['wild', 'wild_pickfour']:
-            return 'wild_pickfour' if value == 'wild_pickfour' else 'wild_changer'
-        elif value == 'reverse':
-            return 'reverse'
-        elif value == 'skip':
-            return 'skip'
-        elif value == 'draw_two':
-            return 'draw_two'
-        else:
-            return 'normal'
+        return CardFactory.create_card(self.window, card_data['color'], card_data['value'])
 
     def draw(self):
         '''Draw all the cards in the hand'''
@@ -72,7 +58,6 @@ class HandView:
             self.cards[hovered_index].set_scale(60)
             self.cards[hovered_index].draw()
 
-    
     def calculate_hand_width(self, overlap):
         if not self.cards:
             return 0

@@ -13,9 +13,9 @@ class ViewOpponent:
             self.window = window
             self.opponents = {}
             if initial_data:
-                self.update_opponent(initial_data)
+                self.update(initial_data)
                     
-        def update_opponent(self, data):
+        def update(self, data):
             ''' Helper function to update the opponent data from the server '''
             self.opponents={}
             for entry in data.split(';'):
