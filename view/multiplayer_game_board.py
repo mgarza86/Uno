@@ -147,6 +147,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 self.must_draw = True
         elif message.startswith("wild_color$"):
             self.current_color = message.split('$')[1]
+            print(f"color changed to: {self.current_color}")
+            self.choose_color = False
             #! maybe print a notification that the color has been changed
         elif message.startswith("current_player$"):
             current_player_id = message.split('$')[1]
@@ -155,7 +157,9 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 self.is_current_player = True
             else:
                 self.is_current_player = False
-
+        elif message.startswith("select_color$"):
+            self.choose_color = True
+            
     def handleInputs(self, events, keyPressedList):
         color_selected = None
         for event in events:
@@ -179,20 +183,16 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                             self.game_client.send_message("draw_card$")
                             self.must_draw = False
                 if self.choose_color:
-                                    if self.red_button.handleEvent(event):
-                                        print("Red selected")
-                                        color_selected = "red"
-                                    elif self.green_button.handleEvent(event):
-                                        color_selected = "green"
-                                    elif self.blue_button.handleEvent(event):
-                                        color_selected = "blue"
-                                    elif self.yellow_button.handleEvent(event):
-                                        color_selected = "yellow"
+                    if self.red_button.handleEvent(event):
+                        self.game_client.send_message(f"color_selected$red\n")
+                    elif self.green_button.handleEvent(event):
+                        self.game_client.send_message(f"color_selected$green\n")
+                    elif self.blue_button.handleEvent(event):
+                        self.game_client.send_message(f"color_selected$blue\n")
+                    elif self.yellow_button.handleEvent(event):
+                        self.game_client.send_message(f"color_selected$yellow\n")
+                                            
                                     
-                                    if color_selected:
-                                        self.game_client.send_message(f"play_wild${color_selected}\n")
-                                        self.game_client.send_message(f"play_wild${card.to_json()}\n")
-                                        self.choose_color = False
     def draw(self):
         # Clear the screen first
         self.window.fill(self.bg_color)

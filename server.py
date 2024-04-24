@@ -14,6 +14,7 @@ class ActionType(Enum):
     DRAW_CARD = auto()
     START_GAME = auto()
     PLAY_WILD = auto()
+    COLOR_SELECTED = auto()
     END_TURN = auto()
 
 class ServerPlayer(Player):
@@ -57,6 +58,11 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                 if "play_wild$" in self.data_received:
                     parts = self.data_received.split('$',1)
                     action = {"type": ActionType.PLAY_WILD, "data": parts[1]}
+                    self.server.game_actions.put(action)
+                    self.data_received = ""
+                if "color_selected$" in self.data_received:
+                    parts = self.data_received.split('$',1)
+                    action = {"type": ActionType.COLOR_SELECTED, "data": parts[1]}
                     self.server.game_actions.put(action)
                     self.data_received = ""
 
@@ -120,15 +126,18 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.game.play_card(player, card)
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
 
-                pass
-
-            if self.game.check_game_end(self.game.get_current_player()):
-                        print(f"Game over! {self.game.get_current_player().get_name()} wins!")
-                        self.broadcast_game_end()
-                        self.game_started = False
-                        self.game_loop_thread = None
+                self.request_color_selection(player)
             else:
-                self.broadcast_game_state()
+    
+                self.post_play_card(player)
+            
+    def post_play_card(self, player):
+        if self.game.check_game_end(player):
+            self.broadcast_game_end()
+            self.game_started = False
+        else:
+            self.broadcast_game_state()
+
 
     def broadcast_game_conditions(self):
         message = f"game_conditions${self.game.condition_to_json()}\n"
@@ -238,10 +247,21 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     color = parts[1]
                     message = f"wild_color${color}\n"
                     self.broadcast(message)
+                if action["type"] == ActionType.COLOR_SELECTED:
+                    parts = action["data"].split(",")
+                    color = parts[0]
+                    self.broadcast_wild_color(color)
+                    self.post_play_card(self.game.get_current_player())
 
             self.broadcast_current_player()
             time.sleep(0.1)
-   
+
+    def request_color_selection(self, player):
+        message = "select_color$\n"
+        client_index = self.game.players.index(player)
+        self.clients[client_index].send(message.encode())
+
+
 def start_server():
     HOST, PORT = "127.0.0.1", 8080
 
