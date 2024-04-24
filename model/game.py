@@ -129,6 +129,21 @@ class Game():
     def start_game():
         pass
     
+    def find_matching_cards(self, hand, color, value):
+        color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
+        value_matches = 0 
+        matching_cards= []
+        
+        for card in hand:
+            if card.get_color() == self.current_color:
+                color_matches[card.get_color()] += 1
+                matching_cards.append(card)
+            elif card.get_value() == self.current_value:
+                value_matches += 1
+                if card not in matching_cards:
+                    matching_cards.append(card)
+                    
+        return matching_cards, color_matches, value_matches
     
     def medium_ai_play_card(self, player):
         matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.current_color, self.current_value)
@@ -137,17 +152,20 @@ class Game():
             player.draw_card(self.draw_pile)
             return None
         highest_count = max(color_matches, key=color_matches.get)
-        print(f"{self.get_player}'s highest count is {highest_count}")
         
+        print(f"{self.get_player}'s highest count is {highest_count}")
         #choose a card that helps to offload the most cards from hand
         #feels this could be simplified
         best_card = None
-        highest_count = 0
-        for card in matching_cards:
-            if color_matches[card.color] > highest_count:
-                highest_count = color_matches[card.color]
-                best_card = card
-
+        
+        if color_matches[highest_count] > color_matches[self.current_color]:
+            # pick the card that matches the highest count color
+            for card in matching_cards:
+                if card.color == highest_count:
+                    best_card = card
+        else:
+            #! YOU NEED TO CHANGE THIS. OKAY??? U GOT THAT?
+            best_card = matching_cards[0]
+        
         return best_card
-    
     
