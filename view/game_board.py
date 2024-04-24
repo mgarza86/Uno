@@ -123,18 +123,34 @@ class GameBoard(pyghelpers.Scene):
     
     def computer_move(self, player, event):    
             if self.game.check_hand(player):
-                matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
-                
-                if matching_cards:  # Check if matching_cards is not empty
-                    self.game.play_card(player, matching_cards[0])
-                    if self.game.check_game_end(player):      
-                        self.goToScene('end', player.get_name())
-                    self.game.determine_next_player()
+                #adjusted to call medium_ai_play_card method when the difficulty is 'medium'
+                if self.settings.difficulty == 'medium':
+                    card_to_play = self.game.medium_ai_play_card(player)
+                    if card_to_play:
+                        self.game.play_card(player, card_to_play)
+                        if self.game.check_game_end(player):      
+                            self.goToScene('end', player.get_name())
+                        self.game.determine_next_player()
+                    else:
+                        print(player.get_name(), ": No matching cards found. Drawing a card.")
+                        #make sure draw_card() and determine_next_player() are methods on player
+                        player.draw_card(self.game.draw_pile)
+                        self.game.determine_next_player()
                 else:
-                    #! AI can't play anything after black is played. FIX LATER
-                    print(player.get_name(), ": No matching cards found. Drawing a card.")
-                    self.game.determine_next_player()
+                    #this block is for difficulties other than 'medium'
+                    matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
+                    if matching_cards:  # Check if matching_cards is not empty
+                        self.game.play_card(player, matching_cards[0])
+                        if self.game.check_game_end(player):
+                            self.goToScene('end', player.get_name())
+                        self.game.determine_next_player()
+                    else:
+                        # AI can't play anything after black is played. FIX LATER
+                        print(player.get_name(), ": No matching cards found. Drawing a card.")
+                        player.draw_card(self.game.draw_pile)
+                        self.game.determine_next_player()
             else:
+                player.draw_card(self.game.draw_pile)
                 self.game.determine_next_player()
     
     
