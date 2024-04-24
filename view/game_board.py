@@ -122,8 +122,10 @@ class GameBoard(pyghelpers.Scene):
             self.game.determine_next_player()        
     
     def computer_move(self, player, event):
-        if self.game.check_hand(player):
-            matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
+        #adding the if instance here
+        if isinstance(player, AIPlayer) and not player.has_played:
+            if self.game.check_hand(player):
+                matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
             if matching_cards:  # Check if matching_cards is not empty
                 self.game.play_card(player, matching_cards[0])
                 if self.game.check_game_end(player):
