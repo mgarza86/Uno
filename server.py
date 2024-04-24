@@ -123,7 +123,11 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         with self.lock:
             player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
+            print(f"hand before play: {player.hand}")
             self.game.play_card(player, card)
+            self.broadcast_opponent_card_count()
+            self.broadcast_all_hands()
+            print(f"hand after play: {player.hand}")
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
 
                 self.request_color_selection(player)
@@ -178,6 +182,17 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         except Exception as e:
             print(f"Error broadcasting discard pile: {e}")
     
+    def broadcast_all_hands(self):
+        for player in self.game.players:
+            try:
+                hand_json = player.to_json(include_hand=True)
+                send_hand = f"hand${hand_json}\n"
+                client_index = self.game.players.index(player)
+                self.clients[client_index].send(send_hand.encode())
+            except Exception as e:
+                print(f"Failed to send hand update to {player.get_name()}: {str(e)}")
+
+
     def broadcast_player_hand(self):
         player = self.game.get_current_player()
         hand_json = player.to_json(include_hand=True)

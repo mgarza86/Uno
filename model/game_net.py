@@ -64,8 +64,11 @@ class Game():
             card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
-        return discard_pile[0]
-    
+        try:
+            return discard_pile[0]
+        except IndexError:
+            return None
+           
     def set_current_color(self,color):
         self.current_color = color
     

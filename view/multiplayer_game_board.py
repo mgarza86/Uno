@@ -173,6 +173,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                             if card.get_color() == "black":
                             
                                 self.choose_color = True
+                                self.client_hand.remove(card)
                                                                     
                             else:
                                 self.game_client.send_message(f"play_card${card.to_json()}\n")            
