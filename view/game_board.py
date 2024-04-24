@@ -152,7 +152,23 @@ class GameBoard(pyghelpers.Scene):
                         #if kind of card is not found, fall back to playing the first matching card
                         if not card_to_play:
                             card_to_play = matching_cards[0]
-                    
+                    else:
+                        #for easy, plays the first matching card
+                        card_to_play = matching_cards[0]
+
+                    self.game.play_card(player, card_to_play)
+                    if self.game.check_game_end(player):
+                        self.goToScene('end', player.get_name())
+                    else:
+                        self.game.determine_next_player()
+                        
+                else:
+                    # AI can't play anything after black is played. FIX LATER
+                    print(player.get_name(), ": No matching cards found. Drawing a card.")
+                    self.game.determine_next_player()
+
+            else:
+                self.game.determine_next_player()
 
     
     
