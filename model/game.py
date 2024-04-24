@@ -130,31 +130,22 @@ class Game():
         pass
     
     
-    def find_matching_cards(self, hand, current_color, current_value):
-        matching_cards = []
-        for card in hand:
-            if card.matches(current_color, current_value):
-                matching_cards.append(card)
-        return matching_cards
-    
     def medium_ai_play_card(self, player):
-        matching_cards = self.find_matching_cards(player.hand, self.current_color, self.current_value)
+        matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.current_color, self.current_value)
         if not matching_cards:
             #no matching cards so the player needs to draw teehee
             player.draw_card(self.draw_pile)
             return None
-
-        #finding the color with the most cards in hand
-        color_counts = {color: 0 for color in ['red', 'blue', 'green', 'yellow']}
-        for card in player.hand:
-            color_counts[card.color] += 1
-
+        highest_count = max(color_matches, key=color_matches.get)
+        print(f"{self.get_player}'s highest count is {highest_count}")
+        
         #choose a card that helps to offload the most cards from hand
+        #feels this could be simplified
         best_card = None
         highest_count = 0
         for card in matching_cards:
-            if color_counts[card.color] > highest_count:
-                highest_count = color_counts[card.color]
+            if color_matches[card.color] > highest_count:
+                highest_count = color_matches[card.color]
                 best_card = card
 
         return best_card
