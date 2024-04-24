@@ -122,54 +122,20 @@ class GameBoard(pyghelpers.Scene):
             self.game.determine_next_player()        
     
     def computer_move(self, player, event):    
-            # if self.game.check_hand(player):
-            #     matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
-                
-            #     if matching_cards:  # Check if matching_cards is not empty
-            #         self.game.play_card(player, matching_cards[0])
-            #         if self.game.check_game_end(player):      
-            #             self.goToScene('end', player.get_name())
-            #         self.game.determine_next_player()
-            #     else:
-            #         #! AI can't play anything after black is played. FIX LATER
-            #         print(player.get_name(), ": No matching cards found. Drawing a card.")
-            #         self.game.determine_next_player()
-            # else:
-            #     self.game.determine_next_player()
             if self.game.check_hand(player):
                 matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.game.current_color, self.game.current_value)
-
+                
                 if matching_cards:  # Check if matching_cards is not empty
-                    #if we are in medium setting, we apply the new logic
-                    if self.settings.difficulty == 'medium':
-                        #apply medium difficulty strategy
-                        card_to_play = None
-                        #prioritize playing a card of the same value if it leads to offloading more cards
-                        for card in matching_cards:
-                            if card.get_value() == self.game.current_value and (color_matches[card.get_color()] > 1 or card.get_color() == self.game.current_color):
-                                card_to_play = card
-                                break
-                        #if kind of card is not found, fall back to playing the first matching card
-                        if not card_to_play:
-                            card_to_play = matching_cards[0]
-                    else:
-                        #for easy, plays the first matching card
-                        card_to_play = matching_cards[0]
-
-                    self.game.play_card(player, card_to_play)
-                    if self.game.check_game_end(player):
+                    self.game.play_card(player, matching_cards[0])
+                    if self.game.check_game_end(player):      
                         self.goToScene('end', player.get_name())
-                    else:
-                        self.game.determine_next_player()
-                        
+                    self.game.determine_next_player()
                 else:
-                    # AI can't play anything after black is played. FIX LATER
+                    #! AI can't play anything after black is played. FIX LATER
                     print(player.get_name(), ": No matching cards found. Drawing a card.")
                     self.game.determine_next_player()
-
             else:
                 self.game.determine_next_player()
-
     
     
     def find_matching_cards(self, hand, color, value):
