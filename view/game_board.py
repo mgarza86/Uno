@@ -125,7 +125,7 @@ class GameBoard(pyghelpers.Scene):
             if self.game.check_hand(player):
                 #adjusted to call medium_ai_play_card method when the difficulty is 'medium'
                 if self.settings.difficulty == 'medium':
-                    card_to_play = self.game.medium_ai_play_card(player)
+                    card_to_play = self.game.pick_card(player)
                     if card_to_play:
                         self.game.play_card(player, card_to_play)
                         if self.game.check_game_end(player):      

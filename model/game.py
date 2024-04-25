@@ -129,6 +129,16 @@ class Game():
     def start_game():
         pass
     
+    def pick_card(self, player):
+        if self.settings.difficulty == 'easy':
+            return self.easy_ai_play_card(player)
+        
+        if self.settings.difficulty == 'medium':
+            return self.medium_ai_play_card(player)
+        
+        if self.settings.difficulty == 'hard':
+            return self.hard_ai_play_card(player)
+    
     def find_matching_cards(self, hand, color, value):
         color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
         value_matches = 0 
@@ -155,7 +165,6 @@ class Game():
         
         print(f"{self.get_player}'s highest count is {highest_count}")
         #choose a card that helps to offload the most cards from hand
-        #feels this could be simplified
         best_card = None
         
         if color_matches[highest_count] > color_matches[self.current_color]:
@@ -168,4 +177,5 @@ class Game():
             best_card = matching_cards[0]
         
         return best_card
-    
+
+        # Note: for implementing easy mode just play the first card     
