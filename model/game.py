@@ -129,34 +129,42 @@ class Game():
     def start_game():
         pass
     
-    
-    def find_matching_cards(self, hand, current_color, current_value):
-        matching_cards = []
+    def find_matching_cards(self, hand, color, value):
+        color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
+        value_matches = 0 
+        matching_cards= []
+        
         for card in hand:
-            if card.matches(current_color, current_value):
+            if card.get_color() == self.current_color:
+                color_matches[card.get_color()] += 1
                 matching_cards.append(card)
-        return matching_cards
+            elif card.get_value() == self.current_value:
+                value_matches += 1
+                if card not in matching_cards:
+                    matching_cards.append(card)
+                    
+        return matching_cards, color_matches, value_matches
     
     def medium_ai_play_card(self, player):
-        matching_cards = self.find_matching_cards(player.hand, self.current_color, self.current_value)
+        matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand, self.current_color, self.current_value)
         if not matching_cards:
             #no matching cards so the player needs to draw teehee
             player.draw_card(self.draw_pile)
             return None
-
-        #finding the color with the most cards in hand
-        color_counts = {color: 0 for color in ['red', 'blue', 'green', 'yellow']}
-        for card in player.hand:
-            color_counts[card.color] += 1
-
+        highest_count = max(color_matches, key=color_matches.get)
+        
+        print(f"{self.get_player}'s highest count is {highest_count}")
         #choose a card that helps to offload the most cards from hand
         best_card = None
-        highest_count = 0
-        for card in matching_cards:
-            if color_counts[card.color] > highest_count:
-                highest_count = color_counts[card.color]
-                best_card = card
-
+        
+        if color_matches[highest_count] > color_matches[self.current_color]:
+            # pick the card that matches the highest count color
+            for card in matching_cards:
+                if card.color == highest_count:
+                    best_card = card
+        else:
+            #! YOU NEED TO CHANGE THIS. OKAY??? U GOT THAT?
+            best_card = matching_cards[0]
+        
         return best_card
-    
     
