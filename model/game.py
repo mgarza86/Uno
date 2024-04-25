@@ -174,7 +174,15 @@ class Game():
                     best_card = card
         else:
             #! YOU NEED TO CHANGE THIS. OKAY??? U GOT THAT?
-            best_card = matching_cards[0]
+            best_card = None
+            for card in matching_cards:
+                if card.get_value() == self.current_value:
+                    best_card = card
+                    break
+        
+            #if no card with the same value, play the first matching card
+            if not best_card:
+                best_card = matching_cards[0]
         
         return best_card
 

@@ -21,8 +21,6 @@ class SettingsScene(pyghelpers.Scene):
         self.medium_button = pygwidgets.TextButton(window, (350, 200), "Medium", upColor=yellow, overColor=yellow, downColor=yellow)
         self.hard_button = pygwidgets.TextButton(window, (500, 200), "Hard", upColor=yellow, overColor=yellow, downColor=yellow)
         
-        self.difficulty = "easy"
-        
         # SFX toggle button
         self.sfx_title = pygwidgets.DisplayText(window, (325, 290), "SFX Volume", fontSize=40, textColor="black")
         self.sfx_toggle = pygwidgets.TextButton(window, (300, 340), "SFX: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
