@@ -123,14 +123,19 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         with self.lock:
             player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
-            print(f"hand before play: {player.hand}")
+            #print(f"hand before play: {player.hand}")
+            print(f"Playing card: {card}")
             self.game.play_card(player, card)
             self.broadcast_opponent_card_count()
             self.broadcast_all_hands()
-            print(f"hand after play: {player.hand}")
+            #print(f"hand after play: {player.hand}")
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
 
                 self.request_color_selection(player)
+            
+            elif isinstance(card, Reverse) or isinstance(card, Skip):
+                if not self.game.check_hand(self.game.get_current_player()):
+                    self.send_draw_card(self.game.current_player_index)
             else:
     
                 self.post_play_card(player)
@@ -255,7 +260,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     self.play_card(json.loads(action["data"]))
                 if action["type"] == ActionType.DRAW_CARD:
                     self.game.get_current_player().draw_card(self.game.draw_pile)
-                    #self.game.determine_next_player(skip=False)
                     self.broadcast_game_state()
                 if action["type"] == ActionType.PLAY_WILD:
                     parts = action["data"].split(",")
@@ -266,6 +270,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     parts = action["data"].split(",")
                     color = parts[0]
                     self.broadcast_wild_color(color)
+                    print(f"the player: {self.game.get_current_player().get_name()} selected color: {color}")
                     self.post_play_card(self.game.get_current_player())
 
             self.broadcast_current_player()

@@ -170,13 +170,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                     if card.handle_event(event):
                         if self.check_conditions(card, self.current_color, self.current_value):
                         
-                            if card.get_color() == "black":
-                            
-                                self.choose_color = True
-                                self.client_hand.remove(card)
-                                                                    
-                            else:
-                                self.game_client.send_message(f"play_card${card.to_json()}\n")            
+                            self.game_client.send_message(f"play_card${card.to_json()}\n")            
                         else:
                             print("Invalid card played")
                     elif self.must_draw:
