@@ -8,6 +8,21 @@ from queue import Queue
 from model.card_net import *
 from enum import Enum, auto
 import time
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='app.log',  # Log to a file
+                    filemode='w')  # Use 'a' to append; 'w' to overwrite each time
+
+# Additional configuration for console logging
+console_logger = logging.StreamHandler()
+console_logger.setLevel(logging.ERROR)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_logger.setFormatter(console_formatter)
+logging.getLogger('').addHandler(console_logger)
+
 
 class ActionType(Enum):
     PLAY_CARD = auto()
@@ -41,8 +56,10 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     break
                 self.data_received += part
                 if 'NAME:' in self.data_received and 'ID:' in self.data_received:
+                    logging.info(f"Received data: {self.data_received}")
                     self.setup_player()
                 if "start_game$" in self.data_received:
+                    logging.info("Game starting...")
                     self.server.start_game()
                     self.data_received = ""
                 if "play_card$" in self.data_received:
@@ -123,21 +140,69 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         with self.lock:
             player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
-            #print(f"hand before play: {player.hand}")
             print(f"Playing card: {card}")
+            logging.info(f"{self.game.get_current_player()} played: {card}")
             self.game.play_card(player, card)
             self.broadcast_opponent_card_count()
             self.broadcast_all_hands()
-            #print(f"hand after play: {player.hand}")
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
-
+                logging.info(f"{player.get_name()} played a wild card")
+                logging.info(f"Requesting color selection from {player.get_name()}")
                 self.request_color_selection(player)
-            
-            elif isinstance(card, Reverse) or isinstance(card, Skip):
+                if isinstance(card, WildPickFour):
+                    
+                    victim_index = card.perform_action(self.game, online=True)
+                    logging.info(f"{self.game.players[victim_index].get_name()} will draw 4 cards")
+                    self.game.players[victim_index].draw_card(self.game.draw_pile)
+                    self.game.players[victim_index].draw_card(self.game.draw_pile)
+                    self.game.players[victim_index].draw_card(self.game.draw_pile)
+                    self.game.players[victim_index].draw_card(self.game.draw_pile)
+                    self.broadcast_all_hands()
+
+            elif isinstance(card, Reverse):
+                if len(self.game.players) == 2:
+                    self.game.determine_next_player(skip=True)
+                    logging.info(f"Only two players, skipping opponent's turn.")
+                else:
+                    self.game.change_direction()
+                    logging.info(f"Changing direction of play.")
+                    self.game.determine_next_player(skip=False)
+                self.post_play_card(player)
+                logging.info(f"checking hand for {self.game.get_current_player().get_name()}")
                 if not self.game.check_hand(self.game.get_current_player()):
+                    logging.info(f"sending draw card to {player.get_name()}")
                     self.send_draw_card(self.game.current_player_index)
+                else:
+                    logging.info(f"player {player.get_name()} has a card to play")
+                    self.game.determine_next_player(skip=False)                    
+                self.post_play_card(player)
+
+            elif isinstance(card, DrawTwoCard):
+                victim_index = card.perform_action(self.game, online=True)
+                logging.info(f"{self.game.players[victim_index].get_name()} will draw 2 cards")
+                self.game.players[victim_index].draw_card(self.game.draw_pile)
+                self.game.players[victim_index].draw_card(self.game.draw_pile)
+                self.broadcast_all_hands()
+                self.post_play_card(player)
+
+            elif isinstance(card, Skip):
+                self.game.determine_next_player(skip=True)
+                logging.info(f"Skipping opponent's turn.")
+                if not self.game.check_hand(self.game.get_current_player()):
+                    logging.info(f"sending draw card to {player.get_name()}")
+                    self.send_draw_card(self.game.current_player_index)
+                else:
+                    logging.info(f"player {player.get_name()} has a card to play") 
+                self.post_play_card(player)
+            elif isinstance(card, Card): #! this doesn't appear to be right
+
+                if not self.game.check_hand(self.game.get_current_player()):
+                    logging.info(f"sending draw card to {player.get_name()}")
+                    self.send_draw_card(self.game.current_player_index)
+
             else:
-    
+                logging.info(f"{player.get_name()} played {card}")
+                self.game.determine_next_player(skip=False)
                 self.post_play_card(player)
             
     def post_play_card(self, player):
@@ -168,6 +233,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def start_game(self):
         if not self.game_started:
             self.game.draw_pile.shuffle()
+            self.game.draw_pile.shuffle()
+            self.game.draw_pile.shuffle()
             self.game.initialize_players()
             self.game_started = True
             self.broadcast_start_game()
@@ -176,6 +243,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 self.game_loop_thread.daemon = True
                 self.game_loop_thread.start()
             self.broadcast_opponent_card_count()
+            self.broadcast_current_player() 
             
     def broadcast_discard_pile(self, card):
         print(f"Broadcasting discard pile: {card}")
@@ -220,14 +288,15 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     
     def broadcast_current_player(self):
         current_player = self.game.get_current_player_client_id()
-        if current_player != self.last_current_player:
-            self.last_current_player = current_player
-            message = "current_player$" + current_player + "\n"
-            print(f"Current player: {current_player}")
-            for client in self.clients:
-                client.send(message.encode())
-            if not self.game.check_hand(self.game.get_current_player()):
-                self.send_draw_card(self.game.current_player_index)
+        # if current_player != self.last_current_player:
+        #     self.last_current_player = current_player
+        #     message = "current_player$" + current_player + "\n"
+        #     print(f"Current player: {current_player}")
+        message = "current_player$" + current_player + "\n"
+        for client in self.clients:
+            client.send(message.encode())
+        if not self.game.check_hand(self.game.get_current_player()):
+            self.send_draw_card(self.game.current_player_index)
             
     def send_draw_card(self, index):
         message = "draw_card$\n"
@@ -245,11 +314,16 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         for client in self.clients:
             client.send(f"wild_color${color}\n".encode())
 
-    def broadcast_game_state(self):
-        self.broadcast_discard_pile(self.game.check_last_card_played(self.game.discard_pile))
+    def broadcast_game_state(self, card=None):
+        if card is not None:
+            self.broadcast_discard_pile(card)
+            logging.info(f"Broadcasting discard pile: {card}")
+        else:
+            self.broadcast_discard_pile(self.game.check_last_card_played(self.game.discard_pile))
+            logging.info(f"Broadcasting discard pile: {self.game.check_last_card_played(self.game.discard_pile)}")
         self.broadcast_opponent_card_count()
         self.broadcast_player_hand()
-        self.game.determine_next_player(skip=False)
+        #self.game.determine_next_player(skip=False)
 
     def game_loop(self):
         self.initialize_game()
@@ -257,23 +331,35 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             if not self.game_actions.empty():
                 action = self.game_actions.get()
                 if action["type"] == ActionType.PLAY_CARD:
+                    logging.info(f"{self.game.get_current_player().get_name()} played a card...")
                     self.play_card(json.loads(action["data"]))
+                    self.broadcast_current_player()
                 if action["type"] == ActionType.DRAW_CARD:
                     self.game.get_current_player().draw_card(self.game.draw_pile)
+                    logging.info(f"{self.game.get_current_player().get_name()} drew a card...")
                     self.broadcast_game_state()
+                    self.broadcast_current_player()
                 if action["type"] == ActionType.PLAY_WILD:
+                    logging.info(f"{self.game.get_current_player().get_name()} played a wild card...")
                     parts = action["data"].split(",")
                     color = parts[1]
                     message = f"wild_color${color}\n"
+                    logging.info(f"Broadcasting wild color: {color}")
                     self.broadcast(message)
+                    self.broadcast_current_player() #idk if this is necessary
                 if action["type"] == ActionType.COLOR_SELECTED:
                     parts = action["data"].split(",")
                     color = parts[0]
+                    logging.info(f"{self.game.get_current_player().get_name()} selected color: {color}")
                     self.broadcast_wild_color(color)
                     print(f"the player: {self.game.get_current_player().get_name()} selected color: {color}")
                     self.post_play_card(self.game.get_current_player())
+                    logging.info(f"Determining next player...")
+                    self.game.determine_next_player(skip=False)
+                    logging.info(f"Next player is {self.game.get_current_player().get_name()}")
+                    self.broadcast_current_player()
 
-            self.broadcast_current_player()
+            #self.broadcast_current_player()
             time.sleep(0.1)
 
     def request_color_selection(self, player):

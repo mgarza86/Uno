@@ -48,20 +48,20 @@ class Game():
         self.current_player_index %= len(self.players)
         return self.current_player_index
     
-    def play_card(self,player,card):
+    def play_card(self,player,card, online=False):
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
         #self.discard_pile[0].reveal()
         self.current_color = card.get_color()
         self.current_value = card.get_value()
         if isinstance(card,Skip):
-            card.perform_action(self)
+            card.perform_action(self, online)
         if isinstance(card,DrawTwoCard):
-            card.perform_action(self)
+            card.perform_action(self, online)
         if isinstance(card,Reverse):
-            card.perform_action(self)
+            card.perform_action(self, online)
         if isinstance(card,WildPickFour):
-            card.perform_action(self)
+            card.perform_action(self, online)
     
     def check_last_card_played(self, discard_pile):
         try:
@@ -98,7 +98,7 @@ class Game():
         return json.dumps(dictionary, indent=4)
 
     def get_current_player_client_id(self):
-        current_player = str(self.players[self.current_player_index].client_id)
+        current_player = str(self.get_current_player().client_id)
         return json.dumps({"client_id": current_player})
     
     def get_current_color(self):
