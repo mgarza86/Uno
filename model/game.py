@@ -166,20 +166,17 @@ class Game():
         print(f"{self.get_player}'s highest count is {highest_count}")
         #choose a card that helps to offload the most cards from hand
         best_card = None
-        
-        if color_matches[highest_count] > color_matches[self.current_color]:
-            # pick the card that matches the highest count color
+        for card in matching_cards:
+            if card.get_color() == self.current_color:
+                best_card = card
+                break
+    
+        if not best_card:
             for card in matching_cards:
-                if card.color == highest_count:
-                    best_card = card
-        else:
-            #! YOU NEED TO CHANGE THIS. OKAY??? U GOT THAT?
-            best_card = None
-            for card in matching_cards:
-                if card.get_value() == self.current_value:
+                if card.get_color() == highest_count:
                     best_card = card
                     break
-        
+
             #if no card with the same value, play the first matching card
             if not best_card:
                 best_card = matching_cards[0]
