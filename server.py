@@ -67,7 +67,9 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     self.data_received = ""
                 if "play_card$" in self.data_received:
                     parts = self.data_received.split('$',1)
-                    action = {"type": ActionType.PLAY_CARD, "data": parts[1]}
+                    json_data, uuid = parts[1].split(',',1)
+                    card_data = json.loads(json_data)
+                    action = {"type": ActionType.PLAY_CARD, "data": card_data, "uuid": uuid.strip()}
                     self.server.game_actions.put(action)
                     self.data_received = ""
                 if "draw_card$" in self.data_received:
@@ -217,7 +219,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         else:
             self.broadcast_game_state()
 
-
     def broadcast_game_conditions(self):
         message = f"game_conditions${self.game.condition_to_json()}\n"
         self.broadcast(message)
@@ -271,7 +272,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 self.clients[client_index].send(send_hand.encode())
             except Exception as e:
                 print(f"Failed to send hand update to {player.get_name()}: {str(e)}")
-
 
     def broadcast_player_hand(self):
         player = self.game.get_current_player()
@@ -332,13 +332,17 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
     def game_loop(self):
         self.initialize_game()
+        notified_turn_start = False
         while self.game_started:
+            if not notified_turn_start:
+                self.broadcast_current_player()
+                notified_turn_start = True
             if not self.game_actions.empty():
                 action = self.game_actions.get()
                 if action["type"] == ActionType.PLAY_CARD:
-                    logging.info(f"{self.game.get_current_player().get_name()} played a card...")
+                    #logging.info(f"{self.game.get_current_player().get_name()} played a card...")
                     self.play_card(json.loads(action["data"]))
-                    self.broadcast_current_player()
+                    #self.broadcast_current_player()
                 if action["type"] == ActionType.DRAW_CARD:
                     self.game.get_current_player().draw_card(self.game.draw_pile)
                     logging.info(f"recieved draw card action from {self.game.get_current_player().get_name()}")
@@ -366,9 +370,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     logging.info(f"Next player is {self.game.get_current_player().get_name()}")
                     self.broadcast_current_player()
 
-            self.broadcast_current_player()
+            
             time.sleep(0.1)
-
 
     def request_color_selection(self, player):
         message = "select_color$\n"

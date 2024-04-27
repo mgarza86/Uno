@@ -166,7 +166,6 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             self.current_color = message.split('$')[1]
             print(f"color changed to: {self.current_color}")
             self.choose_color = False
-            #! maybe print a notification that the color has been changed
         elif message.startswith("current_player$"):
             current_player_id = message.split('$')[1]
             current_player = json.loads(current_player_id)
@@ -189,7 +188,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                         
                         if self.check_conditions(card, self.current_color, self.current_value):
                             self.is_current_player = False
-                            self.game_client.send_message(f"play_card${card.to_json()}\n")
+                            self.game_client.send_message(f"play_card${card.to_json()},{self.client_id}\n")
                             #print(f"{self.client_name} played: {card.get_name()}")
                             logging.debug(f"{self.client_name} played: {card.get_name()}")
                         else:
