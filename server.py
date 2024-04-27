@@ -67,16 +67,22 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     self.data_received = ""
                 if "play_card$" in self.data_received:
                     parts = self.data_received.split('$',1)
-                    json_data, uuid = parts[1].split(',',1)
-                    card_data = json.loads(json_data)
-                    action = {"type": ActionType.PLAY_CARD, "data": card_data, "uuid": uuid.strip()}
+                    print(f"Playing card: {parts[1]}")
+    
+                    data = json.loads(parts[1])
+                    print(f"Data: {data}")
+                    action = {"type": ActionType.PLAY_CARD, "data": data}
                     self.server.game_actions.put(action)
                     self.data_received = ""
                 if "draw_card$" in self.data_received:
-                    parts = self.data_received.split('$',1)
-                    action = {"type": ActionType.DRAW_CARD, "data": parts[1]}
-                    self.server.game_actions.put(action)
-                    self.data_received = ""
+                    parts = self.data_received.split('$', 1)
+                    try:
+                        data_dict = json.loads(parts[1])  # Parse JSON string into a Python dictionary
+                        action = {"type": ActionType.DRAW_CARD, "data": data_dict}
+                        self.server.game_actions.put(action)
+                        self.data_received = ""
+                    except json.JSONDecodeError as e:
+                        print("Failed to decode JSON:", e)
                 if "play_wild$" in self.data_received:
                     parts = self.data_received.split('$',1)
                     action = {"type": ActionType.PLAY_WILD, "data": parts[1]}
@@ -141,12 +147,20 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.game_loop_thread = None
         self.last_current_player = ""
 
+    def player_from_uuid(self, uuid):
+        for player in self.game.players:
+            if player.get_client_id() == uuid:
+                return player
+        return None
+    
     def play_card(self, card_info):
         with self.lock:
-            player = self.game.get_current_player()
+            player = self.player_from_uuid(card_info['client_id'])
+            
+            #player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
             print(f"Playing card: {card}")
-            logging.info(f"{self.game.get_current_player()} played: {card}")
+            logging.info(f"{player} played: {card}")
             self.game.play_card(player, card, online=True)
             self.broadcast_opponent_card_count()
             self.broadcast_all_hands()
@@ -327,7 +341,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.broadcast_discard_pile(self.game.check_last_card_played(self.game.discard_pile))
             logging.info(f"Broadcasting discard pile: {self.game.check_last_card_played(self.game.discard_pile)}")
         self.broadcast_opponent_card_count()
-        self.broadcast_player_hand()
+        self.broadcast_all_hands()
         #self.game.determine_next_player(skip=False)
 
     def game_loop(self):
@@ -341,15 +355,19 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 action = self.game_actions.get()
                 if action["type"] == ActionType.PLAY_CARD:
                     #logging.info(f"{self.game.get_current_player().get_name()} played a card...")
-                    self.play_card(json.loads(action["data"]))
+                    self.play_card(action["data"])
                     #self.broadcast_current_player()
+                    notified_turn_start = False
                 if action["type"] == ActionType.DRAW_CARD:
-                    self.game.get_current_player().draw_card(self.game.draw_pile)
-                    logging.info(f"recieved draw card action from {self.game.get_current_player().get_name()}")
-                    logging.info(f"{self.game.get_current_player().get_name()} drew a card...")
+                    player = self.player_from_uuid(action["data"]["client_id"])
+                    player.draw_card(self.game.draw_pile)
+                    #self.game.get_current_player().draw_card(self.game.draw_pile)
+                    logging.info(f"recieved draw card action from {player.get_name()}")
+                    logging.info(f"{player.get_name()} drew a card...")
                     self.game.determine_next_player(skip=False)
                     self.broadcast_game_state()
-                    self.broadcast_current_player()
+                    notified_turn_start = False
+                    #self.broadcast_current_player()
                 if action["type"] == ActionType.PLAY_WILD:
                     logging.info(f"{self.game.get_current_player().get_name()} played a wild card...")
                     parts = action["data"].split(",")

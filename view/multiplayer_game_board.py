@@ -188,7 +188,10 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                         
                         if self.check_conditions(card, self.current_color, self.current_value):
                             self.is_current_player = False
-                            self.game_client.send_message(f"play_card${card.to_json()},{self.client_id}\n")
+                            info = card.to_dict()
+                            info['client_id'] = self.client_id
+                            play_info = json.dumps(info)
+                            self.game_client.send_message(f"play_card${play_info}\n")
                             #print(f"{self.client_name} played: {card.get_name()}")
                             logging.debug(f"{self.client_name} played: {card.get_name()}")
                         else:
@@ -196,7 +199,10 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                     elif self.must_draw and self.is_current_player:
                         if self.draw_card_button.handleEvent(event):
                             logging.debug(f"{self.client_name} sent a draw_card$ request to the server.")
-                            self.game_client.send_message("draw_card$")
+                            client = {"client_id": self.client_id}
+                            info = json.dumps(client)
+                            
+                            self.game_client.send_message(f"draw_card${info}\n")
                             self.must_draw = False
                 if self.choose_color:
                     if self.red_button.handleEvent(event):
