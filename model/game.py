@@ -139,7 +139,7 @@ class Game():
         if self.settings.difficulty == 'hard':
             return self.hard_ai_play_card(player)
     
-    def find_matching_cards(self, hand, color, value):
+    def find_matching_cards(self, hand):
         color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
         value_matches = 0 
         matching_cards= []
