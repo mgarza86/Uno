@@ -191,7 +191,9 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                             info = card.to_dict()
                             info['client_id'] = self.client_id
                             play_info = json.dumps(info)
+                            logging.debug(f"{self.client_name} sent a play_card${play_info}\n  to the server.")
                             self.game_client.send_message(f"play_card${play_info}\n")
+                            
                             #print(f"{self.client_name} played: {card.get_name()}")
                             logging.debug(f"{self.client_name} played: {card.get_name()}")
                         else:
