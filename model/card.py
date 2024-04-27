@@ -84,6 +84,12 @@ class Card():
     def to_json(self):
         return json.dumps(self.to_dict(), sort_keys=True, indent=4)
     
+    def disable(self):
+        self.images.disable()
+    
+    def enable(self):
+        self.images.enable()
+    
 class WildChanger(Card):
     
     WILD_CARD = pygame.image.load('./images/black_wild.png')

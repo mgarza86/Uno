@@ -187,6 +187,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                     if card.handle_event(event):
                         
                         if self.check_conditions(card, self.current_color, self.current_value):
+                            print(f"Card played: {card.get_name()}")
                             self.is_current_player = False
                             info = card.to_dict()
                             info['client_id'] = self.client_id

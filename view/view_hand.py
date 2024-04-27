@@ -40,12 +40,13 @@ class ViewHand:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         overlap_amount = 30
         hovered_index = None
-        
-        # Determine the hovered card index
-        for i, card in enumerate(self.cards):
+
+        # Determine the hovered card index (check in reverse order)
+        for i in range(len(self.cards) - 1, -1, -1):
+            card = self.cards[i]
             if card.get_collide_point(mouse_x, mouse_y):
                 hovered_index = i
-                break
+                break  # Stop checking once the topmost hovered card is found
 
         # Draw all non-hovered cards
         for i, card in enumerate(self.cards):
@@ -57,12 +58,15 @@ class ViewHand:
                 card.set_location(card_location)
                 card.reveal()
                 card.set_scale(60)
+                card.disable()
                 card.draw()
 
         # Draw the hovered card last to make it appear on top
-        if hovered_index is not None and hovered_index < len(self.cards):
+        if hovered_index is not None:
+            self.cards[hovered_index].enable()
             self.cards[hovered_index].set_scale(60)
             self.cards[hovered_index].draw()
+
 
     def calculate_hand_width(self, overlap):
         if not self.cards:
