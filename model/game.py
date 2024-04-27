@@ -156,7 +156,7 @@ class Game():
         return matching_cards, color_matches, value_matches
     
     def medium_ai_play_card(self, player):
-        matching_cards, color_matches = self.find_matching_cards(player.hand, self.current_color, self.current_value)
+        matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand)
         if not matching_cards:
             #no matching cards so the player needs to draw teehee
             player.draw_card(self.draw_pile)
