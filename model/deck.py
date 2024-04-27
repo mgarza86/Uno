@@ -55,3 +55,25 @@ class Deck():
         for o_card in self.starting_deck:
             print('Name: ', o_card.get_name(), '  Value:', o_card.get_value())
         
+class NormalCardsDeck(Deck):
+    def __init__(self, window=None):
+        super().__init__(window, card_dict={'1':1, '2':2,'3': 3,'4':4,'5':5,
+                                            '6':6,'7':7,'8':8,'9':9})
+
+class FewerNormalMoreSpecialDeck(Deck):
+    # Reducing the number of normal cards to 1 of each and increasing special cards
+    def __init__(self, window=None):
+        custom_dict = {'1':1, '2':2, 'skip':'skip', 'reverse':'reverse', 'picker':'picker'}
+        super().__init__(window, card_dict=custom_dict)
+        # Adding extra special cards
+        for color in Deck.COLOR_TUPLE:
+            for _ in range(3):  # Adding three more of each special card
+                o_card = Skip(window, color, 'skip')
+                self.starting_deck.append(o_card)
+                o_card = Reverse(window, color, 'reverse')
+                self.starting_deck.append(o_card)
+                o_card = DrawTwoCard(window, color, 'picker')
+                self.starting_deck.append(o_card)
+
+        # Optionally, remove some normal cards or adjust the numbers and types as needed
+        self.starting_deck = [card for card in self.starting_deck if not (card.get_value().isdigit() and int(card.get_value()) > 2)]

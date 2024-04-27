@@ -8,6 +8,12 @@ class ViewHand:
         self.cards = []
         self.load_hand(hand_data)
 
+    def __str__(self) -> str:
+        return f"Hand: {self.hand_string()}"
+    
+    def hand_string(self):
+        return ', '.join([str(card) for card in self.cards])
+    
     def load_hand(self, hand_data):
         ''' Parse the hand data and creates card objects'''
         self.cards = []

@@ -2,7 +2,7 @@ import socketserver
 import threading
 import json
 from model.game_net import Game
-from model.deck_net import Deck, CardFactory
+from model.deck_net import *
 from model.player_net import Player 
 from queue import Queue
 from model.card_net import *
@@ -52,9 +52,12 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
         try:
             while True:
                 part = self.request.recv(1024).decode()
+                print(f"Received data (part): {part}")
                 if not part:
                     break
                 self.data_received += part
+                print(f"Received data: {self.data_received}")
+                
                 if 'NAME:' in self.data_received and 'ID:' in self.data_received:
                     logging.info(f"Received data: {self.data_received}")
                     self.setup_player()
@@ -129,7 +132,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.allow_reuse_address = True
         self.clients = []
         self.clients_names = []
-        self.deck = Deck()
+        self.deck = NormalCardDeck()
         self.game = Game([], self.deck)
         self.game_actions = Queue()
         self.game_started = False
@@ -142,7 +145,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             card = CardFactory.create_card(card_info['color'], card_info['value'])
             print(f"Playing card: {card}")
             logging.info(f"{self.game.get_current_player()} played: {card}")
-            self.game.play_card(player, card)
+            self.game.play_card(player, card, online=True)
             self.broadcast_opponent_card_count()
             self.broadcast_all_hands()
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
@@ -183,6 +186,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 self.game.players[victim_index].draw_card(self.game.draw_pile)
                 self.game.players[victim_index].draw_card(self.game.draw_pile)
                 self.broadcast_all_hands()
+                self.game.determine_next_player(skip=False)
                 self.post_play_card(player)
 
             elif isinstance(card, Skip):
@@ -196,10 +200,11 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                 self.post_play_card(player)
             elif isinstance(card, Card): #! this doesn't appear to be right
 
-                if not self.game.check_hand(self.game.get_current_player()):
-                    logging.info(f"sending draw card to {player.get_name()}")
-                    self.send_draw_card(self.game.current_player_index)
-
+                # if not self.game.check_hand(self.game.get_current_player()):
+                #     logging.info(f"sending draw card to {player.get_name()}")
+                #     self.send_draw_card(self.game.current_player_index)
+                self.game.determine_next_player(skip=False)
+                self.post_play_card(player)
             else:
                 logging.info(f"{player.get_name()} played {card}")
                 self.game.determine_next_player(skip=False)
@@ -246,10 +251,12 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.broadcast_current_player() 
             
     def broadcast_discard_pile(self, card):
+        print(f"LINE 251 - Broadcasting current player: {self.game.get_current_player()}")
         print(f"Broadcasting discard pile: {card}")
         try:
             message = f"discard_pile${card.color},{card.value}\n"
             print(f"Broadcasting discard pile message: {message}")
+            print(f"Broadcasting current player: {self.game.get_current_player()}")
             for client in self.clients:
                 client.send(message.encode())
         except Exception as e:
@@ -288,11 +295,8 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     
     def broadcast_current_player(self):
         current_player = self.game.get_current_player_client_id()
-        # if current_player != self.last_current_player:
-        #     self.last_current_player = current_player
-        #     message = "current_player$" + current_player + "\n"
-        #     print(f"Current player: {current_player}")
         message = "current_player$" + current_player + "\n"
+
         for client in self.clients:
             client.send(message.encode())
         if not self.game.check_hand(self.game.get_current_player()):
@@ -301,6 +305,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def send_draw_card(self, index):
         message = "draw_card$\n"
         print(f"Sending draw card message to {self.clients_names[index]}")
+        logging.info(f"Sending draw card message to {self.clients_names[index]}")
         self.clients[index].send(message.encode())
 
     def initialize_game(self):
@@ -336,7 +341,9 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     self.broadcast_current_player()
                 if action["type"] == ActionType.DRAW_CARD:
                     self.game.get_current_player().draw_card(self.game.draw_pile)
+                    logging.info(f"recieved draw card action from {self.game.get_current_player().get_name()}")
                     logging.info(f"{self.game.get_current_player().get_name()} drew a card...")
+                    self.game.determine_next_player(skip=False)
                     self.broadcast_game_state()
                     self.broadcast_current_player()
                 if action["type"] == ActionType.PLAY_WILD:
@@ -359,8 +366,9 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     logging.info(f"Next player is {self.game.get_current_player().get_name()}")
                     self.broadcast_current_player()
 
-            #self.broadcast_current_player()
+            self.broadcast_current_player()
             time.sleep(0.1)
+
 
     def request_color_selection(self, player):
         message = "select_color$\n"

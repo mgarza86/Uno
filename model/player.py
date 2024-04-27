@@ -10,7 +10,13 @@ class Player():
         self.hand = []
         self.angle = 0
         self.location = (0,0)
-        
+    
+    def __str__(self):
+        return f"Player: {self.name}, Hand: {self.hand_string()}"
+    
+    def hand_string(self):
+        return ', '.join([str(card) for card in self.hand])
+    
     def draw_card(self, game_deck):
         print(self.get_name(), "drew a card")
         self.hand.append(game_deck.get_card())

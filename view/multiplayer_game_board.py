@@ -9,7 +9,21 @@ from view.view_hand import ViewHand
 from view.view_opponent import ViewOpponent
 from view.view_discard import ViewDiscard
 from model.card_factory import CardFactory
+import logging
 
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    filename='app.log',  # Log to a file
+                    filemode='w')  # Use 'a' to append; 'w' to overwrite each time
+
+# Additional configuration for console logging
+console_logger = logging.StreamHandler()
+console_logger.setLevel(logging.ERROR)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_logger.setFormatter(console_formatter)
+logging.getLogger('').addHandler(console_logger)
 class GameClient:
     def __init__(self, host, port, message_queue):
         self.host = host
@@ -79,6 +93,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.current_color = ""
         self.current_value = ""
         
+        self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
         self.draw_card_button = pygwidgets.TextButton(window, (100, 300), "Draw Card", width=100, height=50)
         # rgb for red is 
         self.red_button = pygwidgets.TextButton(self.window, loc=(self.x_coord, self.y_coord), text='Red', upColor=(255,0,0))
@@ -101,18 +116,19 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             self.process_message(message)
 
     def process_message(self, message):
-        print(f"Processing message: {message}")
+        #print(f"Processing message: {message}")
         if message.startswith("start_game$"):
             print("Game started")
             self.game_started = True
             self.bg_color = (161, 59, 113)
         elif message.startswith("hand$"):
             json_hand = message[5:]
-            print(f"Hand message received: {json_hand}")
+            #print(f"Hand message received: {json_hand}")
             try: 
                 data = json.loads(json_hand)
-                print(f"Hand data: {data}")
+                #print(f"Hand data: {data}")
                 self.client_hand.update(data)
+                print(f"Client hand: {self.client_hand}")
             except Exception as e:
                 print(f"Error processing hand message: {e}")
         elif message.startswith("opponent_cards_count$"):
@@ -140,9 +156,10 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         elif message.startswith("host_status$"):
             print("host_status message received")
             self.host_status = message.split('$')[1] == "yes"
-            print(self.host_status)
+            #print(self.host_status)
         elif message.startswith("draw_card$"):
             print("Must draw card")
+            logging.debug(f"{self.client_name} received draw card notification.")
             if len(self.discard_pile) != 0:
                 self.must_draw = True
         elif message.startswith("wild_color$"):
@@ -167,15 +184,19 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 self.game_client.send_message("start_game$")
             elif self.is_current_player:
                 for card in self.client_hand.cards:
+                    #print(f"Player:{self.client_name} hand: {self.client_hand}")
                     if card.handle_event(event):
-                        if self.check_conditions(card, self.current_color, self.current_value):
                         
+                        if self.check_conditions(card, self.current_color, self.current_value):
+                            self.is_current_player = False
                             self.game_client.send_message(f"play_card${card.to_json()}\n")
-                            self.is_current_player = False           
+                            #print(f"{self.client_name} played: {card.get_name()}")
+                            logging.debug(f"{self.client_name} played: {card.get_name()}")
                         else:
                             print("Invalid card played")
-                    elif self.must_draw:
+                    elif self.must_draw and self.is_current_player:
                         if self.draw_card_button.handleEvent(event):
+                            logging.debug(f"{self.client_name} sent a draw_card$ request to the server.")
                             self.game_client.send_message("draw_card$")
                             self.must_draw = False
                 if self.choose_color:
@@ -198,7 +219,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             if self.host_status:
                 self.play_button.draw()
         
-        
+        if self.is_current_player:
+            self.notify_client.draw()
 
         # Draw the client's hand if there are cards
         if len(self.client_hand.cards) != 0:
