@@ -172,13 +172,15 @@ class Game():
             for card in matching_cards:
                 if card.color == highest_count_color:
                     best_card = card
+                    break
         else:
-            
-        
-            
+            if not best_card:
+                for card in matching_cards:
+                    if card.color == self.current_color:
+                        best_card = card
+                        break
+    
             if not best_card:
                 best_card = matching_cards[0]
         
             return best_card
-
-        # Note: for implementing easy mode just play the first card     
