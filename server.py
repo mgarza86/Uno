@@ -226,7 +226,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             
     def post_play_card(self, player):
         if self.game.check_game_end(player):
-            self.broadcast_game_end()
+            self.broadcast_game_end(player)
             self.game_started = False
         else:
             self.broadcast_game_state()
@@ -235,9 +235,14 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         message = f"game_conditions${self.game.condition_to_json()}\n"
         self.broadcast(message)
 
-    def broadcast_game_end(self):
-        player = self.game.get_current_player()
-        message = f"game_end${player.get_name()}\n"
+    def broadcast_game_end(self, player):
+        name = player.get_name()
+        uuid = player.get_client_id()
+        data = {"name": name, "uuid": uuid}
+        json_data = json.dumps(data)
+        message = f"game_end${json_data}\n"
+        print(f"Broadcasting game end message: {message}")
+        print(f"Type: {type(message)}")
         for client in self.clients:
             client.send(message.encode())
     
@@ -253,7 +258,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             self.game.draw_pile.shuffle()
             self.game.draw_pile.shuffle()
             self.game.draw_pile.shuffle()
-            self.game.initialize_players()
+            self.game.initialize_players(number_of_cards=7)
             self.game_started = True
             self.broadcast_start_game()
             if self.game_loop_thread is None:
@@ -340,7 +345,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             logging.info(f"Broadcasting discard pile: {self.game.check_last_card_played(self.game.discard_pile)}")
         self.broadcast_opponent_card_count()
         self.broadcast_all_hands()
-        #self.game.determine_next_player(skip=False)
 
     def game_loop(self):
         self.initialize_game()
@@ -370,7 +374,6 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     message = f"wild_color${color}\n"
                     logging.info(f"Broadcasting wild color: {color}")
                     self.broadcast(message)
-                    #self.broadcast_current_player()
                 if action["type"] == ActionType.COLOR_SELECTED:
                     parts = action["data"].split(",")
                     color = parts[0]

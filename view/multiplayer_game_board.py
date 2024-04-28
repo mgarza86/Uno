@@ -92,7 +92,10 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.bg_color = (255, 255, 255)
         self.current_color = ""
         self.current_value = ""
+        self.winner = None
         
+        
+        self.winner_text = pygwidgets.DisplayText(self.window, (100, 80),  f"{self.winner}", fontSize=48, textColor=(0,0,0), width=600, justified='center')
         self.track_color = pygwidgets.DisplayText(self.window, (0, 500), f"Current color: {self.current_color}", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
         self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
         self.draw_card_button = pygwidgets.TextButton(window, (100, 300), "Draw Card", width=100, height=50)
@@ -153,9 +156,18 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 card.reveal()
                 card.set_scale(60)
                 self.discard_pile.insert(0, card)
-                
             except Exception as e:
                 print(f"Error processing discard pile message: {e}")
+        elif message.startswith("game_end$"):
+            print(f"{type(message)}")
+            msg = message.split('$')[1]
+            data = json.loads(msg)
+            
+            self.winner = data['name']
+            
+            self.winner_text.setText(f"{self.winner} wins!")
+                
+            
         elif message.startswith("host_status$"):
             print("host_status message received")
             self.host_status = message.split('$')[1] == "yes"
@@ -230,6 +242,9 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         if not self.game_started:
             if self.host_status:
                 self.play_button.draw()
+        
+        if self.winner is not None:
+            self.winner_text.draw()
         
         self.track_color.draw()
         
