@@ -87,10 +87,14 @@ class DrawTwoCard(Card):
 class Reverse(Card):
         
     def perform_action(self, game, online=False):
-        if not online:        
+        if not online: 
+            print(len(game.players))       
             if len(game.players) == 2:
                 game.determine_next_player(skip=True)
             else:
                 game.change_direction()
-        else:
-            print("Reverse card played, handling on server side.")
+        elif online:
+            if len(game.players) == 2:
+                game.determine_next_player(skip=True)
+            else:
+                game.change_direction()

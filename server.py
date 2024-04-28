@@ -140,7 +140,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.allow_reuse_address = True
         self.clients = []
         self.clients_names = []
-        self.deck = NormalCardDeck()
+        self.deck = Deck()
         self.game = Game([], self.deck)
         self.game_actions = Queue()
         self.game_started = False
@@ -157,13 +157,13 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         with self.lock:
             player = self.player_from_uuid(card_info['client_id'])
             
-            #player = self.game.get_current_player()
             card = CardFactory.create_card(card_info['color'], card_info['value'])
             print(f"Playing card: {card}")
             logging.info(f"{player} played: {card}")
             self.game.play_card(player, card, online=True)
             self.broadcast_opponent_card_count()
             self.broadcast_all_hands()
+            
             if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
                 logging.info(f"{player.get_name()} played a wild card")
                 logging.info(f"Requesting color selection from {player.get_name()}")
@@ -177,36 +177,36 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     self.game.players[victim_index].draw_card(self.game.draw_pile)
                     self.game.players[victim_index].draw_card(self.game.draw_pile)
                     self.broadcast_all_hands()
-
-            elif isinstance(card, Reverse):
-                if len(self.game.players) == 2:
-                    self.game.determine_next_player(skip=True)
-                    logging.info(f"Only two players, skipping opponent's turn.")
-                else:
-                    self.game.change_direction()
-                    logging.info(f"Changing direction of play.")
-                    self.game.determine_next_player(skip=False)
-                self.post_play_card(player)
-                logging.info(f"checking hand for {self.game.get_current_player().get_name()}")
-                if not self.game.check_hand(self.game.get_current_player()):
+                
+                print("check hand")    
+                if not self.game.check_hand(player):
+                    print("hand checked")
                     logging.info(f"sending draw card to {player.get_name()}")
                     self.send_draw_card(self.game.current_player_index)
+            elif isinstance(card, Reverse):
+                if len(self.game.players) == 2:
+                    card.perform_action(self.game, online=True)
+                    self.post_play_card(player)
+                    if not self.game.check_hand(self.game.get_current_player()):
+                        logging.info(f"sending draw card to {player.get_name()}")
+                        self.send_draw_card(self.game.current_player_index)
                 else:
-                    logging.info(f"player {player.get_name()} has a card to play")
-                    self.game.determine_next_player(skip=False)                    
-                self.post_play_card(player)
-
+                    card.perform_action(self.game, online=True)
+                    self.post_play_card(player)
+                
             elif isinstance(card, DrawTwoCard):
                 victim_index = card.perform_action(self.game, online=True)
                 logging.info(f"{self.game.players[victim_index].get_name()} will draw 2 cards")
                 self.game.players[victim_index].draw_card(self.game.draw_pile)
                 self.game.players[victim_index].draw_card(self.game.draw_pile)
                 self.broadcast_all_hands()
+                print("LINE 220 - player change")
                 self.game.determine_next_player(skip=False)
                 self.post_play_card(player)
 
             elif isinstance(card, Skip):
-                self.game.determine_next_player(skip=True)
+                card.perform_action(self.game, online=True)
+
                 logging.info(f"Skipping opponent's turn.")
                 if not self.game.check_hand(self.game.get_current_player()):
                     logging.info(f"sending draw card to {player.get_name()}")
@@ -215,14 +215,12 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     logging.info(f"player {player.get_name()} has a card to play") 
                 self.post_play_card(player)
             elif isinstance(card, Card): #! this doesn't appear to be right
-
-                # if not self.game.check_hand(self.game.get_current_player()):
-                #     logging.info(f"sending draw card to {player.get_name()}")
-                #     self.send_draw_card(self.game.current_player_index)
+                print("LINE 234 - DETERMINING NEXT PLAYER")
                 self.game.determine_next_player(skip=False)
                 self.post_play_card(player)
             else:
                 logging.info(f"{player.get_name()} played {card}")
+                print("LINE 240 - DETERMINING NEXT PLAYER")
                 self.game.determine_next_player(skip=False)
                 self.post_play_card(player)
             
@@ -354,20 +352,17 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
             if not self.game_actions.empty():
                 action = self.game_actions.get()
                 if action["type"] == ActionType.PLAY_CARD:
-                    #logging.info(f"{self.game.get_current_player().get_name()} played a card...")
                     self.play_card(action["data"])
-                    #self.broadcast_current_player()
                     notified_turn_start = False
                 if action["type"] == ActionType.DRAW_CARD:
                     player = self.player_from_uuid(action["data"]["client_id"])
                     player.draw_card(self.game.draw_pile)
-                    #self.game.get_current_player().draw_card(self.game.draw_pile)
                     logging.info(f"recieved draw card action from {player.get_name()}")
                     logging.info(f"{player.get_name()} drew a card...")
+                    print("LINE 379 - DETERMINING NEXT PLAYER")
                     self.game.determine_next_player(skip=False)
                     self.broadcast_game_state()
                     notified_turn_start = False
-                    #self.broadcast_current_player()
                 if action["type"] == ActionType.PLAY_WILD:
                     logging.info(f"{self.game.get_current_player().get_name()} played a wild card...")
                     parts = action["data"].split(",")
@@ -375,18 +370,24 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
                     message = f"wild_color${color}\n"
                     logging.info(f"Broadcasting wild color: {color}")
                     self.broadcast(message)
-                    self.broadcast_current_player() #idk if this is necessary
+                    #self.broadcast_current_player()
                 if action["type"] == ActionType.COLOR_SELECTED:
                     parts = action["data"].split(",")
                     color = parts[0]
                     logging.info(f"{self.game.get_current_player().get_name()} selected color: {color}")
                     self.broadcast_wild_color(color)
+                    self.game.set_current_color(color)
                     print(f"the player: {self.game.get_current_player().get_name()} selected color: {color}")
                     self.post_play_card(self.game.get_current_player())
                     logging.info(f"Determining next player...")
+                    print("LINE 399 - DETERMINING NEXT PLAYER")
                     self.game.determine_next_player(skip=False)
+                    if not self.game.check_hand(self.game.get_current_player()):
+                        print("LINE 385 - checking hand")
+                        logging.info(f"sending draw card to {self.game.get_current_player().get_name()}")
+                        self.send_draw_card(self.game.current_player_index)    
                     logging.info(f"Next player is {self.game.get_current_player().get_name()}")
-                    self.broadcast_current_player()
+                    notified_turn_start = False
 
             
             time.sleep(0.1)

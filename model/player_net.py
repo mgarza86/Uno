@@ -34,17 +34,47 @@ class Player():
         return self.name
     
     def check_conditions(self, card, color, value):
+        print(f"parameters passed: card: {card} color: {color} value: {value}")
+        print(f"card color: {card.get_color()} card value: {card.get_value()}")
+        card_color = card.get_color().strip().lower()
+        input_color = color.strip().lower()
+        print(f"Comparing card color: '{card_color}' with input color: '{input_color}'")
+        print(f"Data types - card color: {type(card_color)}, input color: {type(input_color)}")
+
         if color == "":
+            print("No color condition, therefore true")
             return True
         elif color == "black":
+            print("Black condition, therefore wild and true")
             return True
         elif card.get_color() == "black":
+            print("Card color is black, therefore wild and true")
             return True
-        elif card.get_color() == color:  
+        elif card_color == input_color:
+
+            print("Color match, therefore true")
             return True
         elif card.get_value() == value: 
+            print("Value match, therefore true")
             return True
-        return False
+        else:
+            print(f"card types: color {type(card.get_color())}; value {type(card.get_value())}")
+            print(f"parameter types: color {type(color)}; value {type(value)}")
+            print("No match, therefore false")
+            return False
+    
+    # def check_conditions(self, card, color, value):
+    #     if color == "":
+    #         return True
+    #     elif color == "black":
+    #         return True
+    #     elif card.get_color() == "black":
+    #         return True
+    #     elif card.get_color() == color:  
+    #         return True
+    #     elif card.get_value() == value: 
+    #         return True
+    #     return False
     
     def to_dict(self, include_hand=False):
         player_dict = {

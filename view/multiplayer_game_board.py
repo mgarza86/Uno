@@ -93,6 +93,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.current_color = ""
         self.current_value = ""
         
+        self.track_color = pygwidgets.DisplayText(self.window, (0, 500), f"Current color: {self.current_color}", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
         self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
         self.draw_card_button = pygwidgets.TextButton(window, (100, 300), "Draw Card", width=100, height=50)
         # rgb for red is 
@@ -145,12 +146,14 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 if color != "black":
                     self.current_color = color
                 self.current_value = value
+                self.track_color.setText(f"Current color: {self.current_color}")
                 card = CardFactory.create_card(self.window, color, value)
                 print(f"Discard pile card AF: {card}")
                 card.set_centered_location((self.window_width/2, self.window_height/2))
                 card.reveal()
                 card.set_scale(60)
                 self.discard_pile.insert(0, card)
+                
             except Exception as e:
                 print(f"Error processing discard pile message: {e}")
         elif message.startswith("host_status$"):
@@ -165,6 +168,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         elif message.startswith("wild_color$"):
             self.current_color = message.split('$')[1]
             print(f"color changed to: {self.current_color}")
+            self.track_color.setText(f"Current color: {self.current_color}")
             self.choose_color = False
         elif message.startswith("current_player$"):
             current_player_id = message.split('$')[1]
@@ -177,7 +181,6 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             self.choose_color = True
             
     def handleInputs(self, events, keyPressedList):
-        color_selected = None
         for event in events:
             if self.play_button.handleEvent(event):
                 self.game_client.send_message("start_game$")
@@ -185,7 +188,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                 for card in self.client_hand.cards:
                     #print(f"Player:{self.client_name} hand: {self.client_hand}")
                     if card.handle_event(event):
-                        
+                        print(f"Card clicked: {card.get_name()}")
+                        print(f"current conditions: {self.current_color} {self.current_value}")
                         if self.check_conditions(card, self.current_color, self.current_value):
                             print(f"Card played: {card.get_name()}")
                             self.is_current_player = False
@@ -226,6 +230,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         if not self.game_started:
             if self.host_status:
                 self.play_button.draw()
+        
+        self.track_color.draw()
         
         if self.is_current_player:
             self.notify_client.draw()
