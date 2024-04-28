@@ -184,3 +184,5 @@ class Game():
                 best_card = matching_cards[0]
         
             return best_card
+        
+    def hard_ai_play_card(self, player):
