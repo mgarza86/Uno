@@ -186,3 +186,41 @@ class Game():
             return best_card
         
     def hard_ai_play_card(self, player):
+        matching_cards, color_matches = self.find_matching_cards(player.hand)
+        if not matching_cards:
+            #no matching cards, so the player needs to draw
+            player.draw_card(self.draw_pile)
+            return None
+
+        #determine the next player in the sequence
+        next_player_index = (self.players_list.index(player) + 1) % len(self.players_list)
+        next_player = self.players_list[next_player_index]
+
+        #prioritize action cards if the next player is human
+        best_card = None
+        if isinstance(next_player, Player): 
+            for card in matching_cards:
+                if isinstance(card, (DrawTwoCard, Skip, Reverse, WildPickFour)):
+                    best_card = card
+                    break
+
+        #if no action card is selected or next player is AI, goes back to medium mode
+        if not best_card:
+            highest_count_color = max(color_matches, key=color_matches.get)
+            if color_matches[highest_count_color] > color_matches[self.current_color]:
+                for card in matching_cards:
+                    if card.color == highest_count_color:
+                        best_card = card
+                        break
+
+            if not best_card:
+                for card in matching_cards:
+                    if card.color == self.current_color:
+                        best_card = card
+                        break
+
+        #if no specific color match found, use the first matching card
+        if not best_card:
+            best_card = matching_cards[0]
+
+        return best_card
