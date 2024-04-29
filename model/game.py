@@ -207,7 +207,7 @@ class Game():
                     break
 
         #if no action card is selected or next player is AI, goes back to medium mode
-        if not best_card:
+        elif not best_card:
             highest_count_color = max(color_matches, key=color_matches.get)
             if color_matches[highest_count_color] > color_matches[self.current_color]:
                 for card in matching_cards:
@@ -215,6 +215,7 @@ class Game():
                         best_card = card
                         break
 
+        else:
             if not best_card:
                 for card in matching_cards:
                     if card.color == self.current_color:
