@@ -198,7 +198,7 @@ class Game():
 
         #prioritize action cards if the next player is human
         best_card = None
-        if isinstance(next_player, Player): 
+        if isinstance(next_player, player): #Player
             for card in matching_cards:
                 if isinstance(card, (DrawTwoCard, Skip, Reverse, WildPickFour)):
                     best_card = card
@@ -219,7 +219,6 @@ class Game():
                         best_card = card
                         break
 
-        #if no specific color match found, use the first matching card
         if not best_card:
             best_card = matching_cards[0]
 
