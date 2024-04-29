@@ -31,7 +31,7 @@ class Deck:
         self.cards = []
         
         for color in Deck.COLOR_TUPLE:
-            self.cards.append(CardFactory.create_card(color, 0))
+            self.cards.append(CardFactory.create_card(color, '0'))
             
             
             for key, value in Deck.STANDARD_DICT.items():
@@ -68,6 +68,11 @@ class NormalCardDeck(Deck):
         self.cards = []
         for color in self.COLOR_TUPLE:
             # Includes only number cards
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
             for number in range(1, 10):  # Excluding 0 for simplicity
                 self.cards.append(CardFactory.create_card(color, str(number)))
                 self.cards.append(CardFactory.create_card(color, str(number)))

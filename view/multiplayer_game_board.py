@@ -108,11 +108,12 @@ class MultiplayerGameBoard(pyghelpers.Scene):
     def enter(self, data):
         self.client_name = data.get('player_name')
         self.client_id = data.get('client_id')
+        self.lobby_name = data.get('lobby_name')
         self.connect()
 
     def connect(self):
         self.game_client.connect()
-        self.game_client.send_message(f"NAME:{self.client_name};ID:{self.client_id};")
+        self.game_client.send_message(f"LOBBY:{self.lobby_name};NAME:{self.client_name};ID:{self.client_id};")
 
     def update(self):
         while not self.message_queue.empty():

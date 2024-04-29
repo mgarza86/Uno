@@ -9,7 +9,18 @@ class Game():
         self.current_color = ""
         self.current_value = ""
         self.current_player_index = 0
-                
+        self.clients = []
+
+    def add_client(self, client_request):
+        self.clients.append(client_request)
+
+    # Method to remove a client
+    def remove_client(self, client_request):
+        if client_request in self.clients:
+            self.clients.remove(client_request)
+            
+    
+    
     def initialize_players(self, number_of_cards=7):
         #self.rotate_player_hands(self.players)
         for o_player in self.players:

@@ -140,7 +140,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         self.allow_reuse_address = True
         self.clients = []
         self.clients_names = []
-        self.deck = Deck()
+        self.deck = NormalCardDeck()
         self.game = Game([], self.deck)
         self.game_actions = Queue()
         self.game_started = False
