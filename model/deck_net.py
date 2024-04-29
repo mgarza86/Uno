@@ -31,7 +31,7 @@ class Deck:
         self.cards = []
         
         for color in Deck.COLOR_TUPLE:
-            self.cards.append(CardFactory.create_card(color, 0))
+            self.cards.append(CardFactory.create_card(color, '0'))
             
             
             for key, value in Deck.STANDARD_DICT.items():
@@ -63,22 +63,56 @@ class Deck:
     def print_deck(self):
         for card in self.cards:
             print(f"{card.card_name}")
+class NormalCardDeck(Deck):
+    def _create_uno_deck(self):
+        self.cards = []
+        for color in self.COLOR_TUPLE:
+            # Includes only number cards
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            self.cards.append(CardFactory.create_card(color, '0'))
+            for number in range(1, 10):  # Excluding 0 for simplicity
+                self.cards.append(CardFactory.create_card(color, str(number)))
+                self.cards.append(CardFactory.create_card(color, str(number)))
+        return self.cards
 
-def test_deck():
-    # Create a new deck
-    deck = Deck()
-    #deck.shuffle()  # Shuffle the deck to simulate randomness, although not necessary for counting
+class SpecialCardDeck(Deck):
+    def _create_uno_deck(self):
+        self.cards = []
+        for color in self.COLOR_TUPLE:
+            # Increase the frequency of special cards
+            for _ in range(3):  # Increasing the count of special cards
+                self.cards.append(CardFactory.create_card(color, 'skip'))
+                self.cards.append(CardFactory.create_card(color, 'reverse'))
+                self.cards.append(CardFactory.create_card(color, 'picker'))
+        for _ in range(12):  # More wild and pick four cards
+            self.cards.append(CardFactory.create_card('black', 'wild'))
+            self.cards.append(CardFactory.create_card('black', 'pickfour'))
+        return self.cards
 
-    # Create a counter to track the types of cards based on their class type
-    card_types = Counter()
+class CustomMixDeck(Deck):
+    def __init__(self, num_normal, num_special):
+        self.num_normal = num_normal
+        self.num_special = num_special
+        super().__init__()
 
-    # Count each card type based on its class
-    for card in deck.cards:
-        card_types[type(card).__name__] += 1
+    def _create_uno_deck(self):
+        self.cards = []
+        for color in self.COLOR_TUPLE:
+            for _ in range(self.num_normal):
+                number = random.randint(1, 9)
+                self.cards.append(CardFactory.create_card(color, str(number)))
+            for _ in range(self.num_special):
+                special_type = random.choice(['skip', 'reverse', 'picker'])
+                self.cards.append(CardFactory.create_card(color, special_type))
+        for _ in range(self.num_special):  # Assuming an equal number of wild cards
+            self.cards.append(CardFactory.create_card('black', 'wild'))
+            self.cards.append(CardFactory.create_card('black', 'pickfour'))
+        return self.cards
 
-    # Print the count of each unique card type
-    for card_type, count in card_types.items():
-        print(f"{card_type}: {count}")
-
-if __name__ == "__main__":
-    test_deck()
+# Usage Example
+# normal_deck = NormalCardDeck()
+# special_deck = SpecialCardDeck()
+# custom_deck = CustomMixDeck(num_normal=5, num_special=2)

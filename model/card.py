@@ -84,6 +84,12 @@ class Card():
     def to_json(self):
         return json.dumps(self.to_dict(), sort_keys=True, indent=4)
     
+    def disable(self):
+        self.images.disable()
+    
+    def enable(self):
+        self.images.enable()
+    
 class WildChanger(Card):
     
     WILD_CARD = pygame.image.load('./images/black_wild.png')
@@ -140,6 +146,7 @@ class DrawTwoCard(Card):
         
         game.players_list[victim_index].draw_card(game.draw_pile)
         game.players_list[victim_index].draw_card(game.draw_pile)
+        
 class Reverse(Card):
         
     def perform_action(self, game):
