@@ -185,6 +185,8 @@ class Game():
         
             return best_card
         
+        
+        
     def hard_ai_play_card(self, player):
         matching_cards, color_matches = self.find_matching_cards(player.hand)
         if not matching_cards:
