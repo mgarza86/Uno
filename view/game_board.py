@@ -15,6 +15,7 @@ grey = (196, 196, 196)
 black = (0, 0, 0)
 bg = (191,49,0)
 
+
 class GameBoard(pyghelpers.Scene):
     
     def __init__(self, window, settings) -> None:
@@ -42,7 +43,7 @@ class GameBoard(pyghelpers.Scene):
         self.callUnoButton = pygwidgets.TextButton(window, (360, 390), "Call Uno", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         self.drawCardButton = pygwidgets.TextButton(window, (270, 435), "Draw Card", textColor=white, width=100, height=35, upColor=blue, overColor=blue, downColor=blue)
         self.callOutButton = pygwidgets.TextButton(window, (380, 435), "Call out", textColor=white, width=200, height=35, upColor=blue, overColor=blue, downColor=blue)
-        
+        self.backButton = pygwidgets.TextButton(window, (30, 550), "Back to Main Menu", upColor=YELLOW, overColor=YELLOW, downColor=YELLOW)
                 
     def enter(self,game):
         self.game = game
@@ -103,6 +104,8 @@ class GameBoard(pyghelpers.Scene):
                 print(f"{current_player.get_name()} drew a card.")
             if self.callOutButton.handleEvent(event):
                 print(f"Calling out {current_player.get_name()} for not saying Uno!")
+            elif self.backButton.handleEvent(event):
+                self.goToScene('main_menu')
     
     def player_move(self, player, event):
         if self.game.check_hand(player):
@@ -165,6 +168,7 @@ class GameBoard(pyghelpers.Scene):
             self.drawCardButton.draw()
         self.callOutButton.draw() # call out button
         self.player_one_name_display.draw()
+        self.backButton.draw()
         
     def print_matching_cards(self, matching_cards):
         for card in matching_cards:
