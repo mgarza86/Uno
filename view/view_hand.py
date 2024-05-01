@@ -67,7 +67,6 @@ class ViewHand:
             self.cards[hovered_index].set_scale(60)
             self.cards[hovered_index].draw()
 
-
     def calculate_hand_width(self, overlap):
         if not self.cards:
             return 0
