@@ -13,6 +13,7 @@ blue = (0, 9, 255)
 white = (255, 255, 255)
 grey = (196, 196, 196)
 black = (0, 0, 0)
+bg = (191,49,0)
 
 class GameBoard(pyghelpers.Scene):
     
@@ -152,7 +153,7 @@ class GameBoard(pyghelpers.Scene):
         return matching_cards, color_matches, value_matches
     
     def draw(self):
-        self.window.fill(self.back_ground_color)
+        self.window.fill(bg)
         self.game.draw()
         if self.show_color_picker:
             self.red_button.draw()

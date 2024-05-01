@@ -5,7 +5,7 @@ import pyghelpers
 # constants
 scene_main_menu = "Main Menu"
 yellow = (255, 255, 0)
-
+bg = (191,49,0)
 # adding this to buttons later
 buttonWidth = 150 
 buttonHeight = 50  
@@ -30,7 +30,7 @@ class MainMenuScene(pyghelpers.Scene):
                 self.goToScene('settings')
 
     def draw(self):
-        self.window.fill((255, 0, 0))  # red bckgd
+        self.window.fill(bg)
         self.title.draw()
         self.singlePlayerButton.draw()
         self.multiplayerButton.draw()

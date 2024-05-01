@@ -6,7 +6,7 @@ import pyghelpers
 window_width = 800
 window_height = 600
 yellow = (255, 255, 0)
-
+bg = (191,49,0)
 # settings scene class
 class SettingsScene(pyghelpers.Scene):
     def __init__(self, window, settings):
@@ -60,7 +60,7 @@ class SettingsScene(pyghelpers.Scene):
                 self.goToScene('main_menu')
                 
     def draw(self):
-        self.window.fill((255, 0, 0))  # red bckgd
+        self.window.fill(bg)  # red bckgd
         self.main_title.draw()
         self.title.draw()
         self.easy_button.draw()

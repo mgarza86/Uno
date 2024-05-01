@@ -93,7 +93,7 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
                     action = {"type": ActionType.COLOR_SELECTED, "data": parts[1]}
                     self.server.game_actions.put(action)
                     self.data_received = ""
-
+                    
         except Exception as e:
             print(f"Error: {e}")
             
@@ -124,6 +124,7 @@ class GameRequestHandler(socketserver.BaseRequestHandler):
         
             self.request.sendall(host_status_message.encode())
             print(f"Player {player.get_name()} with ID {player.get_client_id()} has connected.")
+            self.server.broadcast_client_list()
             
             self.data_received = self.data_received[id_end+1:]
             
@@ -400,7 +401,10 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
         client_index = self.game.players.index(player)
         self.clients[client_index].send(message.encode())
 
-
+    def broadcast_client_list(self):
+        clients_list_str = "client_list$" + ",".join(self.clients_names)+"\n"  # Create a string that holds all client names
+        self.broadcast(clients_list_str.encode())
+    
 def start_server():
     HOST, PORT = "127.0.0.1", 8080
 

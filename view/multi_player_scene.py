@@ -10,7 +10,7 @@ yellow = (255, 255, 0)
 black = (0, 0, 0)
 gray = (141, 141, 141)
 
-
+bg = (191,49,0)
 class MultiPlayerLobbyScene(pyghelpers.Scene):
     def __init__(self, window):
         super().__init__()
@@ -64,7 +64,7 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
                 
                 
     def draw(self):
-        self.window.fill((255, 0, 0))  # red background
+        self.window.fill(bg)  # red background
         
         pygame.draw.rect(self.window, (255, 255, 255), self.player_name_rect)  # drawing white rectangle for player name field
         pygame.draw.rect(self.window, (255, 255, 255), self.lobby_name_rect)  # drawing white rectangle for lobby name field
