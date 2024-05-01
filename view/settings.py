@@ -25,10 +25,6 @@ class SettingsScene(pyghelpers.Scene):
         self.sfx_title = pygwidgets.DisplayText(window, (325, 290), "SFX Volume", fontSize=40, textColor="black")
         self.sfx_toggle = pygwidgets.TextButton(window, (300, 340), "SFX: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
         
-        # Music toggle button
-        self.music_title = pygwidgets.DisplayText(window, (310, 430), "Music Volume", fontSize=40, textColor="black")
-        self.music_toggle = pygwidgets.TextButton(window, (300, 480), "Music: On", width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
-        
         # Back to Main Menu button
         self.backButton = pygwidgets.TextButton(window, (30, 550), "Back to Main Menu", upColor=yellow, overColor=yellow, downColor=yellow)
 
@@ -39,8 +35,6 @@ class SettingsScene(pyghelpers.Scene):
         new_label = "SFX: " + ("On" if self.settings.sfx_enabled else "Off")
         self.sfx_toggle = pygwidgets.TextButton(self.window, (300, 340), new_label, width=200, height=40, upColor=yellow, overColor=yellow, downColor=yellow)
 
-        
-        
     def toggle_music_button(self):
         # toggles the state and updates the button label
         self.settings.toggle_music()
@@ -62,12 +56,8 @@ class SettingsScene(pyghelpers.Scene):
             elif self.sfx_toggle.handleEvent(event):
                 self.toggle_sfx_button()  # toggle SFX and update button label
                 print("SFX " + ("on" if self.settings.sfx_enabled else "off"))
-            elif self.music_toggle.handleEvent(event):
-                self.toggle_music_button()
-                print("Music " + ("on" if self.settings.music_enabled else "off"))
             elif self.backButton.handleEvent(event):
                 self.goToScene('main_menu')
-                
                 
     def draw(self):
         self.window.fill((255, 0, 0))  # red bckgd
@@ -78,8 +68,6 @@ class SettingsScene(pyghelpers.Scene):
         self.hard_button.draw()
         self.sfx_title.draw()
         self.sfx_toggle.draw()
-        self.music_title.draw()
-        self.music_toggle.draw()
         self.backButton.draw()
 
 def main():
