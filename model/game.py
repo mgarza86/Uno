@@ -156,6 +156,16 @@ class Game():
                     
         return matching_cards, color_matches, value_matches
     
+    def easy_ai_play_card(self, player):
+        matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand)
+
+        if not matching_cards:
+            player.draw_card(self.draw_pile)
+            return None
+        
+        return matching_cards[0]
+        
+    
     def medium_ai_play_card(self, player):
         matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand)
         if not matching_cards:
