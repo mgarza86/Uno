@@ -1,8 +1,6 @@
 import pygame
 import pygwidgets
-import os
 import json
-from abc import ABC, abstractmethod
 
 class Card():
     

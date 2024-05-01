@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 from model.card import *
+import time
 
 
 class Game():
@@ -117,7 +118,7 @@ class Game():
             card.perform_action(self)
     
     def check_last_card_played(self, discard_pile):
-        #print(discard_pile[0].get_name())
+
         return discard_pile[0]
     
     def set_current_color(self,color):
@@ -130,6 +131,8 @@ class Game():
         pass
     
     def pick_card(self, player):
+        self.delayed_execution()
+        
         if self.settings.difficulty == 'easy':
             return self.easy_ai_play_card(player)
         
@@ -184,3 +187,8 @@ class Game():
                 best_card = matching_cards[0]
         
             return best_card
+    
+    def delayed_execution(self):
+        print("Played is thinking...")
+        time.sleep(2)
+        

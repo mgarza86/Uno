@@ -1,17 +1,17 @@
-from model.card import *
+from model.card_net import *
 
 class CardFactory:
     @staticmethod
-    def create_card(window, color, value):
+    def create_card(color, value, window):
         if value == 'pickfour':
-            return WildPickFour(window, color, value)
+            return WildPickFour(color, value, window)
         elif value == 'wild':
-            return WildChanger(window, color, value)
+            return WildChanger(color, value, window)
         elif value == 'skip':
-            return Skip(window, color, value)
+            return Skip(color, value,window)
         elif value == 'reverse':
-            return Reverse(window, color, value)
+            return Reverse(color, value, window)
         elif value == 'picker':
-            return DrawTwoCard(window, color, value)
+            return DrawTwoCard(color, value, window)
         else:
-            return Card(window, color, value)
+            return Card( color, value, window)

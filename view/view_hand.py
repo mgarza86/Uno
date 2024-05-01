@@ -3,16 +3,26 @@ import pygwidgets
 from model.card_factory import CardFactory  
 
 class ViewHand:
-    def __init__(self, window, hand_data):
+    def __init__(self, window, hand_data, local=False, file_name=None):
         self.window = window
-        self.cards = []
-        self.load_hand(hand_data)
+        if not local:
+            self.cards = []
+            self.load_hand(hand_data)
+        else:
+            self.cards = hand_data
+        
+        #self.images = pygwidgets.ImageCollection(window, (0,0), {'front': }, 'back')
 
+            
     def __str__(self) -> str:
         return f"Hand: {self.hand_string()}"
     
     def hand_string(self):
         return ', '.join([str(card) for card in self.cards])
+    
+    def add_image(self,card):
+        
+        pass
     
     def load_hand(self, hand_data):
         ''' Parse the hand data and creates card objects'''

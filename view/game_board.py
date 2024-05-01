@@ -153,7 +153,6 @@ class GameBoard(pyghelpers.Scene):
                 player.draw_card(self.game.draw_pile)
                 self.game.determine_next_player()
     
-    
     def find_matching_cards(self, hand, color, value):
         color_matches = {'red':0,'blue':0,'yellow':0,'green':0, 'black': 0}
         value_matches = 0 

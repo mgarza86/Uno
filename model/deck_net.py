@@ -112,7 +112,3 @@ class CustomMixDeck(Deck):
             self.cards.append(CardFactory.create_card('black', 'pickfour'))
         return self.cards
 
-# Usage Example
-# normal_deck = NormalCardDeck()
-# special_deck = SpecialCardDeck()
-# custom_deck = CustomMixDeck(num_normal=5, num_special=2)
