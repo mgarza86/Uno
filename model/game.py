@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 from model.card import *
+from model.player import Player
 
 
 class Game():
@@ -200,7 +201,7 @@ class Game():
 
         #prioritize action cards if the next player is human
         best_card = None
-        if isinstance(next_player, player): #Player
+        if isinstance(next_player, Player):
             for card in matching_cards:
                 if isinstance(card, (DrawTwoCard, Skip, Reverse, WildPickFour)):
                     best_card = card
