@@ -188,7 +188,7 @@ class Game():
         
         
     def hard_ai_play_card(self, player):
-        matching_cards, color_matches = self.find_matching_cards(player.hand)
+        matching_cards, color_matches, value_matches = self.find_matching_cards(player.hand)
         if not matching_cards:
             #no matching cards, so the player needs to draw
             player.draw_card(self.draw_pile)
@@ -226,3 +226,5 @@ class Game():
             best_card = matching_cards[0]
 
         return best_card
+
+

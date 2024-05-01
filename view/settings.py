@@ -51,10 +51,13 @@ class SettingsScene(pyghelpers.Scene):
         for event in events:  # iterate over each event in the list of events
             # pass each individual event to the handleEvent method of each button
             if self.easy_button.handleEvent(event):
+                self.settings.set_difficulty('easy')
                 print("Easy difficulty selected")
             elif self.medium_button.handleEvent(event):
+                self.settings.set_difficulty('medium')
                 print("Medium difficulty selected")
             elif self.hard_button.handleEvent(event):
+                self.settings.set_difficulty('hard')
                 print("Hard difficulty selected")
             elif self.sfx_toggle.handleEvent(event):
                 self.toggle_sfx_button()  # toggle SFX and update button label
