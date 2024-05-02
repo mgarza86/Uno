@@ -1,0 +1,161 @@
+@startuml
+class Opponent_card {
+        window
+    images
+    __init__()
+}
+class ViewOpponent {
+    update()
+    calculate_hand_widths()
+    adjust_first_card_position()
+    next_card_location()
+    set_card_on_center()
+    get_window_edges()
+    draw()
+        window
+    __init__()
+}
+class ViewHand {
+    __str__()
+    hand_string()
+    load_hand()
+    remove()
+    update()
+    create_card_from_json()
+    draw()
+    calculate_hand_width()
+    adjust_first_card_position()
+    set_card_on_center()
+    next_card_location()
+    update()
+        window
+    window
+    card
+    card
+    __init__()
+}
+class Card {
+    __str__()
+    __repr__()
+    to_dict()
+    to_json()
+    get_color()
+    get_value()
+    get_name()
+        color
+    value
+    is_concealed
+    card_name
+    __init__()
+}
+class WildChanger {
+    pick_color()
+        value
+    color
+    __init__()
+}
+class WildPickFour {
+    perform_action()
+        __init__()
+}
+class Skip {
+    perform_action()
+        __init__()
+}
+class DrawTwoCard {
+    perform_action()
+        __init__()
+}
+class Reverse {
+    perform_action()
+        __init__()
+}
+class CardFactory {
+    create_card()
+        __init__()
+}
+class Deck {
+    _create_uno_deck()
+    shuffle()
+    draw_card()
+    __len__()
+    print_deck()
+        cards
+    __init__()
+}
+class NormalCardDeck {
+    _create_uno_deck()
+        __init__()
+}
+class SpecialCardDeck {
+    _create_uno_deck()
+        __init__()
+}
+class CustomMixDeck {
+    _create_uno_deck()
+        num_normal
+    num_special
+    __init__()
+}
+class Game {
+    add_client()
+    remove_client()
+    initialize_players()
+    add_player()
+    check_direction()
+    condition_to_dict()
+    condition_to_json()
+    discard()
+    change_direction()
+    check_game_end()
+    determine_next_player()
+    play_card()
+    check_last_card_played()
+    set_current_color()
+    get_player()
+    game_state_to_dict()
+    game_state_to_json()
+    players_hand_to_dict()
+    get_current_player()
+    broadcast_current_player()
+    get_current_player_client_id()
+    get_current_color()
+    get_current_value()
+    get_current_card()
+    get_current_conditions()
+    check_hand()
+        players
+    draw_pile
+    current_direction
+    current_player_index
+    current_color
+    current_value
+    current_color
+    __init__()
+}
+class Player {
+    __str__()
+    __repr__()
+    draw_card()
+    play_card()
+    get_client_id()
+    get_name()
+    check_conditions()
+    to_dict()
+    to_json()
+    get_card_count()
+        name
+    angle
+    client_id
+    __init__()
+}
+Card <|-- Opponent_card
+Card <|-- WildChanger
+WildChanger <|-- WildPickFour
+Card <|-- Skip
+Card <|-- DrawTwoCard
+Card <|-- Reverse
+Deck <|-- NormalCardDeck
+Deck <|-- SpecialCardDeck
+Deck <|-- CustomMixDeck
+@enduml

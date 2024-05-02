@@ -1,0 +1,122 @@
+@startuml
+class Settings {
+    toggle_sfx()
+    toggle_music()
+    set_difficulty()
+        sfx_enabled
+    music_enabled
+    sfx_enabled
+    music_enabled
+    difficulty
+    __init__()
+}
+class Player {
+    __str__()
+    hand_string()
+    draw_card()
+    play_card()
+    get_name()
+    get_index()
+    check_playable_card()
+    set_angle()
+    rotate_hand()
+    scale_hand()
+    draw()
+    calculate_hand_width()
+    adjust_first_card_position()
+    initialize_card_positions()
+    next_card_location()
+    set_card_on_center()
+    check_conditions()
+        window
+    name
+    angle
+    angle
+    __init__()
+}
+class AIPlayer {
+    say_uno()
+    set_card_on_center_edge()
+        __init__()
+}
+class Deck {
+    shuffle()
+    get_card()
+    return_card_to_deck()
+    print_deck()
+        __init__()
+}
+class NormalCardsDeck {
+        __init__()
+}
+class FewerNormalMoreSpecialDeck {
+        __init__()
+}
+class Card {
+    __str__()
+    __repr__()
+    conceal()
+    reveal()
+    get_color()
+    get_value()
+    get_name()
+    get_location()
+    set_location()
+    set_centered_location()
+    draw()
+    rotate_card()
+    set_scale()
+    get_rect()
+    get_collide_point()
+    get_size()
+    move_x()
+    handle_event()
+    to_dict()
+    to_json()
+    disable()
+    enable()
+        window
+    color
+    value
+    card_name
+    is_discarded
+    images
+    __init__()
+}
+class WildChanger {
+    pick_color()
+        images
+    value
+    color
+    __init__()
+}
+class WildPickFour {
+    perform_action()
+        images
+    __init__()
+}
+class Skip {
+    perform_action()
+        __init__()
+}
+class DrawTwoCard {
+    perform_action()
+        __init__()
+}
+class Reverse {
+    perform_action()
+        __init__()
+}
+class CardFactory {
+    create_card()
+        __init__()
+}
+Player <|-- AIPlayer
+Deck <|-- NormalCardsDeck
+Deck <|-- FewerNormalMoreSpecialDeck
+Card <|-- WildChanger
+WildChanger <|-- WildPickFour
+Card <|-- Skip
+Card <|-- DrawTwoCard
+Card <|-- Reverse
+@enduml

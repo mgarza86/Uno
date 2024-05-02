@@ -63,19 +63,6 @@ class Player():
             print("No match, therefore false")
             return False
     
-    # def check_conditions(self, card, color, value):
-    #     if color == "":
-    #         return True
-    #     elif color == "black":
-    #         return True
-    #     elif card.get_color() == "black":
-    #         return True
-    #     elif card.get_color() == color:  
-    #         return True
-    #     elif card.get_value() == value: 
-    #         return True
-    #     return False
-    
     def to_dict(self, include_hand=False):
         player_dict = {
             'name': self.name,
