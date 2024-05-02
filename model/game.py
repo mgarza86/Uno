@@ -131,6 +131,7 @@ class Game():
         pass
     
     def pick_card(self, player):
+        self.sleep(1)
         if self.settings.difficulty == 'easy':
             return self.easy_ai_play_card(player)
         
@@ -239,3 +240,6 @@ class Game():
         return best_card
 
 
+    def sleep(self, seconds):
+        # Sleep for a given number of seconds
+        pygame.time.wait(seconds*500)

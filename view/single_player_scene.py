@@ -10,7 +10,7 @@ window_width = 800
 window_height = 600
 yellow = (255, 255, 0)
 black = (0, 0, 0)
-
+bg = (191,49,0)
 class SinglePlayerSetupScene(pyghelpers.Scene):
     def __init__(self, window, settings):
         super().__init__()
@@ -82,7 +82,7 @@ class SinglePlayerSetupScene(pyghelpers.Scene):
 
 
     def draw(self):
-        self.window.fill((255, 0, 0)) # background
+        self.window.fill(bg) # background
         self.instructions_text.draw()
         self.npc1_button.draw()
         self.npc2_button.draw()

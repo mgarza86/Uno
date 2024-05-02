@@ -70,7 +70,6 @@ class Game():
     def play_card(self,player,card, online=False):
         print(player.get_name(), " played: ", card.get_name() )
         self.discard(self.discard_pile,player.play_card(card))
-        #self.discard_pile[0].reveal()
         self.current_color = card.get_color()
         self.current_value = card.get_value()
         if not online:

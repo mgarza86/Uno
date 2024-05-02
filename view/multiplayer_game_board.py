@@ -12,6 +12,13 @@ from model.card_factory import CardFactory
 import logging
 
 
+window_width = 800
+window_height = 600
+yellow = (255, 255, 0)
+black = (0, 0, 0)
+gray = (141, 141, 141)
+bg = (191,49,0)
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -77,7 +84,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.settings = settings
         self.message_queue = queue.Queue()
         self.game_client = GameClient('127.0.0.1', 8080, self.message_queue)
-        self.play_button = pygwidgets.TextButton(window, (100, 200), "Play", width=100, height=50)
+        self.play_button = pygwidgets.TextButton(window, (300, 380), "Play!", width=200, height=60, fontSize=30, upColor=yellow, overColor=yellow, downColor=yellow)
         self.client_hand = ViewHand(self.window, [])
         self.opponent_hand = ViewOpponent(self.window)
         
@@ -89,26 +96,30 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         self.choose_color = False
 
         self.discard_pile = []
-        self.bg_color = (255, 255, 255)
+        self.bg_color = (0, 0, 0)
         self.current_color = ""
         self.current_value = ""
         self.winner = None
         
-        
         self.winner_text = pygwidgets.DisplayText(self.window, (100, 80),  f"{self.winner}", fontSize=48, textColor=(0,0,0), width=600, justified='center')
-        self.track_color = pygwidgets.DisplayText(self.window, (0, 500), f"Current color: {self.current_color}", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
-        self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(0, 0, 0), width=100, justified='center')
+        self.track_color = pygwidgets.DisplayText(self.window, (400, 210), f"Current color: {self.current_color}", fontSize=20, textColor=(0, 0, 0), width=200, justified='center')
+        self.notify_client = pygwidgets.DisplayText(self.window, (400, 200), "It's your turn.", fontSize=20, textColor=(0, 0, 0), width=200, justified='center')
         self.draw_card_button = pygwidgets.TextButton(window, (100, 300), "Draw Card", width=100, height=50)
-        # rgb for red is 
+        
         self.red_button = pygwidgets.TextButton(self.window, loc=(self.x_coord, self.y_coord), text='Red', upColor=(255,0,0))
         self.green_button = pygwidgets.TextButton(self.window, loc=(self.x_coord + 100, self.y_coord), text='Green', upColor=(0,255,0))
         self.blue_button = pygwidgets.TextButton(self.window, loc=(self.x_coord, self.y_coord + 40), text='Blue', upColor=(0,0,255))
         self.yellow_button = pygwidgets.TextButton(self.window, loc=(self.x_coord + 100, self.y_coord + 40), text='Yellow', upColor=(255,255,0))
+        
+        # initializing the sound effects:
+        self.card_flip_sound = pygwidgets.SoundEffect('sounds/cardFlip.wav')
+        self.card_shuffle_sound = pygwidgets.SoundEffect('sounds/cardShuffle.wav')
 
     def enter(self, data):
         self.client_name = data.get('player_name')
         self.client_id = data.get('client_id')
         self.lobby_name = data.get('lobby_name')
+        self.notification = pygwidgets.DisplayText(self.window, (100, 80), f"{self.client_name} has joined. Waiting for other players to join...", fontSize=20, textColor=(255, 255, 255), width=600, justified='center')
         self.connect()
 
     def connect(self):
@@ -124,8 +135,11 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         #print(f"Processing message: {message}")
         if message.startswith("start_game$"):
             print("Game started")
+            
             self.game_started = True
             self.bg_color = (161, 59, 113)
+            if self.settings.sfx_enabled:
+                self.card_shuffle_sound = pygwidgets.SoundEffect('sounds/cardFlip.wav')
         elif message.startswith("hand$"):
             json_hand = message[5:]
             #print(f"Hand message received: {json_hand}")
@@ -163,16 +177,19 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             print(f"{type(message)}")
             msg = message.split('$')[1]
             data = json.loads(msg)
-            
             self.winner = data['name']
-            
             self.winner_text.setText(f"{self.winner} wins!")
+        if message.startswith("client_list$"):
+                client_names = message.split("$")[1]
+                client_list = client_names.split(",")  # Parse the list of client names
+                client_list_str = "\n".join(client_list)
+                display_message = f"**********Client List**********\n{client_list_str}"
+                self.notification.setValue(display_message)
                 
             
         elif message.startswith("host_status$"):
             print("host_status message received")
             self.host_status = message.split('$')[1] == "yes"
-            #print(self.host_status)
         elif message.startswith("draw_card$"):
             print("Must draw card")
             logging.debug(f"{self.client_name} received draw card notification.")
@@ -204,6 +221,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                         print(f"Card clicked: {card.get_name()}")
                         print(f"current conditions: {self.current_color} {self.current_value}")
                         if self.check_conditions(card, self.current_color, self.current_value):
+                            if self.settings.sfx_enabled:
+                                self.card_flip_sound.play()
                             print(f"Card played: {card.get_name()}")
                             self.is_current_player = False
                             info = card.to_dict()
@@ -218,6 +237,8 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                             print("Invalid card played")
                     elif self.must_draw and self.is_current_player:
                         if self.draw_card_button.handleEvent(event):
+                            if self.settings.sfx_enabled:
+                                self.card_flip_sound.play()
                             logging.debug(f"{self.client_name} sent a draw_card$ request to the server.")
                             client = {"client_id": self.client_id}
                             info = json.dumps(client)
@@ -233,7 +254,6 @@ class MultiplayerGameBoard(pyghelpers.Scene):
                         self.game_client.send_message(f"color_selected$blue\n")
                     elif self.yellow_button.handleEvent(event):
                         self.game_client.send_message(f"color_selected$yellow\n")
-            
                                     
     def draw(self):
         # Clear the screen first
@@ -243,6 +263,7 @@ class MultiplayerGameBoard(pyghelpers.Scene):
         if not self.game_started:
             if self.host_status:
                 self.play_button.draw()
+            self.notification.draw()
         
         if self.winner is not None:
             self.winner_text.draw()
@@ -286,7 +307,6 @@ class MultiplayerGameBoard(pyghelpers.Scene):
             print("Card color is black, therefore wild and true")
             return True
         elif card.get_color() == color:  
-
             print("Color match, therefore true")
             return True
         elif card.get_value() == value: 

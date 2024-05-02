@@ -48,4 +48,4 @@ scenes_dict = {
 scene_manager = pyghelpers.SceneMgr(scenes_dict, frames_per_second)
 
 # utilize the run method of SceneMgr to start and manage the application
-scene_manager.run()
+#scene_manager.run()
