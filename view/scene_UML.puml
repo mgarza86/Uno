@@ -1,0 +1,148 @@
+@startuml
+class MainMenuScene {
+    handleInputs()
+    draw()
+        window
+    settings
+    title
+    singlePlayerButton
+    multiplayerButton
+    settingsButton
+    __init__()
+}
+class SettingsScene {
+    toggle_sfx_button()
+    toggle_music_button()
+    handleInputs()
+    draw()
+    main()
+        window
+    settings
+    main_title
+    title
+    easy_button
+    medium_button
+    hard_button
+    sfx_title
+    sfx_toggle
+    backButton
+    sfx_toggle
+    music_toggle
+    __init__()
+}
+class SinglePlayerSetupScene {
+    handleInputs()
+    draw()
+        window
+    settings
+    instructions_text
+    npc1_button
+    npc2_button
+    npc3_button
+    play_button
+    backButton
+    selected_npc_count
+    deck
+    pc
+    npc1
+    npc2
+    npc3
+    selected_npc_count
+    selected_npc_count
+    selected_npc_count
+    __init__()
+}
+class MultiPlayerLobbyScene {
+    handleInputs()
+    draw()
+        window
+    lobby_title
+    lobby_instructions
+    player_name_field
+    lobby_name_field
+    play_button
+    backButton
+    player_name_rect
+    lobby_name_rect
+    __init__()
+}
+class GameClient {
+    connect()
+    send_message()
+    receive_messages()
+    close_connection()
+        host
+    port
+    client_socket
+    message_queue
+    is_connected
+    client_socket
+    is_connected
+    is_connected
+    is_connected
+    __init__()
+}
+class MultiplayerGameBoard {
+    enter()
+    connect()
+    update()
+    process_message()
+    handleInputs()
+    draw()
+    check_conditions()
+        window
+    settings
+    message_queue
+    game_client
+    play_button
+    client_hand
+    opponent_hand
+    host_status
+    game_started
+    is_current_player
+    must_draw
+    wild_played
+    choose_color
+    winner
+    winner_text
+    track_color
+    notify_client
+    draw_card_button
+    red_button
+    green_button
+    blue_button
+    yellow_button
+    card_flip_sound
+    card_shuffle_sound
+    client_name
+    client_id
+    lobby_name
+    notification
+    game_started
+    card_shuffle_sound
+    current_color
+    current_value
+    winner
+    host_status
+    must_draw
+    current_color
+    choose_color
+    is_current_player
+    is_current_player
+    choose_color
+    is_current_player
+    must_draw
+    __init__()
+}
+class EndScreen {
+    enter()
+    handleInputs()
+    draw()
+        window
+    settings
+    winner
+    banner
+    winner_banner
+    __init__()
+}
+@enduml

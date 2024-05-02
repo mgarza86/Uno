@@ -10,7 +10,13 @@ class Player():
         self.hand = []
         self.angle = 0
         self.location = (0,0)
-        
+    
+    def __str__(self):
+        return f"Player: {self.name}, Hand: {self.hand_string()}"
+    
+    def hand_string(self):
+        return ', '.join([str(card) for card in self.hand])
+    
     def draw_card(self, game_deck):
         print(self.get_name(), "drew a card")
         self.hand.append(game_deck.get_card())
@@ -88,7 +94,7 @@ class Player():
             if vertical_layout:
                 card_location = self.next_card_location(self.hand[hovered_index-1], overlap=overlap_amount, vertical=vertical_layout) if hovered_index > 0 else self.set_card_on_center(self.hand[hovered_index])
                 self.hand[hovered_index].set_location(card_location)
-            self.hand[hovered_index].reveal()
+
             self.hand[hovered_index].set_scale(60)
             self.hand[hovered_index].draw()
 
@@ -166,4 +172,6 @@ class AIPlayer(Player):
     #     pass
     
     
- 
+    def set_card_on_center_edge(self, card, edge):
+        card_width, card_height = card.getSize()
+        window_width, window_height = self.window.get_size()

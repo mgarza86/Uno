@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import pyghelpers
+import uuid
 
 # Constants
 window_width = 800
@@ -9,11 +10,12 @@ yellow = (255, 255, 0)
 black = (0, 0, 0)
 gray = (141, 141, 141)
 
-
+bg = (191,49,0)
 class MultiPlayerLobbyScene(pyghelpers.Scene):
     def __init__(self, window):
         super().__init__()
         self.window = window
+    
         
         # title and instructions
         self.lobby_title = pygwidgets.DisplayText(window, (100, 80), "Lets play Py-Uno with friends!", fontSize=48, textColor=black, width=600, justified='center')
@@ -22,10 +24,10 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
 
         # input fields
         self.player_name_field = pygwidgets.InputText(window, (100, 250), 
-                                                      value='Pre-generated name or create a nickname', 
+                                                      value='', 
                                                       width=600, fontSize=22, textColor=gray)
         self.lobby_name_field = pygwidgets.InputText(window, (100, 300), 
-                                                     value='Invite code text', 
+                                                     value='lobby-1', 
                                                      width=600, fontSize=22, textColor=gray)
 
         # play button
@@ -45,14 +47,24 @@ class MultiPlayerLobbyScene(pyghelpers.Scene):
             if self.play_button.handleEvent(event):
                 player_name = self.player_name_field.getValue()
                 lobby_name = self.lobby_name_field.getValue()
+                client_id = str(uuid.uuid4())
                 print(f"Player Name: {player_name}, Lobby Name: {lobby_name}")
                 # here the players would go to the game, passing along these values
+                scene_data = {"player_name": player_name, "lobby_name": lobby_name, "client_id": client_id}
+                
+                self.goToScene('multiplayer_game_board', data=scene_data)
+            elif self.player_name_field.handleEvent(event):
+                    self.player_name_field.setValue()    
+            elif self.lobby_name_field.handleEvent(event):
+                    self.lobby_name_field.setValue()
+            
+                
             elif self.backButton.handleEvent(event):
                 self.goToScene('main_menu')
                 
                 
     def draw(self):
-        self.window.fill((255, 0, 0))  # red background
+        self.window.fill(bg)  # red background
         
         pygame.draw.rect(self.window, (255, 255, 255), self.player_name_rect)  # drawing white rectangle for player name field
         pygame.draw.rect(self.window, (255, 255, 255), self.lobby_name_rect)  # drawing white rectangle for lobby name field

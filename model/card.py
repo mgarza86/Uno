@@ -1,6 +1,7 @@
 import pygame
 import pygwidgets
 import os
+import json
 from abc import ABC, abstractmethod
 
 class Card():
@@ -11,8 +12,8 @@ class Card():
         self.window = window
         self.color = color
         self.value = value
-        self.card_name = color + '_' + value
-        
+        self.card_name = color + '_' + str(value)
+        self.is_discarded = False
         if file_name is None:
             file_name = './images/' + self.card_name + '.png'
             
@@ -32,9 +33,6 @@ class Card():
     def reveal(self):
         self.images.replace('front')
     
-    def perform_action(self):
-        pass
-        
     def get_color(self):
         return self.color
     
@@ -79,9 +77,18 @@ class Card():
             return True
         else:
             return False
-        
     
-        
+    def to_dict(self):
+        return {"color": self.color, "value": self.value}
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), sort_keys=True, indent=4)
+    
+    def disable(self):
+        self.images.disable()
+    
+    def enable(self):
+        self.images.enable()
     
 class WildChanger(Card):
     
@@ -106,8 +113,19 @@ class WildPickFour(WildChanger):
                                                  {'front': WildPickFour.WILD_PICK_FOUR, 
                                                   'back': Card.BACK_OF_CARD}, 'back')
         
-    def perform_action(self):
-        return super().perform_action()
+    def perform_action(self, game):
+        victim_index =  game.current_player_index + game.current_direction
+        
+        
+        if game.check_direction() == 1 and victim_index >= len(game.players_list):
+            victim_index = 0
+        elif game.check_direction() == -1 and victim_index < 0:
+            victim_index = len(game.players_list) -1
+            
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
+        game.players_list[victim_index].draw_card(game.draw_pile)
 
 class Skip(Card):
         
@@ -128,6 +146,7 @@ class DrawTwoCard(Card):
         
         game.players_list[victim_index].draw_card(game.draw_pile)
         game.players_list[victim_index].draw_card(game.draw_pile)
+        
 class Reverse(Card):
         
     def perform_action(self, game):
