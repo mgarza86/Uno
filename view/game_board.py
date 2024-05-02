@@ -3,6 +3,7 @@ import pygwidgets
 import pyghelpers
 import model.game
 from model.player import Player, AIPlayer
+from model.card import *
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -84,17 +85,20 @@ class GameBoard(pyghelpers.Scene):
             if self.red_button.handleEvent(event):
                 self.game.current_color = "red"
                 self.show_color_picker = False
+                self.game.determine_next_player()
             if self.blue_button.handleEvent(event):
                 self.game.current_color = "blue"
                 self.show_color_picker = False
+                self.game.determine_next_player()
             if self.green_button.handleEvent(event):
                 self.game.current_color = "green"
                 self.show_color_picker = False
+                self.game.determine_next_player()
             if self.yellow_button.handleEvent(event):
                 self.game.current_color = "yellow"
                 self.show_color_picker = False   
-                self.player_move(current_player,event)    
-            # checks if Call Uno, Draw card and Call out buttons have been clicked
+                self.game.determine_next_player()
+                #self.player_move(current_player,event)    
             if self.callUnoButton.handleEvent(event):
                 print("Call Uno button was clicked!")
             if self.drawCardButton.handleEvent(event):
@@ -111,18 +115,26 @@ class GameBoard(pyghelpers.Scene):
         if self.game.check_hand(player):
             for card in player.hand[:]:
                 if card.handle_event(event):
+                    
                     #if player.check_playable_card(card, self.game.discard_pile): #!change this
                     if player.check_conditions(card, self.game.current_color, self.game.current_value):
-                        #print(card.get_name())
+                        print(type(card))
                         self.game.play_card(player,card)
+                        
                         if self.game.check_game_end(player):
                             self.goToScene('end',player.get_name())
-                        self.game.determine_next_player()
-                        print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
+                        if isinstance(card, WildChanger) or isinstance(card, WildPickFour):
+                            self.show_color_picker = True
+                        
+                        else:
+                            print("LINE 123 - dertermine next player GAME BOARD")
+                            self.game.determine_next_player()
+                            print(f"{self.game.players_list[self.game.current_player_index].get_name()}'s turn")
                         break
         else:
             self.show_draw_button = True ##IDKKKKKKKK
             #player.draw_card(self.game.draw_pile)
+            print("LINE 131 - dertermine next player GAME BOARD")
             self.game.determine_next_player()        
     
     
@@ -163,10 +175,10 @@ class GameBoard(pyghelpers.Scene):
             self.blue_button.draw()
             self.green_button.draw()
             self.yellow_button.draw()
-        self.callUnoButton.draw() # call uno button
+        #self.callUnoButton.draw() # call uno button
         if self.show_draw_button:
             self.drawCardButton.draw()
-        self.callOutButton.draw() # call out button
+        #self.callOutButton.draw() # call out button
         self.player_one_name_display.draw()
         self.backButton.draw()
         
