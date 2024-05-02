@@ -13,8 +13,8 @@ To run Py-Uno, you'll need Python installed on your system. This game has been t
     First, clone this repository to your local machine using Git:
 
     ```bash
-    git clone https://your-repository-url-here.git
-    cd uno-clone
+    git clone https://github.com/mgarza86/Uno.git
+    cd uno
     ```
 
 2. **Create and Activate a Virtual Environment (Optional but Recommended)**
