@@ -24,14 +24,10 @@ class TestPlayerSerialization(unittest.TestCase):
                 {
                     'color': "red",
                     'value': "5",
-                    'is_concealed': True, 
-                    'card_name': "red_5"
                 },
                 {
                     'color': "blue",
                     'value': "skip",
-                    'is_concealed': True, 
-                    'card_name': "blue_skip"
                 }
             ]
         }
@@ -47,13 +43,10 @@ class TestPlayerSerialization(unittest.TestCase):
             'name': "TestPlayer",
             'hand': [
                 {'color': "red",
-                'value': "5",
-                'is_concealed': True, 
-                'card_name': "red_5"},
+                'value': "5"},
                 {'color': "blue",
                 'value': "skip",
-                'is_concealed': True, 
-                'card_name': "blue_skip"}
+                }
             ]
         })
         self.assertEqual(self.player.to_json(include_hand=True), expected)

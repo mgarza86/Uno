@@ -168,10 +168,6 @@ class AIPlayer(Player):
     def say_uno(self):
         pass
     
-    # def play_card(self, card):
-    #     pass
-    
-    
     def set_card_on_center_edge(self, card, edge):
         card_width, card_height = card.getSize()
         window_width, window_height = self.window.get_size()

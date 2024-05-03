@@ -1,55 +1,35 @@
-@startuml
-class ActionType {
-        __init__()
+@startuml server
+class Player {
 }
+
 class ServerPlayer {
-    __str__()
-    __repr__()
-    to_json()
-        is_host
-    __init__()
 }
+
+class Game {
+    -players : List[ServerPlayer]
+    -deck : Deck
+}
+
+class Deck {
+}
+
 class GameRequestHandler {
-    handle()
-    setup_player()
-    cleanup_client()
-        data_received
-    __init__()
+    -game : Game
 }
+
 class ThreadedTCPServer {
-    player_from_uuid()
-    play_card()
-    post_play_card()
-    broadcast_game_conditions()
-    broadcast_game_end()
-    broadcast()
-    start_game()
-    broadcast_discard_pile()
-    broadcast_all_hands()
-    broadcast_player_hand()
-    broadcast_start_game()
-    broadcast_opponent_card_count()
-    broadcast_current_player()
-    send_draw_card()
-    initialize_game()
-    broadcast_wild_color()
-    broadcast_game_state()
-    game_loop()
-    request_color_selection()
-    broadcast_client_list()
-    start_server()
-        lock
-    allow_reuse_address
-    deck
-    game
-    game_actions
-    game_started
-    game_loop_thread
-    game_started
-    game_started
-    game_loop_thread
-    __init__()
+    -game : Game
+    -game_actions : Queue
 }
-Enum <|-- ActionType
+
 Player <|-- ServerPlayer
+Game *-- ServerPlayer : contains
+Game *-- Deck : contains
+GameRequestHandler -- Game : uses
+ThreadedTCPServer *-- Game : contains
+ThreadedTCPServer *-- Queue : contains
+socketserver.BaseRequestHandler <|-- GameRequestHandler
+socketserver.ThreadingMixIn <|-- ThreadedTCPServer
+socketserver.TCPServer <|-- ThreadedTCPServer
+
 @enduml

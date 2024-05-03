@@ -1,12 +1,10 @@
-@startuml
+@startuml model
 class Settings {
     toggle_sfx()
     toggle_music()
     set_difficulty()
         sfx_enabled
-    music_enabled
     sfx_enabled
-    music_enabled
     difficulty
     __init__()
 }
@@ -18,20 +16,6 @@ class Player {
     get_name()
     get_index()
     check_playable_card()
-    set_angle()
-    rotate_hand()
-    scale_hand()
-    draw()
-    calculate_hand_width()
-    adjust_first_card_position()
-    initialize_card_positions()
-    next_card_location()
-    set_card_on_center()
-    check_conditions()
-        window
-    name
-    angle
-    angle
     __init__()
 }
 class AIPlayer {
@@ -46,12 +30,7 @@ class Deck {
     print_deck()
         __init__()
 }
-class NormalCardsDeck {
-        __init__()
-}
-class FewerNormalMoreSpecialDeck {
-        __init__()
-}
+
 class Card {
     __str__()
     __repr__()
@@ -60,27 +39,7 @@ class Card {
     get_color()
     get_value()
     get_name()
-    get_location()
-    set_location()
-    set_centered_location()
-    draw()
-    rotate_card()
-    set_scale()
-    get_rect()
-    get_collide_point()
-    get_size()
-    move_x()
-    handle_event()
-    to_dict()
-    to_json()
-    disable()
-    enable()
-        window
-    color
-    value
-    card_name
-    is_discarded
-    images
+    perform_action()
     __init__()
 }
 class WildChanger {
@@ -111,9 +70,31 @@ class CardFactory {
     create_card()
         __init__()
 }
+
+class Game {
+    -players : List
+    -discard_pile : List
+    -draw_pile : Deck
+    -current_direction : int
+    -current_color : string
+    -current_value : string
+    -current_player_index : int
+    -clients : List
+
+    +__init__(players, deck) : None
+    +initialize_players(number_of_cards=7) : void
+    +discard(discard_pile, new_card) : void
+    +change_direction() : void
+    +check_game_end(player) : bool
+    +determine_next_player(skip=False) : int
+    +play_card(player, card, online=False) : void
+}
+
 Player <|-- AIPlayer
-Deck <|-- NormalCardsDeck
-Deck <|-- FewerNormalMoreSpecialDeck
+Deck *-- Card
+Game ..> Player
+Game ..> Deck
+Game ..> Settings
 Card <|-- WildChanger
 WildChanger <|-- WildPickFour
 Card <|-- Skip

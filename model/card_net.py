@@ -1,4 +1,5 @@
 import json
+import abc
 
 class Card():
     
@@ -13,6 +14,10 @@ class Card():
 
     def __repr__(self):
         return f"Card('{self.color}', {self.value},{self.card_name})"
+    
+    @abc.abstractmethod
+    def perform_action(self, game, online=False):
+        pass
     
     def to_dict(self):
         return {"color": self.color, "value": self.value}
@@ -38,9 +43,11 @@ class WildChanger(Card):
         self.value = None
         self.color = color
         self.card_name = "black_wild"
+    
+    def perform_action(self, game, online=False):
+        pass
         
 class WildPickFour(WildChanger):
-        
     def __init__(self, color, value) -> None:
         super().__init__( color, value)
         self.card_name = "black_pickfour"
@@ -59,9 +66,7 @@ class WildPickFour(WildChanger):
         else:
             return victim_index
         
-
 class Skip(Card):
-        
     def perform_action(self, game, online=False):
         if not online:
             game.determine_next_player(skip=True)
